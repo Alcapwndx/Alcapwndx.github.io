@@ -1686,93 +1686,465 @@
     "mediCat": "2"
   },
   {
-    "mediName": "Test",
-    "mediPic": "Test",
-    "mediDesc": "Test",
+    "mediName": "Amineurin® 10 mg Filmtabletten",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/163228extbmp",
+    "mediDesc": ";Beschreibung: hellblaue, runde, bikonvexe Filmtabletten ;Maße: Form: Rund Durchmesser: 6,1 mm Höhe: 3,7 mm Gewicht: 114 mg ;Farbe: Blau ;Teilbarkeit: Nicht teilbar  Mörserbar  Sondenapplikation möglich  Sondendurchmesser: 6,5 Charrière  ;Hinweise: Gastralsonde, Duodenalsonde, Jejunalsonde und PEG-Sonde möglich. Spülen der Sonde erforderlich: vorher und nachher mit je 10 ml. Sondenapplikation möglich Folgende Bedingungen sind zugrunde liegend: • Orales Arzneimittel • Gabe über Magensonde (Gabe in Dünndarm siehe jeweils Sondeninformationsbogen) • Sondendurchmesser mindestens 6,5 Charrière • Verdünnen/Suspendieren in 10-20 ml Wasser ausreichend • Gabe unmittelbar nach Zubereitung der Suspension/Verdünnung Weitere Informationen: Siehe Sondeninformationsbogen  ;Applikation: Filmtablette orale Anwendung",
     "mediCat": "2"
+  },
+  {
+    "mediName": "Amineurin® 25 mg Filmtabletten",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/163230extbmp",
+    "mediDesc": ";Beschreibung: hellrote, runde, bikonvexe Filmtabletten mit einseitiger Bruchkerbe ;Maße: Form: Rund Durchmesser: 7,1 mm Höhe: 2,8 mm Gewicht: 135 mg ;Prägung: Vorne: |  ;Farbe: Rosa ;Teilbarkeit: Teilbar in 2 Teile  Teilbar in gleiche Teile  Kerbe: Bruchkerbe  Mörserbar  Sondenapplikation möglich  Sondendurchmesser: 6,5 Charrière  ;Hinweise: Gastralsonde, Duodenalsonde, Jejunalsonde und PEG-Sonde möglich. Spülen der Sonde erforderlich: vorher und nachher mit je 10 ml. Sondenapplikation möglich Folgende Bedingungen sind zugrunde liegend: • Orales Arzneimittel • Gabe über Magensonde (Gabe in Dünndarm siehe jeweils Sondeninformationsbogen) • Sondendurchmesser mindestens 6,5 Charrière • Verdünnen/Suspendieren in 10-20 ml Wasser ausreichend • Gabe unmittelbar nach Zubereitung der Suspension/Verdünnung Weitere Informationen: Siehe Sondeninformationsbogen  ;Applikation: Filmtablette orale Anwendung ",
+    "mediCat": "2"
+  },
+  {
+    "mediName": "Amineurin® 50 mg Filmtabletten",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/152231extbmp",
+    "mediDesc": ";Beschreibung: orangefarbene, runde, bikonvexe Filmtabletten mit einseitiger Bruchkerbe ;Maße: Form: Rund Durchmesser: 9,1 mm Höhe: 3,9 mm Gewicht: 257 mg ;Prägung: Vorne: |  ;Farbe: Apricot/Terracotta ;Teilbarkeit: Teilbar in 2 Teile  Teilbar in gleiche Teile  Kerbe: Bruchkerbe  Mörserbar  Sondenapplikation möglich  Sondendurchmesser: 6,5 Charrière  ;Hinweise: Gastralsonde, Duodenalsonde, Jejunalsonde und PEG-Sonde möglich. Spülen der Sonde erforderlich: vorher und nachher mit je 10 ml. Sondenapplikation möglich Folgende Bedingungen sind zugrunde liegend: • Orales Arzneimittel • Gabe über Magensonde (Gabe in Dünndarm siehe jeweils Sondeninformationsbogen) • Sondendurchmesser mindestens 6,5 Charrière • Verdünnen/Suspendieren in 10-20 ml Wasser ausreichend • Gabe unmittelbar nach Zubereitung der Suspension/Verdünnung Weitere Informationen: Siehe Sondeninformationsbogen  ;Applikation: Filmtablette orale Anwendung",
+    "mediCat": "2"
+  },
+  {
+    "mediName": "Amineurin® 100 mg retard Retardtabletten",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/152439extbmp",
+    "mediDesc": ";Beschreibung: Hell türkisfarbene, längliche, bikonvexe Retardtablette mit beidseitiger Dreifach-bruchkerbe. ;Maße: Form: Oblong Länge: 16,1 mm Breite: 5,1 mm Gewicht: 327 mg ;Prägung: Vorne: | | |  Hinten: | | |  ;Farbe: Grün ;Teilbarkeit: Teilbar in 2 und 4 Teile  Teilbar in gleiche Teile  Kerbe: Bruchkerbe  Nicht mörserbar  Keine Sondenapplikation möglich  ;Hinweise: Sondenapplikation nicht möglich Die Einstufung „nicht sondengängig“ resultiert aus Ergebnissen durchgeführter In-vitro-Prüfungen, oder die ;Applikation: des Arzneimittels über Sonde wird nicht als sinnvoll erachtet.  ;Applikation: Retardtablette orale Anwendung",
+    "mediCat": "2"
+  },
+  {
+    "mediName": "Amioxid-neuraxpharm® 30 mg Tbl.",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/284782extbmp",
+    "mediDesc": ";Beschreibung: Runde, weiße Tablette mit beidseitiger Bruchkerbe und ;Prägung: 30. ;Maße: Form: Rund Durchmesser: 9,1 mm Höhe: 2,9 mm Gewicht: 227 mg ;Prägung: Vorne: |  Hinten: 3 | 0  ;Farbe: Weiß ;Teilbarkeit: Teilbar in 2 Teile  Teilbar in gleiche Teile  Kerbe: Bruchkerbe  Mörserbar  Sondenapplikation möglich  ;Applikation: Tablette orale Anwendung",
+    "mediCat": "2"
+  },
+  {
+    "mediName": "Amioxid-neuraxpharm® 60 mg Tbl.",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/284792extbmp",
+    "mediDesc": ";Beschreibung: Längliche, weiße Tablette mit einseitiger Bruchkerbe. ;Maße: Form: Oblong Länge: 14,1 mm Breite: 7,1 mm Gewicht: 350 mg ;Prägung: Vorne: |  ;Farbe: Weiß ;Teilbarkeit: Teilbar in 2 Teile  Teilbar in gleiche Teile  Kerbe: Bruchkerbe  Mörserbar  Sondenapplikation möglich  ;Applikation: Tablette orale Anwendung",
+    "mediCat": "2"
+  },
+  {
+    "mediName": "Amioxid-neuraxpharm® 90 mg Tbl.",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/284784extbmp",
+    "mediDesc": ";Beschreibung: Längliche, weiße Tablette mit zwei beidseitigen Bruchkerben. ;Maße: Form: Oblong Länge: 19,1 mm Breite: 6,6 mm Gewicht: 518 mg ;Prägung: Vorne: | |  Hinten: | |  ;Farbe: Weiß ;Teilbarkeit: Teilbar in 3 Teile  Teilbar in gleiche Teile  Kerbe: Bruchkerbe  Mörserbar  Sondenapplikation möglich  ;Applikation: Tablette orale Anwendung",
+    "mediCat": "2"
+  },
+  {
+    "mediName": "Amioxid-neuraxpharm® 120 mg Tbl.",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/284794extbmp",
+    "mediDesc": ";Beschreibung: Längliche, weiße Tablette mit drei beidseitigen Bruchkerben. ;Maße: Form: Oblong Länge: 19,2 mm Breite: 8,1 mm Gewicht: 672 mg ;Prägung: Vorne: | | |  Hinten: | | |  ;Farbe: Weiß ;Teilbarkeit: Teilbar in 2 und 4 Teile  Teilbar in gleiche Teile  Kerbe: Bruchkerbe  Mörserbar  Sondenapplikation möglich  ;Applikation: Tablette orale AnwendungBeschreibung Längliche, weiße Tablette mit drei beidseitigen Bruchkerben. ;Maße: Form: Oblong Länge: 19,2 mm Breite: 8,1 mm Gewicht: 672 mg ;Prägung: Vorne: | | |  Hinten: | | |  ;Farbe: Weiß ;Teilbarkeit: Teilbar in 2 und 4 Teile  Teilbar in gleiche Teile  Kerbe: Bruchkerbe  Mörserbar  Sondenapplikation möglich  ;Applikation: Tablette orale Anwendung",
+    "mediCat": "2"
+  },
+  {
+    "mediName": "Amitriptylin-neuraxpharm® 25 mg überzogene Tabletten",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/284766extbmp",
+    "mediDesc": ";Beschreibung: Runde, hellrote Dragées (überzogene Tabletten) ;Maße: Form: Rund Durchmesser: 7,1 mm Höhe: 4,5 mm Gewicht: 164 mg ;Farbe: Rosa ;Teilbarkeit: Nicht teilbar  Mörserbar  Sondenapplikation möglich  ;Applikation: Tablette, überzog. orale Anwendung",
+    "mediCat": "2"
+  },
+  {
+    "mediName": "Amitriptylin-neuraxpharm® 75 mg Filmtabletten",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/284796extbmp",
+    "mediDesc": ";Beschreibung: Gelb-braune, längliche Filmtabletten mit zwei umlaufenden Bruchkerben. ;Maße: Form: Oblong Länge: 13,2 mm Breite: 4,1 mm Gewicht: 233 mg ;Prägung: Vorne: | |  Hinten: | |  ;Farbe: Beige ;Teilbarkeit: Teilbar in 3 Teile  Teilbar in gleiche Teile  Kerbe: Bruchkerbe  Mörserbar  Sondenapplikation möglich  ;Applikation: Filmtablette orale Anwendung",
+    "mediCat": "2"
+  },
+  {
+    "mediName": "Amitriptylin-neuraxpharm® 100 mg Filmtabletten",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/284742extbmp",
+    "mediDesc": ";Beschreibung: Gelb-braune, runde Filmtabletten mit einseitiger Kreuzbruchkerbe. ;Maße: Form: Rund Durchmesser: 10,2 mm Höhe: 3,9 mm Gewicht: 312 mg ;Prägung: Vorne: +  ;Farbe: Beige ;Teilbarkeit: Teilbar in 2 und 4 Teile  Teilbar in gleiche Teile  Kerbe: Bruchkerbe  Mörserbar  Sondenapplikation möglich  ;Applikation: Filmtablette orale Anwendung",
+    "mediCat": "2"
+  },
+  {
+    "mediName": "Amitriptylin-neuraxpharm® Lösung zum Einnehmen",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/284627extbmp",
+    "mediDesc": ";Maße: Form: Sonderform Länge: 89,4 mm Breite: 32,4 mm ;Farbe: Rotbraun/Braun ;Applikation: Lösung zum Einnehmen orale Anwendung",
+    "mediCat": "2"
+  },
+  {
+    "mediName": "Dexamethason 0,5 mg GALEN®, Tabletten",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/163132extbmp",
+    "mediDesc": ";Maße: Form: Rund Durchmesser: 8 mm Höhe: 3,1 mm Gewicht: 200 mg ;Prägung: Vorne: |  ;Farbe: Weiß ;Teilbarkeit: Teilbar in 2 Teile  Teilbar in gleiche Teile  Kerbe: Bruchkerbe  Mörserbar  Suspendierbar  Nicht wasserlöslich  ;Applikation: Tablette orale Anwendung",
+    "mediCat": "3"
+  },
+  {
+    "mediName": "Dexamethason 1,5 mg GALEN®, Tabletten",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/152543extbmp",
+    "mediDesc": ";Maße: Form: Rund Durchmesser: 8 mm Höhe: 3,1 mm Gewicht: 200 mg ;Prägung: Vorne: |  ;Farbe: Weiß ;Teilbarkeit: Teilbar in 2 Teile  Teilbar in gleiche Teile  Kerbe: Bruchkerbe  Mörserbar  Suspendierbar  Nicht wasserlöslich  ;Applikation: Tablette orale Anwendung",
+    "mediCat": "3"
+  },
+  {
+    "mediName": "Dexamethason 4 mg GALEN®, Tabletten",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/152939extbmp",
+    "mediDesc": ";Maße: Form: Rund Durchmesser: 8 mm Höhe: 3,1 mm Gewicht: 200 mg ;Prägung: Vorne: |  ;Farbe: Weiß ;Teilbarkeit: Teilbar in 2 Teile  Teilbar in gleiche Teile  Kerbe: Bruchkerbe  Mörserbar  Suspendierbar  Nicht wasserlöslich  ;Applikation: Tablette orale Anwendung",
+    "mediCat": "3"
+  },
+  {
+    "mediName": "Dexamethason 8 mg GALEN®, Tabletten",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/154522extbmp",
+    "mediDesc": ";Maße: Form: Rund Durchmesser: 8 mm Höhe: 3,1 mm Gewicht: 200 mg ;Prägung: Vorne: |  ;Farbe: Weiß ;Teilbarkeit: Teilbar in 2 Teile  Teilbar in gleiche Teile  Kerbe: Bruchkerbe  Mörserbar  Suspendierbar  Nicht wasserlöslich  ;Applikation: Tablette orale Anwendung",
+    "mediCat": "3"
+  },
+  {
+    "mediName": "Dexamethason-ratiopharm® 4 mg Tabletten",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/156757extbmp",
+    "mediDesc": ";Beschreibung: Gelblich-weiße, runde Tablette mit einseitiger Kreuzbruchkerbe ;Maße: Form: Rund Durchmesser: 7,1 mm Höhe: 2,9 mm Gewicht: 103 mg ;Prägung: Vorne: +  ;Farbe: Weiß ;Teilbarkeit: Teilbar in 2 und 4 Teile  Teilbar in gleiche Teile  Kerbe: Kreuzbruchkerbe  Mörserbar  Suspendierbar  ;Applikation: Tablette orale Anwendung",
+    "mediCat": "3"
+  },
+  {
+    "mediName": "Dexamethason-ratiopharm® 8 mg Tabletten",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/156759extbmp",
+    "mediDesc": ";Beschreibung: Gelblich-weiße, runde Tablette mit einseitiger Bruchkerbe ;Maße: Form: Rund Durchmesser: 9,1 mm Höhe: 3,6 mm Gewicht: 203 mg ;Prägung: Vorne: |  ;Farbe: Weiß ;Teilbarkeit: Teilbar in 2 Teile  Teilbar in gleiche Teile  Kerbe: Bruchkerbe  Mörserbar  Suspendierbar  ;Applikation: Tablette orale Anwendung",
+    "mediCat": "3"
+  },
+  {
+    "mediName": "Dexamethason TAD® 0,5 mg Tabletten",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/325102extbmp",
+    "mediDesc": ";Beschreibung: Weiße oder fast weiße, runde Tabletten mit abgeschrägten Kanten; Durchmesser: 4,8-5,2 mm, Dicke: 1,4-2,2 mm. ;Maße: Form: Rund Durchmesser: 5,1 mm Höhe: 2,1 mm Gewicht: 50 mg ;Farbe: Weiß ;Teilbarkeit: Nicht teilbar  ;Applikation: Tablette orale Anwendung",
+    "mediCat": "3"
+  },
+  {
+    "mediName": "Dexamethason® TAD 4 mg Tabletten",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/325068extbmp",
+    "mediDesc": ";Beschreibung: Weiße oder fast weiße, runde Tabletten mit abgeschrägten Kanten und einer Bruchrille auf einer Seite (Dicke: 2,5-3,5 mm; Durchmesser: 5,7-6,3 mm). ;Maße: Form: Rund Durchmesser: 6 mm Höhe: 3,1 mm Gewicht: 99 mg ;Prägung: Vorne: |  ;Farbe: Weiß ;Teilbarkeit: Teilbar  Teilbar in gleiche Teile  Kerbe: Bruchkerbe  ;Applikation: Tablette orale Anwendung",
+    "mediCat": "3"
+  },
+  {
+    "mediName": "Dexamethason® TAD 8 mg Tabletten",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/325070extbmp",
+    "mediDesc": ";Beschreibung: Weiße oder fast weiße, ovale Tabletten, mit einer Bruchrille auf einer Seite (Dicke: 3,5-5,5 mm; Länge: 8,7-9,3 mm). ;Maße: Form: Oval Länge: 9,1 mm Breite: 6,1 mm Gewicht: 198 mg ;Prägung: Vorne: |  ;Farbe: Weiß ;Teilbarkeit: Teilbar  Teilbar in gleiche Teile  Kerbe: Bruchkerbe  ;Applikation: Tablette orale Anwendung",
+    "mediCat": "3"
+  },
+  {
+    "mediName": "Dexamethason TAD® 20 mg Tabletten",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/325064extbmp",
+    "mediDesc": ";Beschreibung: Weiße oder fast weiße, runde Tabletten mit abgeschrägten Kanten, einer Bruchrille und einer gravierten 20 auf einer Seite (Dicke: 4,0-6,0 mm; Durchmesser: 10,7-11,3 mm). ;Maße: Form: Rund Durchmesser: 11,1 mm Höhe: 4,8 mm Gewicht: 498 mg ;Prägung: Vorne: 2 | 0  ;Farbe: Weiß ;Teilbarkeit: Teilbar  Teilbar in gleiche Teile  Kerbe: Bruchkerbe  ;Applikation: Tablette orale Anwendung",
+    "mediCat": "3"
+  },
+  {
+    "mediName": "Dexamethason TAD® 40 mg Tabletten",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/325066extbmp",
+    "mediDesc": ";Beschreibung: Weiße oder fast weiße, ovale Tabletten, mit je einer Bruchrille auf beiden Seiten (Dicke: 6,0-8,0 mm; Länge: 18,7-19,3 mm). ;Maße: Form: Oval Länge: 19,1 mm Breite: 9,1 mm Gewicht: 997 mg ;Prägung: Vorne: |  Hinten: |  ;Farbe: Weiß ;Teilbarkeit: Teilbar  Teilbar in gleiche Teile  Kerbe: Bruchkerbe  ;Applikation: Tablette orale Anwendung ",
+    "mediCat": "3"
+  },
+  {
+    "mediName": "Diazepam AbZ 5 mg Tabletten",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/157976extbmp",
+    "mediDesc": ";Beschreibung: Weiße, runde, gewölbte Tablette mit Bruchlinie auf der einen Seite. ;Maße: Form: Rund Durchmesser: 7,1 mm Höhe: 3,1 mm Gewicht: 112 mg ;Prägung: Vorne: |  Hinten: D  ;Farbe: Weiß ;Teilbarkeit: Teilbar in 2 Teile  Teilbar in gleiche Teile  Kerbe: Bruchkerbe  Mörserbar  Suspendierbar  ;Applikation: Tablette orale Anwendung ",
+    "mediCat": "24"
+  },
+  {
+    "mediName": "Diazepam AbZ 10 mg Tabletten",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/157968extbmp",
+    "mediDesc": ";Beschreibung: Weiße, runde, gewölbte Tablette mit Kreuzbruchkerbe auf der einen Seite. ;Maße: Form: Rund Durchmesser: 7,1 mm Höhe: 3,1 mm Gewicht: 112 mg ;Prägung: Vorne: +  Hinten: D  ;Farbe: Weiß ;Teilbarkeit: Teilbar in 2 und 4 Teile  Teilbar in gleiche Teile  Kerbe: Kreuzbruchkerbe  Mörserbar  Suspendierbar  ;Applikation: Tablette orale Anwendung",
+    "mediCat": "24"
+  },
+  {
+    "mediName": "Diazepam-ratiopharm® 2 mg Tabletten",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/163172extbmp",
+    "mediDesc": ";Beschreibung: Weiße, runde, gewölbte Tablette. ;Maße: Form: Rund Durchmesser: 7,1 mm Höhe: 3 mm Gewicht: 110 mg ;Prägung: Vorne: D  ;Farbe: Weiß ;Teilbarkeit: Nicht teilbar  Mörserbar  Suspendierbar  ;Applikation: Tablette orale Anwendung",
+    "mediCat": "24"
+  },
+  {
+    "mediName": "Diazepam-ratiopharm® 5 mg Tabletten",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/163174extbmp",
+    "mediDesc": ";Beschreibung: Weiße, runde, gewölbte Tablette mit Bruchlinie auf der einen Seite. ;Maße: Form: Rund Durchmesser: 7,2 mm Höhe: 2,9 mm Gewicht: 110 mg ;Prägung: Vorne: |  Hinten: D  ;Farbe: Weiß ;Teilbarkeit: Teilbar in 2 Teile  Teilbar in gleiche Teile  Kerbe: Bruchkerbe  Mörserbar  Suspendierbar  ;Applikation: Tablette orale Anwendung",
+    "mediCat": "24"
+  },
+  {
+    "mediName": "Diazepam-ratiopharm® 10 mg Tabletten",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/163176extbmp",
+    "mediDesc": ";Beschreibung: Weiße, runde, gewölbte Tablette mit Kreuzbruchkerbe auf der einen Seite. ;Maße: Form: Rund Durchmesser: 7,1 mm Höhe: 3,1 mm Gewicht: 110 mg ;Prägung: Vorne: +  Hinten: D  ;Farbe: Weiß ;Teilbarkeit: Teilbar in 2 und 4 Teile  Teilbar in gleiche Teile  Kerbe: Kreuzbruchkerbe  Mörserbar  Suspendierbar  ;Applikation: Tablette orale Anwendung",
+    "mediCat": "24"
+  },
+  {
+    "mediName": "Diazepam-ratiopharm® 10 mg Zäpfchen",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/163178extbmp",
+    "mediDesc": ";Maße: Form: Torpedoförmig Länge: 33,7 mm Durchmesser: 10,5 mm Gewicht: 2030 mg ;Farbe: Weiß ;Applikation: Zäpfchen rektale Anwendung",
+    "mediCat": "5"
+  },
+  {
+    "mediName": "Fluoxetin 10 - 1 A Pharma®, Tabletten",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/158014extbmp",
+    "mediDesc": ";Beschreibung: Weiße, runde, beidseitig gewölbte Tablette. ;Maße: Form: Rund Durchmesser: 6,1 mm Höhe: 2,8 mm Gewicht: 90 mg ;Farbe: Weiß ;Teilbarkeit: Nicht teilbar  ;Applikation: Tablette orale Anwendung",
+    "mediCat": "24"
+  },
+  {
+    "mediName": "Fluoxetin 20 - 1 A Pharma®, Tabletten",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/158016extbmp",
+    "mediDesc": ";Beschreibung: Weiße, runde, beidseitig gewölbte Tablette mit einseitiger Bruchkerbe. ;Maße: Form: Rund Durchmesser: 8,1 mm Höhe: 3,9 mm Gewicht: 181 mg ;Prägung: Vorne: |  ;Farbe: Weiß ;Teilbarkeit: Teilbar in 2 Teile  Teilbar in gleiche Teile  Kerbe: Bruchkerbe  ;Applikation: Tablette orale Anwendung",
+    "mediCat": "24"
+  },
+  {
+    "mediName": "Fluoxetin 40 - 1 A Pharma®, Tabletten",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/158018extbmp",
+    "mediDesc": ";Beschreibung: Weiße, runde, beidseitig gewölbte Tablette mit Kreuzbruchkerbe. ;Maße: Form: Rund Durchmesser: 10,1 mm Höhe: 4,3 mm Gewicht: 358 mg ;Prägung: Vorne: +  ;Farbe: Weiß ;Teilbarkeit: Teilbar in 2 und 4 Teile  Teilbar in gleiche Teile  Kerbe: Kreuzbruchkerbe  ;Applikation: Tablette orale AnwendungBeschreibung Weiße, runde, beidseitig gewölbte Tablette mit Kreuzbruchkerbe. ;Maße: Form: Rund Durchmesser: 10,1 mm Höhe: 4,3 mm Gewicht: 358 mg ;Prägung: Vorne: +  ;Farbe: Weiß ;Teilbarkeit: Teilbar in 2 und 4 Teile  Teilbar in gleiche Teile  Kerbe: Kreuzbruchkerbe  ;Applikation: Tablette orale Anwendung",
+    "mediCat": "24"
+  },
+  {
+    "mediName": "Fluoxetin AbZ 20 mg Hartkapseln",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/157498extbmp",
+    "mediDesc": ";Beschreibung: Hellgrüne Hartkapsel ;Maße: Form: Oblong Länge: 15,8 mm Durchmesser: 5,6 mm Gewicht: 232 mg ;Farbe: Grün ;Teilbarkeit: Nicht teilbar  Nicht mörserbar  Suspendierbar  Kapsel darf geöffnet werden  ;Applikation: Hartkapsel orale Anwendung",
+    "mediCat": "24"
+  },
+  {
+    "mediName": "Fluoxetin beta 20, 20 mg, Hartkapseln",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/227709extbmp",
+    "mediDesc": ";Beschreibung: Hellgrüne Hartgelatinekapsel (Größe 3), gefüllt mit weißem Pulver ;Maße: Form: Oblong Länge: 15,7 mm Durchmesser: 5,7 mm ;Farbe: Grün ;Applikation: Hartkapsel orale Anwendung",
+    "mediCat": "24"
+  },
+  {
+    "mediName": "Fluoxetin beta 20, 20 mg, Tabletten",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/227765extbmp",
+    "mediDesc": ";Beschreibung: Weiße runde bikonvexe Tablette mit einseitiger Bruchkerbe. ;Maße: Form: Rund Durchmesser: 8,1 mm Höhe: 3,9 mm ;Prägung: Vorne: |  ;Farbe: Weiß ;Teilbarkeit: Teilbar in 2 Teile  Teilbar in gleiche Teile  Kerbe: Bruchkerbe  ;Applikation: Tablette orale Anwendung",
+    "mediCat": "24"
+  },
+  {
+    "mediName": "Fluoxetin beta 40, 40 mg, Tabletten",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/227767extbmp",
+    "mediDesc": ";Beschreibung: Weiße runde bikonvexe Tablette mit Kreuzbruchkerbe. ;Maße: Form: Rund Durchmesser: 10,1 mm Höhe: 4,2 mm ;Prägung: Vorne: +  ;Farbe: Weiß ;Teilbarkeit: Teilbar in 4 Teile  Teilbar in gleiche Teile  Kerbe: Kreuzbruchkerbe  ;Applikation: Tablette orale Anwendung",
+    "mediCat": "24"
+  },
+  {
+    "mediName": "Fluoxetin HEXAL® 10 mg Tabletten",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/157634extbmp",
+    "mediDesc": ";Beschreibung: Weiße, runde, beidseitig gewölbte Tablette ;Maße: Form: Rund Durchmesser: 6,1 mm Höhe: 2,8 mm Gewicht: 90 mg ;Farbe: Weiß ;Teilbarkeit: Nicht teilbar  Mörserbar  Sondenapplikation möglich  Sondendurchmesser: 6,5 Charrière  ;Hinweise: Gastralsonde möglich. Spülen der Sonde erforderlich: vorher und nachher mit je 15-30 ml Sondenapplikation möglich Folgende Bedingungen sind zugrunde liegend: • Orales Arzneimittel • Gabe über Magensonde (Gabe in Dünndarm siehe jeweils Sondeninformationsbogen) • Sondendurchmesser mindestens 6,5 Charrière • Verdünnen/Suspendieren in 10-20 ml Wasser ausreichend • Gabe unmittelbar nach Zubereitung der Suspension/Verdünnung Weitere Informationen: Siehe Sondeninformationsbogen  ;Applikation: Tablette orale Anwendung",
+    "mediCat": "24"
+  },
+  {
+    "mediName": "Fluoxetin HEXAL® 20 mg Tabletten",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/157636extbmp",
+    "mediDesc": ";Beschreibung: Weiße, runde, beidseitig gewölbte Tablette mit einseitiger Bruchkerbe ;Maße: Form: Rund Durchmesser: 8,1 mm Höhe: 3,9 mm Gewicht: 180 mg ;Prägung: Vorne: |  ;Farbe: Weiß ;Teilbarkeit: Teilbar in 2 Teile  Teilbar in gleiche Teile  Kerbe: Bruchkerbe  Mörserbar  Sondenapplikation möglich  Sondendurchmesser: 6,5 Charrière  ;Hinweise: Gastralsonde möglich. Spülen der Sonde erforderlich: vorher und nachher mit je 15-30 ml Sondenapplikation möglich Folgende Bedingungen sind zugrunde liegend: • Orales Arzneimittel • Gabe über Magensonde (Gabe in Dünndarm siehe jeweils Sondeninformationsbogen) • Sondendurchmesser mindestens 6,5 Charrière • Verdünnen/Suspendieren in 10-20 ml Wasser ausreichend • Gabe unmittelbar nach Zubereitung der Suspension/Verdünnung Weitere Informationen: Siehe Sondeninformationsbogen  ;Applikation: Tablette orale Anwendung",
+    "mediCat": "24"
+  },
+  {
+    "mediName": "Fluoxetin HEXAL® 40 mg Tabletten",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/157638extbmp",
+    "mediDesc": ";Beschreibung: Weiße, runde, beidseitig gewölbte Tablette mit Kreuzbruchkerbe ;Maße: Form: Rund Durchmesser: 10 mm Höhe: 4,3 mm Gewicht: 360 mg ;Prägung: Vorne: +  ;Farbe: Weiß ;Teilbarkeit: Teilbar in 2 und 4 Teile  Teilbar in gleiche Teile  Kerbe: Kreuzbruchkerbe  Mörserbar  Sondenapplikation möglich  Sondendurchmesser: 6,5 Charrière  ;Hinweise: Gastralsonde möglich. Spülen der Sonde erforderlich: vorher und nachher mit je 15-30 ml Sondenapplikation möglich Folgende Bedingungen sind zugrunde liegend: • Orales Arzneimittel • Gabe über Magensonde (Gabe in Dünndarm siehe jeweils Sondeninformationsbogen) • Sondendurchmesser mindestens 6,5 Charrière • Verdünnen/Suspendieren in 10-20 ml Wasser ausreichend • Gabe unmittelbar nach Zubereitung der Suspension/Verdünnung Weitere Informationen: Siehe Sondeninformationsbogen  ;Applikation: Tablette orale Anwendung",
+    "mediCat": "24"
+  },
+  {
+    "mediName": "Fluoxetin-neuraxpharm® 20 mg T, Tbl.",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/284820extbmp",
+    "mediDesc": ";Beschreibung: Runde, weiße Tabletten mit einseitiger Bruchkerbe ;Maße: Form: Rund Durchmesser: 10,6 mm Höhe: 3,8 mm Gewicht: 302 mg ;Prägung: Vorne: |  ;Farbe: Weiß ;Teilbarkeit: Teilbar in 2 Teile  Teilbar in gleiche Teile  Kerbe: Bruchkerbe  Mörserbar  Sondenapplikation möglich  ;Applikation: Tablette orale Anwendung",
+    "mediCat": "24"
+  },
+  {
+    "mediName": "Fluoxetin-neuraxpharm® 20 mg, Hartkapseln",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/284790extbmp",
+    "mediDesc": ";Beschreibung: Grün-violette Hartkapseln ;Maße: Form: Oblong Länge: 15,8 mm Durchmesser: 5,7 mm Gewicht: 234 mg ;Farbe: GrünPink/Violett ;Teilbarkeit: Nicht teilbar  Kapsel darf geöffnet werden  Sondenapplikation möglich  ;Applikation: Hartkapsel orale Anwendung",
+    "mediCat": "24"
+  },
+  {
+    "mediName": "Fluoxetin-neuraxpharm® 40 mg, Filmtbl.",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/284856extbmp",
+    "mediDesc": ";Maße: Form: Oblong Länge: 19,2 mm Breite: 8,1 mm Gewicht: 613 mg ;Prägung: Vorne: | | |  Hinten: | | |  ;Farbe: Weiß ;Teilbarkeit: Teilbar in 2 und 4 Teile  Teilbar in gleiche Teile  Kerbe: Bruchkerbe  Mörserbar  Sondenapplikation möglich  ;Applikation: Filmtablette orale Anwendung",
+    "mediCat": "24"
+  },
+  {
+    "mediName": "Fluoxetin-ratiopharm® 20 mg Hartkapseln",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/152973extbmp",
+    "mediDesc": ";Beschreibung: Hellgrüne Hartkapsel ;Maße: Form: Oblong Länge: 16 mm Durchmesser: 5,8 mm Gewicht: 235 mg ;Farbe: Grün ;Teilbarkeit: Nicht teilbar  Nicht mörserbar  Suspendierbar  ;Hinweise: Kapselinhalt: Pulver  ;Applikation: Hartkapsel orale Anwendung",
+    "mediCat": "24"
+  },
+  {
+    "mediName": "Fluoxetin-ratiopharm® 20 mg Tabletten",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/155095extbmp",
+    "mediDesc": ";Beschreibung: Weiße, runde Tablette mit einer Bruchrille und einem Durchmesser von 10,5 mm. ;Maße: Form: Rund Durchmesser: 10,6 mm Höhe: 3,8 mm Gewicht: 300 mg ;Prägung: Vorne: |  ;Farbe: Weiß ;Teilbarkeit: Teilbar in 2 Teile  Teilbar in gleiche Teile  Kerbe: Bruchkerbe  Mörserbar  Suspendierbar  ;Applikation: Tablette orale Anwendung",
+    "mediCat": "24"
+  },
+  {
+    "mediName": "MCP - 1 A Pharma® 10 mg Tabletten",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/162898extbmp",
+    "mediDesc": ";Beschreibung: Weiße, bikonvexe, runde Tablette mit einseitiger Bruchkerbe. ;Maße: Form: Rund Durchmesser: 7,1 mm Höhe: 2,5 mm Gewicht: 130 mg ;Prägung: Vorne: |  ;Farbe: Weiß ;Teilbarkeit: Teilbar in 2 Teile  Teilbar in gleiche Teile  Kerbe: Bruchkerbe  ;Applikation: Tablette orale Anwendung",
+    "mediCat": "17"
+  },
+  {
+    "mediName": "MCP HEXAL® 10 mg, Tabletten",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/163264extbmp",
+    "mediDesc": ";Beschreibung: Weiße, runde Tablette mit einseitiger Bruchkerbe ;Maße: Form: Rund Durchmesser: 7,1 mm Höhe: 2,8 mm Gewicht: 130 mg ;Prägung: Vorne: |  ;Farbe: Weiß ;Teilbarkeit: Teilbar in 2 Teile  Teilbar in gleiche Teile  Kerbe: Bruchkerbe  Mörserbar  Suspendierbar  Sondenapplikation möglich  Sondendurchmesser: 6,5 Charrière  ;Hinweise: Gastralsonde, PEG-Sonde, Duodenalsonde, Jejunalsonde möglich. Spülen der Sonde erforderlich: vorher und nachher mit je 10 ml Sondenapplikation möglich Folgende Bedingungen sind zugrunde liegend: • Orales Arzneimittel • Gabe über Magensonde (Gabe in Dünndarm siehe jeweils Sondeninformationsbogen) • Sondendurchmesser mindestens 6,5 Charrière • Verdünnen/Suspendieren in 10-20 ml Wasser ausreichend • Gabe unmittelbar nach Zubereitung der Suspension/Verdünnung Weitere Informationen: Siehe Sondeninformationsbogen  ;Applikation: Tablette orale Anwendung",
+    "mediCat": "17"
+  },
+  {
+    "mediName": "MCP-ratiopharm® 10 mg Tabletten",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/153644extbmp",
+    "mediDesc": ";Beschreibung: Weiße, runde bikonvexe Tablette mit der ;Prägung: MCP auf der einen Seite und einer Bruchkerbe auf der anderen. ;Maße: Form: Rund Durchmesser: 7,1 mm Höhe: 3,2 mm Gewicht: 106 mg ;Prägung: Vorne: |  Hinten: MCP  ;Farbe: Weiß ;Teilbarkeit: Teilbar in 2 Teile  Teilbar in gleiche Teile  Kerbe: Bruchkerbe  Mörserbar  Suspendierbar  ;Applikation: Tablette orale AnwendungBeschreibung Weiße, runde bikonvexe Tablette mit der ;Prägung: MCP auf der einen Seite und einer Bruchkerbe auf der anderen. ;Maße: Form: Rund Durchmesser: 7,1 mm Höhe: 3,2 mm Gewicht: 106 mg ;Prägung: Vorne: |  Hinten: MCP  ;Farbe: Weiß ;Teilbarkeit: Teilbar in 2 Teile  Teilbar in gleiche Teile  Kerbe: Bruchkerbe  Mörserbar  Suspendierbar  ;Applikation: Tablette orale Anwendung",
+    "mediCat": "17"
+  },
+  {
+    "mediName": "Lopedium® 2 mg Hartkapseln",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/157336extbmp",
+    "mediDesc": ";Beschreibung: Hartkapseln mit grauem Kapselunterteil und grüner Kappe ;Maße: Form: Oblong Länge: 15,9 mm Durchmesser: 5,8 mm Gewicht: 228 mg ;Farbe: GrünGrau ;Teilbarkeit: Nicht teilbar  Sondenapplikation möglich  ;Hinweise: Sondenapplikation bedingt möglich Die Sondengabe ist unter bestimmten Bedingungen möglich. Sondeninformationsbogen beachten!  ;Applikation: Hartkapsel orale Anwendung",
+    "mediCat": "17"
+  },
+  {
+    "mediName": "Lopedium® akut bei akutem Durchfall, 2 mg Hartkapseln",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/152267extbmp",
+    "mediDesc": ";Beschreibung: Hartkapseln mit grauem Kapselunterteil und grüner Kappe ;Maße: Form: Oblong Länge: 15,9 mm Durchmesser: 5,8 mm Gewicht: 228 mg ;Farbe: GrünGrau ;Teilbarkeit: Nicht teilbar  Suspendierbar  Kapsel darf geöffnet werden  Sondenapplikation möglich  Sondendurchmesser: 6,5 Charrière  ;Hinweise: Gastralsonde, PEG-Sonde, Duodenalsonde, Jejunalsonde möglich. Spülen der Sonde erforderlich: vorher und nachher mit je 10 ml Sondenapplikation bedingt möglich Die Sondengabe ist unter bestimmten Bedingungen möglich. Sondeninformationsbogen beachten!  ;Applikation: Hartkapsel orale Anwendung",
+    "mediCat": "17"
+  },
+  {
+    "mediName": "Lopedium® ISO, 2 mg Brausetabletten",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/156285extbmp",
+    "mediDesc": ";Beschreibung: Weiße, runde Brausetabletten, ohne Bruchkerbe ;Maße: Form: Rund Durchmesser: 25,1 mm Höhe: 5,8 mm Gewicht: 3950 mg ;Farbe: Weiß ;Teilbarkeit: Nicht teilbar  Wasserlöslich  ;Hinweise: Gastralsonde, PEG-Sonde, Duodenalsonde, Jejunalsonde möglich. Spülen der Sonde erforderlich: vorher und nachher mit je 10 ml Sondenapplikation bedingt möglich Die Sondengabe ist unter bestimmten Bedingungen möglich. Sondeninformationsbogen beachten!  ;Applikation: Brausetablette orale Anwendung",
+    "mediCat": "17"
+  },
+  {
+    "mediName": "Lopedium® T akut bei akutem Durchfall, 2 mg Tabletten",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/156609extbmp",
+    "mediDesc": ";Beschreibung: Weiße, runde Snap-Tab-Tabletten mit einseitiger Kerbe ;Maße: Form: Rund Durchmesser: 7,1 mm Höhe: 3,1 mm Gewicht: 150 mg ;Prägung: Vorne: |  ;Farbe: Weiß ;Teilbarkeit: Nicht teilbar  Mörserbar  Sondenapplikation möglich  ;Hinweise: Sondenapplikation möglich Folgende Bedingungen sind zugrunde liegend: • Orales Arzneimittel • Gabe über Magensonde (Gabe in Dünndarm siehe jeweils Sondeninformationsbogen) • Sondendurchmesser mindestens 6,5 Charrière • Verdünnen/Suspendieren in 10-20 ml Wasser ausreichend • Gabe unmittelbar nach Zubereitung der Suspension/Verdünnung Weitere Informationen: Siehe Sondeninformationsbogen  ;Applikation: Tablette orale Anwendung",
+    "mediCat": "17"
+  },
+  {
+    "mediName": "Lopedium® T, 2 mg Tabletten",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/152031extbmp",
+    "mediDesc": ";Beschreibung: Weiße, runde Snap-Tab-Tabletten mit einseitiger Kerbe ;Maße: Form: Rund Durchmesser: 7,1 mm Höhe: 3,1 mm Gewicht: 150 mg ;Prägung: Vorne: |  ;Farbe: Weiß ;Teilbarkeit: Nicht teilbar  Mörserbar  Sondenapplikation möglich  ;Hinweise: Gastralsonde, PEG-Sonde, Duodenalsonde, Jejunalsonde möglich. Spülen der Sonde erforderlich: vorher und nachher mit je 10 ml Sondenapplikation möglich Folgende Bedingungen sind zugrunde liegend: • Orales Arzneimittel • Gabe über Magensonde (Gabe in Dünndarm siehe jeweils Sondeninformationsbogen) • Sondendurchmesser mindestens 6,5 Charrière • Verdünnen/Suspendieren in 10-20 ml Wasser ausreichend • Gabe unmittelbar nach Zubereitung der Suspension/Verdünnung Weitere Informationen: Siehe Sondeninformationsbogen  ;Applikation: Tablette orale Anwendung",
+    "mediCat": "17"
+  },
+  {
+    "mediName": "Loperamid - 1 A Pharma®, 2 mg Hartkapseln",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/153245extbmp",
+    "mediDesc": ";Beschreibung: Kapseloberteil: dunkelgrün opak Kapselunterteil: grau opak ;Maße: Form: Oblong Länge: 15,9 mm Durchmesser: 5,7 mm Gewicht: 228 mg ;Farbe: GrünGrau ;Teilbarkeit: Nicht teilbar  ;Applikation: Hartkapsel orale Anwendung",
+    "mediCat": "17"
+  },
+  {
+    "mediName": "Loperamid AbZ akut 2 mg Hartkapseln",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/313720extbmp",
+    "mediDesc": ";Beschreibung: Hartkapseln mit grünem Oberteil und grauem Unterteil. ;Maße: Form: Oblong Länge: 13,9 mm Durchmesser: 5 mm Gewicht: 193 mg ;Farbe: GrünGrau ;Teilbarkeit: Nicht teilbar  Nicht mörserbar  Suspendierbar  ;Applikation: Hartkapsel orale Anwendung",
+    "mediCat": "17"
+  },
+  {
+    "mediName": "Loperamid akut - 1 A Pharma®, 2 mg Hartkapseln",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/155745extbmp",
+    "mediDesc": ";Beschreibung: Hartkapseln mit grauem Kapselunterteil und grüner Kappe ;Maße: Form: Oblong Länge: 15,9 mm Durchmesser: 5,7 mm Gewicht: 228 mg ;Farbe: GrünGrau ;Teilbarkeit: Nicht teilbar  ;Applikation: Hartkapsel orale Anwendung",
+    "mediCat": "17"
+  },
+  {
+    "mediName": "Loperamid akut Aristo® 2 mg Tabletten",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/160614extbmp",
+    "mediDesc": ";Beschreibung: Weiße, ovale Tablette mit einer Bruchkerbe ;Maße: Form: Oblong Länge: 10,1 mm Breite: 5,1 mm Gewicht: 122 mg ;Prägung: Vorne: |  Hinten: |  ;Farbe: Weiß ;Teilbarkeit: Teilbar in 2 Teile  Teilbar zum erleichterten Schlucken  Kerbe: Bruchkerbe  ;Applikation: Tablette orale Anwendung",
+    "mediCat": "17"
+  },
+  {
+    "mediName": "Loperamid Aristo® 2 mg Tabletten",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/160612extbmp",
+    "mediDesc": ";Beschreibung: Weiße, ovale Tablette mit einer Bruchkerbe. ;Maße: Form: Oblong Länge: 10,1 mm Breite: 5,1 mm Gewicht: 122 mg ;Prägung: Vorne: |  Hinten: |  ;Farbe: Weiß ;Teilbarkeit: Teilbar in 2 Teile  Teilbar zum erleichterten Schlucken  Kerbe: Bruchkerbe  ;Applikation: Tablette orale Anwendung",
+    "mediCat": "17"
+  },
+  {
+    "mediName": "Loperamid-ratiopharm® 2 mg Filmtabletten",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/152201extbmp",
+    "mediDesc": ";Beschreibung: Weiße, runde Filmtablette. ;Maße: Form: Rund Durchmesser: 7 mm Höhe: 3,1 mm Gewicht: 112 mg ;Prägung: Vorne: L  ;Farbe: Weiß ;Teilbarkeit: Nicht teilbar  Mörserbar  Suspendierbar  ;Applikation: Filmtablette orale Anwendung",
+    "mediCat": "17"
+  },
+  {
+    "mediName": "Loperamid-ratiopharm® akut 2 mg Filmtabletten",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/154328extbmp",
+    "mediDesc": ";Beschreibung: Weiße, runde, bikonvexe Filmtablette. ;Maße: Form: Rund Durchmesser: 7 mm Höhe: 3,1 mm Gewicht: 112 mg ;Prägung: Vorne: L  ;Farbe: Weiß ;Teilbarkeit: Nicht teilbar  Mörserbar  Suspendierbar  ;Applikation: Filmtablette orale Anwendung",
+    "mediCat": "17"
+  },
+  {
+    "mediName": "Ondansetron - 1 A Pharma® 4 mg Filmtabletten",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/157970extbmp",
+    "mediDesc": ";Beschreibung: Gelbe, ovale Filmtablette, beidseitig unbedruckt (Länge: 10,0 ± 0,3 mm, Breite: 5,5 ± 0,3 mm). ;Maße: Form: Oval Länge: 10,2 mm Breite: 5,6 mm Gewicht: 128 mg ;Prägung: Vorne: 4  Hinten: O  ;Farbe: Ockergelb ;Teilbarkeit: Nicht teilbar  ;Applikation: Filmtablette orale Anwendung",
+    "mediCat": "17"
+  },
+  {
+    "mediName": "Ondansetron - 1 A Pharma® 8 mg Filmtabletten",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/216971extbmp",
+    "mediDesc": ";Beschreibung: Gelbe, ovale Filmtabletten, beidseitig unbedruckt. ;Maße: Form: Oval Länge: 12,6 mm Breite: 6,6 mm Gewicht: 252 mg ;Farbe: Ockergelb ;Applikation: Filmtablette orale Anwendung",
+    "mediCat": "17"
+  },
+  {
+    "mediName": "Ondansetron 8 lingual - 1 A Pharma®, Schmelztbl.",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/158628extbmp",
+    "mediDesc": ";Beschreibung: Weiße, runde Tabletten. ;Maße: Form: Rund Durchmesser: 9,1 mm Höhe: 2,1 mm Gewicht: 152 mg ;Farbe: Weiß ;Teilbarkeit: Nicht teilbar  ;Applikation: Schmelztablette orale Anwendung",
+    "mediCat": "17"
+  },
+  {
+    "mediName": "Ondansetron AbZ 4 mg Filmtabletten",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/162414extbmp",
+    "mediDesc": ";Beschreibung: Gelbe, längliche Filmtablette mit der einseitigen Aufschrift 4. ;Maße: Form: Oblong Länge: 10,1 mm Breite: 4,6 mm Gewicht: 124 mg ;Prägung: Vorne: 4  ;Farbe: Beige ;Teilbarkeit: Nicht teilbar  ;Applikation: Filmtablette orale Anwendung",
+    "mediCat": "17"
+  },
+  {
+    "mediName": "Ondansetron AbZ 8 mg Filmtabletten",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/162416extbmp",
+    "mediDesc": ";Beschreibung: Gelbe, längliche Filmtablette mit der Aufschrift 8 auf einer Seite und Bruchkerbe auf der anderen Seite. ;Maße: Form: Oblong Länge: 12,6 mm Breite: 5,8 mm Gewicht: 245 mg ;Prägung: Vorne: |  Hinten: 8  ;Farbe: Beige ;Teilbarkeit: Teilbar  Teilbar zum erleichterten Schlucken  Kerbe: Bruchkerbe  ;Applikation: Filmtablette orale Anwendung",
+    "mediCat": "17"
+  },
+  {
+    "mediName": "Ondansetron Aristo® 4 mg Filmtabletten",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/162054extbmp",
+    "mediDesc": ";Beschreibung: weiße, längliche, überzogene Filmtabletten mit dem einseitigen Eindruck 4 ;Maße: Form: Oblong Länge: 8,7 mm Breite: 5,1 mm Gewicht: 142 mg ;Prägung: Vorne: 4  ;Farbe: Weiß ;Teilbarkeit: Nicht teilbar  ;Applikation: Filmtablette orale Anwendung",
+    "mediCat": "17"
+  },
+  {
+    "mediName": "Ondansetron Aristo® 8 mg Filmtabletten",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/162056extbmp",
+    "mediDesc": ";Beschreibung: weiße, längliche, überzogene Tabletten mit dem einseitigen Eindruck 8 ;Maße: Form: Oblong Länge: 12,1 mm Breite: 7,1 mm Gewicht: 281 mg ;Prägung: Vorne: 8  ;Farbe: Weiß ;Teilbarkeit: Nicht teilbar  ;Applikation: Filmtablette orale Anwendung",
+    "mediCat": "17"
+  },
+  {
+    "mediName": "Ondansetron HEXAL® 8 mg Filmtabletten",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/200037extbmp",
+    "mediDesc": ";Beschreibung: Gelbe, ovale, beidseitig unbedruckte Filmtablette ;Maße: Form: Oval Länge: 12,7 mm Breite: 6,6 mm Gewicht: 252 mg ;Farbe: Ockergelb ;Teilbarkeit: Nicht teilbar  ;Applikation: Filmtablette orale Anwendung",
+    "mediCat": "17"
+  },
+  {
+    "mediName": "Ondansetron-ratiopharm® 4 mg Filmtabletten",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/162986extbmp",
+    "mediDesc": ";Beschreibung: Gelbe, längliche Filmtablette mit einseitiger ;Prägung: 4, die andere Seite ist glatt. ;Maße: Form: Oblong Länge: 10,1 mm Breite: 4,6 mm Gewicht: 124 mg ;Prägung: Vorne: 4  ;Farbe: Beige ;Teilbarkeit: Nicht teilbar  ;Applikation: Filmtablette orale Anwendung",
+    "mediCat": "17"
+  },
+  {
+    "mediName": "Ondansetron-ratiopharm® 4 mg Schmelztabletten",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/157822extbmp",
+    "mediDesc": ";Beschreibung: Weiße runde Schmelztablette. ;Maße: Form: Rund Durchmesser: 6,5 mm Höhe: 1,8 mm Gewicht: 76 mg ;Farbe: Weiß ;Teilbarkeit: Nicht teilbar  Mörserbar  Suspendierbar  ;Applikation: Schmelztablette orale Anwendung",
+    "mediCat": "17"
+  },
+  {
+    "mediName": "Ondansetron-ratiopharm® 8 mg Filmtabletten",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/162988extbmp",
+    "mediDesc": ";Beschreibung: Gelbe, längliche Filmtablette mit einseitiger ;Prägung: 8 und Bruchkerbe auf der anderen Seite. ;Maße: Form: Oblong Länge: 12,6 mm Breite: 5,8 mm Gewicht: 248 mg ;Prägung: Vorne: |  Hinten: 8  ;Farbe: Beige ;Teilbarkeit: Teilbar in 2 Teile  Kerbe: Bruchkerbe  ;Applikation: Filmtablette orale Anwendung",
+    "mediCat": "17"
+  },
+  {
+    "mediName": "Ondansetron-ratiopharm® 8 mg Schmelztabletten",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/157824extbmp",
+    "mediDesc": ";Beschreibung: Weiße runde Schmelztablette. ;Maße: Form: Rund Durchmesser: 9,1 mm Höhe: 1,9 mm Gewicht: 151 mg ;Farbe: Weiß ;Teilbarkeit: Nicht teilbar  Mörserbar  Suspendierbar  ;Applikation: Schmelztablette orale Anwendung",
+    "mediCat": "17"
+  },
+  {
+    "mediName": "Zofran® 4 mg Filmtabletten",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/151991extbmp",
+    "mediDesc": ";Beschreibung: Gelbe, ovale, bikonvexe Filmtabletten. Auf einer Tablettenseite tragen sie die ;Prägung: GX ET3. ;Maße: Form: Oval Länge: 10,1 mm Breite: 5,6 mm Gewicht: 126 mg ;Prägung: Vorne: GXET3  ;Farbe: Ockergelb ;Teilbarkeit: Nicht teilbar  ;Applikation: Filmtablette orale Anwendung",
+    "mediCat": "17"
+  },
+  {
+    "mediName": "Zofran® 4 mg Zydis® Lingual, Schmelztablette",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/154122extbmp",
+    "mediDesc": ";Beschreibung: Weiße, runde, plano-konvexe, sich schnell auflösende Tabletten ;Maße: Form: Rund Durchmesser: 10 mm Höhe: 2,6 mm Gewicht: 13 mg ;Farbe: Weiß ;Teilbarkeit: Nicht teilbar  ;Applikation: Schmelztablette orale Anwendung",
+    "mediCat": "17"
+  },
+  {
+    "mediName": "Zofran® 8 mg Filmtabletten",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/151993extbmp",
+    "mediDesc": ";Beschreibung: Gelbe, ovale, bikonvexe Filmtabletten. Auf einer Tablettenseite tragen sie die ;Prägung: GX ET5. ;Maße: Form: Oval Länge: 12,6 mm Breite: 6,6 mm Gewicht: 251 mg ;Prägung: Vorne: GX ET5  ;Farbe: Ockergelb ;Teilbarkeit: Nicht teilbar  ;Applikation: Filmtablette orale Anwendung",
+    "mediCat": "17"
+  },
+  {
+    "mediName": "Zofran® 8 mg Zydis® Lingual, Schmelztablette",
+    "mediPic": "https://www.gelbe-liste.de/produkte-identa/154124extbmp",
+    "mediDesc": ";Beschreibung: Weiße, runde, plano-konvexe, sich schnell auflösende Tabletten ;Maße: Form: Rund Durchmesser: 12,3 mm Höhe: 3,7 mm Gewicht: 27 mg ;Farbe: Weiß ;Teilbarkeit: Nicht teilbar  ;Applikation: Schmelztablette orale Anwendung",
+    "mediCat": "17"
   },
   {
     "mediName": "Test",
     "mediPic": "Test",
     "mediDesc": "Test",
-    "mediCat": "2"
+    "mediCat": "17"
   },
   {
     "mediName": "Test",
     "mediPic": "Test",
     "mediDesc": "Test",
-    "mediCat": "2"
-  },
-  {
-    "mediName": "Test",
-    "mediPic": "Test",
-    "mediDesc": "Test",
-    "mediCat": "2"
-  },
-  {
-    "mediName": "Test",
-    "mediPic": "Test",
-    "mediDesc": "Test",
-    "mediCat": "2"
-  },
-  {
-    "mediName": "Test",
-    "mediPic": "Test",
-    "mediDesc": "Test",
-    "mediCat": "2"
-  },
-  {
-    "mediName": "Test",
-    "mediPic": "Test",
-    "mediDesc": "Test",
-    "mediCat": "2"
-  },
-  {
-    "mediName": "Test",
-    "mediPic": "Test",
-    "mediDesc": "Test",
-    "mediCat": "2"
-  },
-  {
-    "mediName": "Test",
-    "mediPic": "Test",
-    "mediDesc": "Test",
-    "mediCat": "2"
-  },
-  {
-    "mediName": "Test",
-    "mediPic": "Test",
-    "mediDesc": "Test",
-    "mediCat": "2"
-  },
-  {
-    "mediName": "Test",
-    "mediPic": "Test",
-    "mediDesc": "Test",
-    "mediCat": "2"
-  },
-  {
-    "mediName": "Test",
-    "mediPic": "Test",
-    "mediDesc": "Test",
-    "mediCat": "2"
-  },
-  {
-    "mediName": "Test",
-    "mediPic": "Test",
-    "mediDesc": "Test",
-    "mediCat": "2"
-  },
-  {
-    "mediName": "Test",
-    "mediPic": "Test",
-    "mediDesc": "Test",
-    "mediCat": "2"
-  },
-  {
-    "mediName": "Test",
-    "mediPic": "Test",
-    "mediDesc": "Test",
-    "mediCat": "2"
+    "mediCat": "17"
   }
 ]
