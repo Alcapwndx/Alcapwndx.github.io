@@ -10,7 +10,7 @@
 	"konthe": "Physiotherapie zur Verbesserung der Motorik und Vermeidung von Kontrakturen;Ergotherapie zur Erhaltung der Selbstständigkeit im Alltag;Logopädie bei Schluckstörungen und Sprachproblemen",
 	"medthe": "Levodopa/Carbidopa:;;Wirkweise: Levodopa wird im Gehirn zu Dopamin umgewandelt und kompensiert somit den Dopaminmangel. Carbidopa verhindert die Umwandlung von Levodopa außerhalb des Gehirns.;Nebenwirkungen: Übelkeit, Dyskinesien, orthostatische Hypotonie, Halluzinationen.;;;Dopaminagonisten (z. B. Pramipexol):;;Wirkweise: Direkte Stimulation der Dopaminrezeptoren, um die motorischen Symptome zu lindern.;Nebenwirkungen: Übelkeit, Schwindel, Impulskontrollstörungen, Schlafstörungen.",
 	"pflege": "Enge Zusammenarbeit mit anderen Fachdisziplinen (Physiotherapie, Ergotherapie, Logopädie) für eine ganzheitliche Betreuung.;Regelmäßige Überwachung der Medikamenteneinnahme und Anpassung des Therapieplans.;Psychosoziale Betreuung und Unterstützung aufgrund der häufig auftretenden Depressionen.;Anpassung der Pflegeinterventionen an den individuellen Krankheitsverlauf und die Bedürfnisse des Patienten.",
-	"traject": "https://alcapwndx.github.io/assets/res/traject/parkinsonverlauf.pdf"
+	"traject": "https://alcapwndx.github.io/assets/res/traject/parkinsonverlauf.png"
 },
 {
 	"id": "2",
@@ -23,7 +23,7 @@
 	"konthe": "Ernährungsberatung und Anpassung der Diät, um Nährstoffmängel zu vermeiden;Entzündungshemmende Medikamente zur Remissionsinduktion und -erhaltung;Supportive Therapien wie Vitamin- und Mineralstoffpräparate",
 	"medthe": "Corticosteroide (z. B. Prednison):;;Wirkweise: Reduktion der Entzündungsreaktion durch Hemmung des Immunsystems.;Nebenwirkungen: Gewichtszunahme, Osteoporose, erhöhtes Infektionsrisiko, Stimmungsschwankungen.;;;Biologika (z. B. Infliximab):;;Wirkweise: Hemmung spezifischer Entzündungsmediatoren, meist Tumor-Nekrose-Faktor (TNF)-alpha.;Nebenwirkungen: Infektionen, allergische Reaktionen, erhöhtes Risiko für bestimmte Krebsarten.",
 	"pflege": "Kontinuierliche Überwachung der Ernährungszustände und Unterstützung bei Nährstoffmängeln.;Psychosoziale Betreuung aufgrund der chronischen Natur der Erkrankung und ihrer Auswirkungen auf die Lebensqualität.;Schulung des Patienten hinsichtlich der Bedeutung von Therapieadhärenz und regelmäßiger ärztlicher Kontrollen.;Monitoring auf Anzeichen von Komplikationen wie Darmverschluss oder Fistelbildung.",
-	"traject": "https://alcapwndx.github.io/assets/res/traject/morbuscrohnverlauf.pdf"
+	"traject": "https://alcapwndx.github.io/assets/res/traject/morbuscrohnverlauf.png"
 },
 {
 	"id": "3",
@@ -36,7 +36,7 @@
 	"konthe": "Physiotherapie zur Erhaltung der Mobilität und Reduktion von Spastiken;Ergotherapie zur Förderung der Selbstständigkeit im Alltag;Logopädie bei kognitiven Beeinträchtigungen und Sprachstörungen",
 	"medthe": "Interferone (z. B. Interferon-beta):;;Wirkweise: Modulation des Immunsystems, Reduktion der Entzündungsaktivität.;Nebenwirkungen: Injektionsstellenreaktionen, Grippeähnliche Symptome, Leberfunktionsstörungen.;;;Monoklonale Antikörper (z. B. Ocrelizumab):;;Wirkweise: Selektive Unterdrückung von bestimmten Immunzellen, Reduktion von Entzündungen und Myelinabbau.;Nebenwirkungen: Infektionen, allergische Reaktionen, erhöhtes Infektionsrisiko.",
 	"pflege": "Unterstützung bei der Bewältigung von Fatigue und anderen körperlichen Einschränkungen.;Edukation des Patienten über die Bedeutung von Medikamenteneinhaltung und regelmäßigen Kontrolluntersuchungen.;Psychosoziale Betreuung aufgrund der chronischen Natur der Erkrankung und ihrer Auswirkungen auf die Lebensqualität.;Überwachung und Management von neurologischen Symptomen sowie Unterstützung bei der Anpassung an den Krankheitsverlauf.",
-	"traject": "https://alcapwndx.github.io/assets/res/traject/msverlauf.pdf"
+	"traject": "https://alcapwndx.github.io/assets/res/traject/msverlauf.png"
 },
 {
 	"id": "4",
@@ -49,7 +49,7 @@
 	"konthe": "Ernährungsberatung und Anpassung der Diät zur Minimierung von Reizstoffen;Supportive Therapien zur Verbesserung der Lebensqualität, z. B. Stressmanagement;Regelmäßige Kontrolluntersuchungen zur Überwachung des Krankheitsverlaufs",
 	"medthe": "5-Aminosalicylate (z. B. Mesalazin):;;Wirkweise: Entzündungshemmend und schützend für die Darmschleimhaut.;Nebenwirkungen: Übelkeit, Kopfschmerzen, allergische Reaktionen.;;;Corticosteroide (z. B. Prednison):;;Wirkweise: Entzündungshemmend und immunsuppressiv.;Nebenwirkungen: Osteoporose, Bluthochdruck, Diabetes, erhöhtes Infektionsrisiko.",
 	"pflege": "Überwachung von Symptomen und Krankheitsaktivität.;Förderung der Medikamenteneinhaltung und Schulung des Patienten über die Bedeutung der Therapietreue.;Ernährungsunterstützung bei Mangelernährung und Gewichtsverlust.;Psychosoziale Betreuung aufgrund der chronischen Natur der Erkrankung und ihrer Auswirkungen auf die Lebensqualität.;Früherkennung von Komplikationen wie Darmperforation oder Toxisches Megakolon.;;;;;",
-	"traject": "https://alcapwndx.github.io/assets/res/traject/colitisulcerosaverlauf.pdf"
+	"traject": "https://alcapwndx.github.io/assets/res/traject/colitisulcerosaverlauf.png"
 },
 {
 	"id": "5",
@@ -62,7 +62,7 @@
 	"konthe": "Physiotherapie zur Verbesserung der Mobilität und Vermeidung von Stürzen;Ergotherapie zur Unterstützung bei alltäglichen Aktivitäten und zum Erhalt der Selbstständigkeit;Psychosoziale Betreuung für Patienten und Angehörige zur Bewältigung der emotionalen Belastung",
 	"medthe": "Neuroleptika (z. B. Haloperidol):;;Wirkweise: Blockierung von Dopaminrezeptoren, um die motorischen Symptome zu reduzieren.;Nebenwirkungen: Sedierung, extrapyramidale Symptome, Gewichtszunahme.;;;Tetrabenazin:;;Wirkweise: Hemmung des Vesikeltransporters für Dopamin und Serotonin, was zu einer Verringerung der Chorea führt.;Nebenwirkungen: Depression, Schlaflosigkeit, Parkinsonismus.",
 	"pflege": "Kontinuierliche Überwachung der motorischen und kognitiven Funktionen.;Unterstützung bei der Bewältigung von psychischen Symptomen wie Depression und Angst.;Bereitstellung von Informationen und Ressourcen für genetische Beratung und Familienplanung.;Förderung der sozialen Teilhabe und Lebensqualität durch geeignete Aktivitäten und Betreuung.",
-	"traject": "https://alcapwndx.github.io/assets/res/traject/choreahuntingtinverlauf.pdf"
+	"traject": "https://alcapwndx.github.io/assets/res/traject/choreahuntingtinverlauf.png"
 },
 {
 	"id": "6",
@@ -75,7 +75,7 @@
 	"konthe": "Rauchentwöhnung und Vermeidung von schädlichen Expositionen;Atemtherapie und Atemübungen zur Verbesserung der Lungenfunktion;Pulmonale Rehabilitation zur Steigerung der körperlichen Leistungsfähigkeit;Ernährungsberatung zur Unterstützung der Gewichtskontrolle und Energieverbesserung",
 	"medthe": "Bronchodilatatoren (z. B. Tiotropium):;;Wirkweise: Erweiterung der Atemwege durch Entspannung der glatten Muskulatur.;Nebenwirkungen: Trockener Mund, Verstopfung, erhöhter Augeninnendruck.;;;Kortikosteroide (z. B. Fluticason):;;Wirkweise: Reduktion der Entzündung und Schleimproduktion in den Atemwegen.;Nebenwirkungen: Heiserkeit, Mundsoor, erhöhtes Infektionsrisiko.",
 	"pflege": "Überwachung der Atemfunktion und Anpassung der Pflegeinterventionen entsprechend dem Krankheitsverlauf.;Unterstützung bei der Entwicklung von Bewältigungsstrategien für die täglichen Herausforderungen der Atemnot.;Raucherentwöhnung und Schulung zu effektiven Atemtechniken.;Patienten und Angehörige in Bezug auf die Bedeutung der Medikamenteneinhaltung und die Vermeidung von Auslösern aufklären.;Frühzeitige Erkennung und Management von Exazerbationen zur Vermeidung von Krankenhausaufenthalten.",
-	"traject": "https://alcapwndx.github.io/assets/res/traject/copdverlauf.pdf"
+	"traject": "https://alcapwndx.github.io/assets/res/traject/copdverlauf.png"
 },
 {
 	"id": "7",
@@ -88,7 +88,7 @@
 	"konthe": "Vermeidung von Auslösern (Allergenmanagement, Rauchentwöhnung);Atemtherapie und Atemübungen zur Verbesserung der Atemtechnik;Schulung in Selbstmanagementtechniken zur Früherkennung und Bewältigung von Asthmaanfällen;Pulmonale Rehabilitation zur Verbesserung der körperlichen Leistungsfähigkeit",
 	"medthe": "Kurzwirksame Bronchodilatatoren (z. B. Salbutamol):;;Wirkweise: Sofortige Erweiterung der Atemwege durch Entspannung der glatten Muskulatur.;Nebenwirkungen: Herzklopfen, Zittern, Kopfschmerzen.;;;Inhalative Kortikosteroide (z. B. Beclometason):;;Wirkweise: Entzündungshemmung in den Atemwegen, Reduktion von Schwellungen und Schleimbildung.;Nebenwirkungen: Heiserkeit, Mundsoor, Husten.",
 	"pflege": "Überwachung der Atemfunktion und Ausbildung des Patienten im Einsatz von Peak-Flow-Messgeräten.;Schulung des Patienten im richtigen Gebrauch von Inhalationsgeräten.;Erstellung eines individuellen Notfallplans für die Bewältigung von Asthmaanfällen.;Unterstützung bei der Identifizierung und Vermeidung von Auslösern.;Förderung der Selbstmanagementfähigkeiten, um die Lebensqualität zu verbessern und Krankenhausaufenthalte zu minimieren.",
-	"traject": "https://alcapwndx.github.io/assets/res/traject/asthmabronchialeverlauf.pdf"
+	"traject": "https://alcapwndx.github.io/assets/res/traject/asthmabronchialeverlauf.png"
 },
 {
 	"id": "8",
@@ -101,7 +101,20 @@
 	"konthe": "Bettruhe und ausreichende Flüssigkeitszufuhr;Sauerstofftherapie bei schwerer Atemnot;Schmerzmittel zur Linderung von Brustschmerzen und Fieber;Atemtherapie zur Verbesserung der Atemmuster",
 	"medthe": "Antibiotika (z.B. Amoxicillin):;;Wirkweise: Bekämpfung bakterieller Infektionen, eine häufige Ursache für Pneumonie.;Nebenwirkungen: Magen-Darm-Beschwerden, allergische Reaktionen.;;;Antivirale Medikamente (z.B. Oseltamivir bei Influenza-Pneumonie):;;Wirkweise: Hemmung der Virusvermehrung.;Nebenwirkungen: Übelkeit, Erbrechen, Kopfschmerzen.",
 	"pflege": "Überwachung der Atemfrequenz, Sauerstoffsättigung und Allgemeinzustand.;Förderung der Mobilisation und Vermeidung von Bettruhekomplikationen.;Unterstützung bei der Atemtherapie und Anleitung zur richtigen Inhalationstechnik.;Hygienemaßnahmen zur Verhinderung von Infektionsübertragung.;Monitoring von Komplikationen wie Atemversagen, Sepsis oder Lungenabszessen.",
-	"traject": "https://alcapwndx.github.io/assets/res/traject/pneumonieverlauf.pdf"
+	"traject": "https://alcapwndx.github.io/assets/res/traject/pneumonieverlauf.png"
+},
+{
+	"id": "9",
+	"name": "Schlaganfall",
+	"cat": "3",
+	"defi": "Ein Schlaganfall, auch als Apoplex oder Hirninfarkt bezeichnet, ist ein plötzlich auftretender Gefäßverschluss im Gehirn oder eine Gehirnblutung. Diese Durchblutungsstörung führt zu einer Beeinträchtigung der Sauerstoffversorgung und Schädigung von Hirngewebe. Ein Schlaganfall kann zu schweren neurologischen Defiziten oder sogar zum Tod führen.",
+	"patho": "Es gibt zwei Hauptarten von Schlaganfällen: der ischämische Schlaganfall, der durch einen Gefäßverschluss verursacht wird, und der hämorrhagische Schlaganfall, der auf eine Blutung im Gehirn zurückzuführen ist. Im ischämischen Schlaganfall kommt es zu einer Minderdurchblutung des Gehirns, während beim hämorrhagischen Schlaganfall Blut ins Gehirngewebe austritt.",
+	"symp": "Plötzliche Sehstörungen, Schwindel oder Gleichgewichtsprobleme.;Einseitige Lähmungen oder Schwäche in Gesicht, Arm oder Bein.;Sprach- und Verständnisprobleme.;Starke Kopfschmerzen, insbesondere bei hämorrhagischem Schlaganfall.;Plötzliche Verwirrtheit oder Bewusstseinsverlust.",
+	"risk": "Hypertonie (Bluthochdruck);Diabetes mellitus;Rauchen;Hyperlipidämie (hohe Blutfettwerte);Herz-Kreislauf-Erkrankungen;Vorhofflimmern;Familiäre Vorbelastung;Fortgeschrittenes Alter",
+	"konthe": "Akute Notfallbehandlung mit Thrombolyse oder mechanischer Thrombektomie zur Wiedereröffnung blockierter Blutgefäße.;Rehabilitation, einschließlich physiotherapeutischer, ergotherapeutischer und logopädischer Maßnahmen.;Kontrolle der Blutdruckwerte, Blutzucker- und Cholesterinwerte zur Prävention weiterer Schlaganfälle.",	
+	"medthe": "Thrombolytika (z. B. Alteplase):;;Wirkweise: Auflösung von Blutgerinnseln, um den Blutfluss im Gehirn wiederherzustellen.;Nebenwirkungen: Risiko von Blutungen, insbesondere im Gehirn.;;;Antikoagulanzien (z. B. Warfarin oder Apixaban):;;Wirkweise: Verhinderung von Blutgerinnseln, besonders bei Vorhofflimmern.;Nebenwirkungen: Erhöhtes Blutungsrisiko.",	
+	"pflege": "Schnelle Identifikation und sofortige Behandlung von Schlaganfallanzeichen sind entscheidend.;Kontinuierliche Überwachung von Vitalparametern und neurologischem Status.;Mobilisationsförderung und Rehabilitation zur Wiederherstellung von motorischen Fähigkeiten.;Prävention von Komplikationen wie Pneumonie oder Dekubitus.;Umfassende Patienten- und Angehörigenaufklärung über die Bedeutung der Medikamenteneinhaltung, Lebensstiländerungen und die Vermeidung von Risikofaktoren.Schnelle Identifikation und sofortige Behandlung von Schlaganfallanzeichen sind entscheidend.;Kontinuierliche Überwachung von Vitalparametern und neurologischem Status.;Mobilisationsförderung und Rehabilitation zur Wiederherstellung von motorischen Fähigkeiten.;Prävention von Komplikationen wie Pneumonie oder Dekubitus.;Umfassende Patienten- und Angehörigenaufklärung über die Bedeutung der Medikamenteneinhaltung, Lebensstiländerungen und die Vermeidung von Risikofaktoren.",
+	"traject": "https://alcapwndx.github.io/assets/res/traject/schlaganfallverlauf.png"
 },
 {
 	"id": "",
