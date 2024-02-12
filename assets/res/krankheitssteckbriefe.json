@@ -8,9 +8,9 @@
 	"symp": "Ruhe-Tremor (Zittern in Ruhe);Muskelrigidität (Muskelsteifheit);Bradykinese (verlangsamte Bewegungen);Posturale Instabilität (Haltungsinstabilität);Maskengesicht (verminderte Mimik);Mikrographie (kleine, unleserliche Handschrift);Veränderungen im Gangbild",
 	"risk": "Alter (die Prävalenz steigt mit dem Alter);Genetische Prädisposition (familiäre Häufung);Umweltfaktoren (Exposition gegenüber Pestiziden, Toxinen);Geschlecht (etwas häufiger bei Männern)",
 	"konthe": "Physiotherapie zur Verbesserung der Motorik und Vermeidung von Kontrakturen;Ergotherapie zur Erhaltung der Selbstständigkeit im Alltag;Logopädie bei Schluckstörungen und Sprachproblemen",
-	"medthe": "Levodopa/Carbidopa:;;Wirkweise: Levodopa wird im Gehirn zu Dopamin umgewandelt und kompensiert somit den Dopaminmangel. Carbidopa verhindert die Umwandlung von Levodopa außerhalb des Gehirns.;Nebenwirkungen: Übelkeit, Dyskinesien, orthostatische Hypotonie, Halluzinationen.;Dopaminagonisten (z. B. Pramipexol):;;Wirkweise: Direkte Stimulation der Dopaminrezeptoren, um die motorischen Symptome zu lindern.;Nebenwirkungen: Übelkeit, Schwindel, Impulskontrollstörungen, Schlafstörungen.",
+	"medthe": "Levodopa/Carbidopa:;;Wirkweise: Levodopa wird im Gehirn zu Dopamin umgewandelt und kompensiert somit den Dopaminmangel. Carbidopa verhindert die Umwandlung von Levodopa außerhalb des Gehirns.;Nebenwirkungen: Übelkeit, Dyskinesien, orthostatische Hypotonie, Halluzinationen.;;;Dopaminagonisten (z. B. Pramipexol):;;Wirkweise: Direkte Stimulation der Dopaminrezeptoren, um die motorischen Symptome zu lindern.;Nebenwirkungen: Übelkeit, Schwindel, Impulskontrollstörungen, Schlafstörungen.",
 	"pflege": "Enge Zusammenarbeit mit anderen Fachdisziplinen (Physiotherapie, Ergotherapie, Logopädie) für eine ganzheitliche Betreuung.;Regelmäßige Überwachung der Medikamenteneinnahme und Anpassung des Therapieplans.;Psychosoziale Betreuung und Unterstützung aufgrund der häufig auftretenden Depressionen.;Anpassung der Pflegeinterventionen an den individuellen Krankheitsverlauf und die Bedürfnisse des Patienten.",
-	"traject": "https://alcapwndx.github.io/assets/res/traject/parkinsonverlauf.png"
+	"traject": "https://alcapwndx.github.io/assets/res/traject/parkinsonverlauf.pdf"
 },
 {
 	"id": "2",
@@ -21,9 +21,9 @@
 	"symp": "Bauchschmerzen, oft im rechten Unterbauch;Durchfälle, manchmal blutig;Gewichtsverlust;Erschöpfung und Müdigkeit;Fieber;Appetitlosigkeit;Gelenkschmerzen",
 	"risk": "Genetische Veranlagung (Familienanamnese von CED);Rauchen (erhöhtes Risiko für Morbus Crohn, aber schützt vor Colitis ulcerosa);Umweltfaktoren und westliche Lebensweise;Immunsuppressive Therapien",
 	"konthe": "Ernährungsberatung und Anpassung der Diät, um Nährstoffmängel zu vermeiden;Entzündungshemmende Medikamente zur Remissionsinduktion und -erhaltung;Supportive Therapien wie Vitamin- und Mineralstoffpräparate",
-	"medthe": "Corticosteroide (z. B. Prednison):;;Wirkweise: Reduktion der Entzündungsreaktion durch Hemmung des Immunsystems.;Nebenwirkungen: Gewichtszunahme, Osteoporose, erhöhtes Infektionsrisiko, Stimmungsschwankungen.;Biologika (z. B. Infliximab):;;Wirkweise: Hemmung spezifischer Entzündungsmediatoren, meist Tumor-Nekrose-Faktor (TNF)-alpha.;Nebenwirkungen: Infektionen, allergische Reaktionen, erhöhtes Risiko für bestimmte Krebsarten.",
+	"medthe": "Corticosteroide (z. B. Prednison):;;Wirkweise: Reduktion der Entzündungsreaktion durch Hemmung des Immunsystems.;Nebenwirkungen: Gewichtszunahme, Osteoporose, erhöhtes Infektionsrisiko, Stimmungsschwankungen.;;;Biologika (z. B. Infliximab):;;Wirkweise: Hemmung spezifischer Entzündungsmediatoren, meist Tumor-Nekrose-Faktor (TNF)-alpha.;Nebenwirkungen: Infektionen, allergische Reaktionen, erhöhtes Risiko für bestimmte Krebsarten.",
 	"pflege": "Kontinuierliche Überwachung der Ernährungszustände und Unterstützung bei Nährstoffmängeln.;Psychosoziale Betreuung aufgrund der chronischen Natur der Erkrankung und ihrer Auswirkungen auf die Lebensqualität.;Schulung des Patienten hinsichtlich der Bedeutung von Therapieadhärenz und regelmäßiger ärztlicher Kontrollen.;Monitoring auf Anzeichen von Komplikationen wie Darmverschluss oder Fistelbildung.",
-	"traject": "https://alcapwndx.github.io/assets/res/traject/morbuscrohnverlauf.png"
+	"traject": "https://alcapwndx.github.io/assets/res/traject/morbuscrohnverlauf.pdf"
 },
 {
 	"id": "3",
@@ -34,9 +34,9 @@
 	"symp": "Schubweise auftretende neurologische Symptome, wie Sehstörungen, Koordinationsprobleme, Sensibilitätsstörungen;Fatigue (chronische Erschöpfung);Muskelkrämpfe und Spastiken;Gangstörungen;Blasen- und Darmfunktionsstörungen;Kognitive Beeinträchtigungen",
 	"risk": "Genetische Veranlagung (erhöhtes Risiko bei familiärer Vorbelastung);Geschlecht (Frauen sind häufiger betroffen);Geografische Lage (höheres Risiko in gemäßigten Breiten)",
 	"konthe": "Physiotherapie zur Erhaltung der Mobilität und Reduktion von Spastiken;Ergotherapie zur Förderung der Selbstständigkeit im Alltag;Logopädie bei kognitiven Beeinträchtigungen und Sprachstörungen",
-	"medthe": "Interferone (z. B. Interferon-beta):;;Wirkweise: Modulation des Immunsystems, Reduktion der Entzündungsaktivität.;Nebenwirkungen: Injektionsstellenreaktionen, Grippeähnliche Symptome, Leberfunktionsstörungen.;Monoklonale Antikörper (z. B. Ocrelizumab):;;Wirkweise: Selektive Unterdrückung von bestimmten Immunzellen, Reduktion von Entzündungen und Myelinabbau.;Nebenwirkungen: Infektionen, allergische Reaktionen, erhöhtes Infektionsrisiko.",
+	"medthe": "Interferone (z. B. Interferon-beta):;;Wirkweise: Modulation des Immunsystems, Reduktion der Entzündungsaktivität.;Nebenwirkungen: Injektionsstellenreaktionen, Grippeähnliche Symptome, Leberfunktionsstörungen.;;;Monoklonale Antikörper (z. B. Ocrelizumab):;;Wirkweise: Selektive Unterdrückung von bestimmten Immunzellen, Reduktion von Entzündungen und Myelinabbau.;Nebenwirkungen: Infektionen, allergische Reaktionen, erhöhtes Infektionsrisiko.",
 	"pflege": "Unterstützung bei der Bewältigung von Fatigue und anderen körperlichen Einschränkungen.;Edukation des Patienten über die Bedeutung von Medikamenteneinhaltung und regelmäßigen Kontrolluntersuchungen.;Psychosoziale Betreuung aufgrund der chronischen Natur der Erkrankung und ihrer Auswirkungen auf die Lebensqualität.;Überwachung und Management von neurologischen Symptomen sowie Unterstützung bei der Anpassung an den Krankheitsverlauf.",
-	"traject": "https://alcapwndx.github.io/assets/res/traject/msverlauf.png"
+	"traject": "https://alcapwndx.github.io/assets/res/traject/msverlauf.pdf"
 },
 {
 	"id": "4",
@@ -47,9 +47,9 @@
 	"symp": "Blutiger Durchfall;Bauchschmerzen und Krämpfe;Gewichtsverlust;Müdigkeit;Fieber;Rektale Blutungen;Drang zur Defäkation",
 	"risk": "Genetische Veranlagung (Familiäre Häufung von CED);Umweltfaktoren und westliche Lebensweise;Immunsuppressive Therapien;Alter (meistens zwischen 15 und 30 Jahren oder nach dem 60. Lebensjahr)",
 	"konthe": "Ernährungsberatung und Anpassung der Diät zur Minimierung von Reizstoffen;Supportive Therapien zur Verbesserung der Lebensqualität, z. B. Stressmanagement;Regelmäßige Kontrolluntersuchungen zur Überwachung des Krankheitsverlaufs",
-	"medthe": "5-Aminosalicylate (z. B. Mesalazin):;;Wirkweise: Entzündungshemmend und schützend für die Darmschleimhaut.;Nebenwirkungen: Übelkeit, Kopfschmerzen, allergische Reaktionen.;Corticosteroide (z. B. Prednison):;;Wirkweise: Entzündungshemmend und immunsuppressiv.;Nebenwirkungen: Osteoporose, Bluthochdruck, Diabetes, erhöhtes Infektionsrisiko.",
+	"medthe": "5-Aminosalicylate (z. B. Mesalazin):;;Wirkweise: Entzündungshemmend und schützend für die Darmschleimhaut.;Nebenwirkungen: Übelkeit, Kopfschmerzen, allergische Reaktionen.;;;Corticosteroide (z. B. Prednison):;;Wirkweise: Entzündungshemmend und immunsuppressiv.;Nebenwirkungen: Osteoporose, Bluthochdruck, Diabetes, erhöhtes Infektionsrisiko.",
 	"pflege": "Überwachung von Symptomen und Krankheitsaktivität.;Förderung der Medikamenteneinhaltung und Schulung des Patienten über die Bedeutung der Therapietreue.;Ernährungsunterstützung bei Mangelernährung und Gewichtsverlust.;Psychosoziale Betreuung aufgrund der chronischen Natur der Erkrankung und ihrer Auswirkungen auf die Lebensqualität.;Früherkennung von Komplikationen wie Darmperforation oder Toxisches Megakolon.;;;;;",
-	"traject": "https://alcapwndx.github.io/assets/res/traject/colitisulcerosaverlauf.png"
+	"traject": "https://alcapwndx.github.io/assets/res/traject/colitisulcerosaverlauf.pdf"
 },
 {
 	"id": "5",
@@ -60,9 +60,9 @@
 	"symp": "Chorea (unwillkürliche, zuckende Bewegungen);Psychische Veränderungen wie Depression, Angstzustände und manische Episoden;Gedächtnisstörungen und kognitive Einschränkungen;Verminderte motorische Koordination und Kontrolle;Gewichtsverlust und Muskelschwund;Schluckstörungen und Sprachprobleme",
 	"risk": "Familiäre Vorbelastung (autosomal-dominanter Erbgang);Träger des mutierten HTT-Gens haben ein 50%iges Risiko, die Krankheit zu entwickeln;Die Krankheit tritt normalerweise zwischen dem 30. und 50. Lebensjahr auf",
 	"konthe": "Physiotherapie zur Verbesserung der Mobilität und Vermeidung von Stürzen;Ergotherapie zur Unterstützung bei alltäglichen Aktivitäten und zum Erhalt der Selbstständigkeit;Psychosoziale Betreuung für Patienten und Angehörige zur Bewältigung der emotionalen Belastung",
-	"medthe": "Neuroleptika (z. B. Haloperidol):;;Wirkweise: Blockierung von Dopaminrezeptoren, um die motorischen Symptome zu reduzieren.;Nebenwirkungen: Sedierung, extrapyramidale Symptome, Gewichtszunahme.;Tetrabenazin:;;Wirkweise: Hemmung des Vesikeltransporters für Dopamin und Serotonin, was zu einer Verringerung der Chorea führt.;Nebenwirkungen: Depression, Schlaflosigkeit, Parkinsonismus.Neuroleptika (z. B. Haloperidol):;;Wirkweise: Blockierung von Dopaminrezeptoren, um die motorischen Symptome zu reduzieren.;Nebenwirkungen: Sedierung, extrapyramidale Symptome, Gewichtszunahme.;Tetrabenazin:;;Wirkweise: Hemmung des Vesikeltransporters für Dopamin und Serotonin, was zu einer Verringerung der Chorea führt.;Nebenwirkungen: Depression, Schlaflosigkeit, Parkinsonismus.",
+	"medthe": "Neuroleptika (z. B. Haloperidol):;;Wirkweise: Blockierung von Dopaminrezeptoren, um die motorischen Symptome zu reduzieren.;Nebenwirkungen: Sedierung, extrapyramidale Symptome, Gewichtszunahme.;;;Tetrabenazin:;;Wirkweise: Hemmung des Vesikeltransporters für Dopamin und Serotonin, was zu einer Verringerung der Chorea führt.;Nebenwirkungen: Depression, Schlaflosigkeit, Parkinsonismus.",
 	"pflege": "Kontinuierliche Überwachung der motorischen und kognitiven Funktionen.;Unterstützung bei der Bewältigung von psychischen Symptomen wie Depression und Angst.;Bereitstellung von Informationen und Ressourcen für genetische Beratung und Familienplanung.;Förderung der sozialen Teilhabe und Lebensqualität durch geeignete Aktivitäten und Betreuung.",
-	"traject": "https://alcapwndx.github.io/assets/res/traject/choreahuntingtinverlauf.png"
+	"traject": "https://alcapwndx.github.io/assets/res/traject/choreahuntingtinverlauf.pdf"
 },
 {
 	"id": "6",
@@ -73,9 +73,9 @@
 	"symp": "Atemnot, besonders bei körperlicher Anstrengung;Chronischer Husten mit Auswurf;Engegefühl in der Brust;Verstärkte Atemanstrengung;Chronische Müdigkeit;Wiederkehrende Atemwegsinfektionen",
 	"risk": "Rauchen (hauptsächlicher Risikofaktor);Langfristige Exposition gegenüber schädlichen Gasen oder Partikeln am Arbeitsplatz;Luftverschmutzung;Genetische Veranlagung;Wiederkehrende Atemwegsinfektionen in der Kindheit",
 	"konthe": "Rauchentwöhnung und Vermeidung von schädlichen Expositionen;Atemtherapie und Atemübungen zur Verbesserung der Lungenfunktion;Pulmonale Rehabilitation zur Steigerung der körperlichen Leistungsfähigkeit;Ernährungsberatung zur Unterstützung der Gewichtskontrolle und Energieverbesserung",
-	"medthe": "Bronchodilatatoren (z. B. Tiotropium):;;Wirkweise: Erweiterung der Atemwege durch Entspannung der glatten Muskulatur.;Nebenwirkungen: Trockener Mund, Verstopfung, erhöhter Augeninnendruck.;Kortikosteroide (z. B. Fluticason):;;Wirkweise: Reduktion der Entzündung und Schleimproduktion in den Atemwegen.;Nebenwirkungen: Heiserkeit, Mundsoor, erhöhtes Infektionsrisiko.",
+	"medthe": "Bronchodilatatoren (z. B. Tiotropium):;;Wirkweise: Erweiterung der Atemwege durch Entspannung der glatten Muskulatur.;Nebenwirkungen: Trockener Mund, Verstopfung, erhöhter Augeninnendruck.;;;Kortikosteroide (z. B. Fluticason):;;Wirkweise: Reduktion der Entzündung und Schleimproduktion in den Atemwegen.;Nebenwirkungen: Heiserkeit, Mundsoor, erhöhtes Infektionsrisiko.",
 	"pflege": "Überwachung der Atemfunktion und Anpassung der Pflegeinterventionen entsprechend dem Krankheitsverlauf.;Unterstützung bei der Entwicklung von Bewältigungsstrategien für die täglichen Herausforderungen der Atemnot.;Raucherentwöhnung und Schulung zu effektiven Atemtechniken.;Patienten und Angehörige in Bezug auf die Bedeutung der Medikamenteneinhaltung und die Vermeidung von Auslösern aufklären.;Frühzeitige Erkennung und Management von Exazerbationen zur Vermeidung von Krankenhausaufenthalten.",
-	"traject": "https://alcapwndx.github.io/assets/res/traject/copdverlauf.png"
+	"traject": "https://alcapwndx.github.io/assets/res/traject/copdverlauf.pdf"
 },
 {
 	"id": "7",
@@ -86,9 +86,9 @@
 	"symp": "Atemnot, insbesondere bei körperlicher Anstrengung oder nachts;Husten, oft besonders nachts oder früh morgens;Keuchen (pfeifende Atemgeräusche);Engegefühl in der Brust;Kurzatmigkeit",
 	"risk": "Genetische Veranlagung (Familiäre Häufung);Allergien (z.B. gegen Hausstaubmilben, Pollen, Tierhaare);Umweltfaktoren (z.B. Rauch, Luftverschmutzung);Atemwegsinfektionen in der Kindheit;Berufliche Exposition gegenüber schädlichen Substanzen",
 	"konthe": "Vermeidung von Auslösern (Allergenmanagement, Rauchentwöhnung);Atemtherapie und Atemübungen zur Verbesserung der Atemtechnik;Schulung in Selbstmanagementtechniken zur Früherkennung und Bewältigung von Asthmaanfällen;Pulmonale Rehabilitation zur Verbesserung der körperlichen Leistungsfähigkeit",
-	"medthe": "Kurzwirksame Bronchodilatatoren (z. B. Salbutamol):;;Wirkweise: Sofortige Erweiterung der Atemwege durch Entspannung der glatten Muskulatur.;Nebenwirkungen: Herzklopfen, Zittern, Kopfschmerzen.;Inhalative Kortikosteroide (z. B. Beclometason):;;Wirkweise: Entzündungshemmung in den Atemwegen, Reduktion von Schwellungen und Schleimbildung.;Nebenwirkungen: Heiserkeit, Mundsoor, Husten.",
+	"medthe": "Kurzwirksame Bronchodilatatoren (z. B. Salbutamol):;;Wirkweise: Sofortige Erweiterung der Atemwege durch Entspannung der glatten Muskulatur.;Nebenwirkungen: Herzklopfen, Zittern, Kopfschmerzen.;;;Inhalative Kortikosteroide (z. B. Beclometason):;;Wirkweise: Entzündungshemmung in den Atemwegen, Reduktion von Schwellungen und Schleimbildung.;Nebenwirkungen: Heiserkeit, Mundsoor, Husten.",
 	"pflege": "Überwachung der Atemfunktion und Ausbildung des Patienten im Einsatz von Peak-Flow-Messgeräten.;Schulung des Patienten im richtigen Gebrauch von Inhalationsgeräten.;Erstellung eines individuellen Notfallplans für die Bewältigung von Asthmaanfällen.;Unterstützung bei der Identifizierung und Vermeidung von Auslösern.;Förderung der Selbstmanagementfähigkeiten, um die Lebensqualität zu verbessern und Krankenhausaufenthalte zu minimieren.",
-	"traject": "https://alcapwndx.github.io/assets/res/traject/asthmabronchialeverlauf.png"
+	"traject": "https://alcapwndx.github.io/assets/res/traject/asthmabronchialeverlauf.pdf"
 },
 {
 	"id": "8",
@@ -99,9 +99,9 @@
 	"symp": "Husten, oft mit Auswurf;Fieber und Schüttelfrost;Atemnot und beschleunigte Atmung;Brustschmerzen beim Atmen;Müdigkeit und allgemeines Unwohlsein;Verwirrtheit bei älteren Menschen",
 	"risk": "Alter (besonders bei Kindern unter 2 Jahren und älteren Erwachsenen);Geschwächtes Immunsystem (durch Krankheiten, Medikamente oder medizinische Behandlungen);Rauchen und chronische Lungenerkrankungen;Chronische Erkrankungen wie Diabetes oder Herzinsuffizienz;Aufenthalt in Pflegeeinrichtungen oder Krankenhäusern",
 	"konthe": "Bettruhe und ausreichende Flüssigkeitszufuhr;Sauerstofftherapie bei schwerer Atemnot;Schmerzmittel zur Linderung von Brustschmerzen und Fieber;Atemtherapie zur Verbesserung der Atemmuster",
-	"medthe": "Antibiotika (z.B. Amoxicillin):;;Wirkweise: Bekämpfung bakterieller Infektionen, eine häufige Ursache für Pneumonie.;Nebenwirkungen: Magen-Darm-Beschwerden, allergische Reaktionen.;Antivirale Medikamente (z.B. Oseltamivir bei Influenza-Pneumonie):;;Wirkweise: Hemmung der Virusvermehrung.;Nebenwirkungen: Übelkeit, Erbrechen, Kopfschmerzen.",
+	"medthe": "Antibiotika (z.B. Amoxicillin):;;Wirkweise: Bekämpfung bakterieller Infektionen, eine häufige Ursache für Pneumonie.;Nebenwirkungen: Magen-Darm-Beschwerden, allergische Reaktionen.;;;Antivirale Medikamente (z.B. Oseltamivir bei Influenza-Pneumonie):;;Wirkweise: Hemmung der Virusvermehrung.;Nebenwirkungen: Übelkeit, Erbrechen, Kopfschmerzen.",
 	"pflege": "Überwachung der Atemfrequenz, Sauerstoffsättigung und Allgemeinzustand.;Förderung der Mobilisation und Vermeidung von Bettruhekomplikationen.;Unterstützung bei der Atemtherapie und Anleitung zur richtigen Inhalationstechnik.;Hygienemaßnahmen zur Verhinderung von Infektionsübertragung.;Monitoring von Komplikationen wie Atemversagen, Sepsis oder Lungenabszessen.",
-	"traject": "https://alcapwndx.github.io/assets/res/traject/pneumonieverlauf.png"
+	"traject": "https://alcapwndx.github.io/assets/res/traject/pneumonieverlauf.pdf"
 },
 {
 	"id": "",
