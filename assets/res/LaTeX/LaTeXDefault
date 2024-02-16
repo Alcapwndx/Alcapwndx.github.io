@@ -1,0 +1,15 @@
+\documentclass{article}
+\usepackage{pgf,pgfsys,pgffor}
+\usepackage{pgfplots}
+\usepackage{tikz}
+\begin{document}
+
+
+
+
+
+
+
+
+
+\end{document}
