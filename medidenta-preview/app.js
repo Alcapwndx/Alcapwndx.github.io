@@ -12,7 +12,7 @@ const D={page:'home',connected:false,meta:null,offline:[],hits:[],search:'',deta
 try{D.favorites=JSON.parse(localStorage.getItem('medidenta_favs_v04')||'[]');if(!Array.isArray(D.favorites))D.favorites=[];}catch{D.favorites=[]}
 const api=async path=>{const c=new AbortController(),t=setTimeout(()=>c.abort(),5000);try{const r=await fetch('/api/v1'+path,{signal:c.signal,cache:'no-store',headers:{Accept:'application/json'}});const data=await r.json();if(!r.ok)throw Error(data.error||'HTTP '+r.status);return data;}finally{clearTimeout(t)}};
 function clinicalNotice(){return '<div class="notice warning"><strong>Entwicklungsstand – keine klinische Einsatzfreigabe der App.</strong> Einzelne Fachtextaussagen können nach persönlicher Kontrolle fachlich freigegeben sein, nicht jedoch automatisch ganze Präparate oder Dosierungen. Aktuelle Originalquellen und Anordnungen bleiben maßgeblich.</div>'}
-function status(){if(IS_PUBLIC_PREVIEW){bar.className='system-status offline';bar.textContent='● Öffentliche GitHub-Pages-Demo · '+D.offline.length+' Produkte · '+D.drafts.length+' Entwürfe · '+D.approved.length+' fachlich freigegeben · '+(['STATIC_PUBLIC_PREVIEW','LIVE_SUPABASE'].includes(D.syncMeta?.mode)?'Datenstand '+new Date(D.syncMeta.source_date).toLocaleDateString('de-DE'):'manueller Testdatenstand')+' · keine Live-API';return;}bar.className='system-status'+(D.connected?'':' offline');bar.textContent=D.connected?'● Verbunden · eigene MediIdenta Datenbank v0.6 · Produktidentitäten':'● Offline-Entwicklungsbestand · Produktidentitäten, keine Live-Prüfung';}
+function status(){if(IS_PUBLIC_PREVIEW){bar.className='system-status offline';bar.textContent='● Öffentliche GitHub-Pages-Demo · '+D.offline.length+' Produkte · '+D.drafts.length+' Entwürfe · '+D.approved.length+' fachlich freigegeben · '+(['STATIC_PUBLIC_PREVIEW','LIVE_SUPABASE'].includes(D.syncMeta?.mode)?'Datenstand '+new Date(D.syncMeta.source_date).toLocaleDateString('de-DE'):'manueller Testdatenstand')+' · keine Live-API';return;}bar.className='system-status'+(D.connected?'':' offline');bar.textContent=D.connected?'● Verbunden · Supabase PostgreSQL · aktuelle Produkt- und Fachdaten':'● Offline-Entwicklungsbestand · Produktidentitäten, keine Live-Prüfung';}
 function title(s){return '<div class="eyebrow">MediIdenta · Fachkreiskatalog</div><h1>'+escapeHtml(s)+'</h1>'}
 function badge(s,cls){return '<span class="tag '+(cls||'')+'">'+escapeHtml(s)+'</span>'}
 function fav(id){return '<button class="fav '+(D.favorites.includes(id)?'on':'')+'" data-action="fav" data-id="'+escapeHtml(id)+'" aria-label="Favorit">'+(D.favorites.includes(id)?'★':'☆')+'</button>'}
@@ -115,7 +115,7 @@ async function checkForCatalogUpdates(force=false){
   const meta=await res.json();
   if(meta.format!=='medidenta-public-sync-v1'||meta.medical_release_ready!==false||!meta.source_commit)throw Error('Ungültiger Synchronisationsstatus');
   const unchanged=D.syncMeta?.source_commit===meta.source_commit;
-  if(unchanged&&!force){D.syncBusy=false;return;}
+  if(unchanged&&!force&&meta.mode!=='LIVE_SUPABASE'){D.syncBusy=false;return;}
   const [pr,dr]=await Promise.all([
    fetch('./catalog_snapshot.json',{cache:'no-store'}),
    fetch('./clinical_review_drafts.json',{cache:'no-store'})
