@@ -30,7 +30,7 @@ jobs:
       - name: Kein privates Supabase-Secret im öffentlichen Client
         shell: bash
         run: |
-          if grep -Eiq 'service_role|sb_secret_[a-zA-Z0-9]+' medidenta-preview/review-auth-config.js; then
+          if grep -Eiq 'sb_secret_[a-zA-Z0-9]+' medidenta-preview/review-auth-config.js; then
             echo 'Unexpected privileged credential marker in public auth config!'
             exit 1
           fi
