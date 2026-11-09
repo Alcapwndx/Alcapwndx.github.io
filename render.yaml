@@ -1,0 +1,18 @@
+# Portable Render Free test service. Database and authentication live in
+# Supabase; no additional ephemeral Render PostgreSQL is created.
+services:
+  - type: web
+    name: medidenta-app
+    runtime: docker
+    plan: free
+    region: frankfurt
+    branch: main
+    autoDeployTrigger: checksPass
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: MEDIIDENTA_SUPABASE_URL
+        sync: false
+      - key: MEDIIDENTA_SUPABASE_PUBLISHABLE_KEY
+        sync: false

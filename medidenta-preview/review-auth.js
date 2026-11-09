@@ -8,7 +8,7 @@ const SESSION_KEY='medidenta_editorial_auth_session_v07';
 const REVIEW_TABLE='medidenta_review_events';
 const ROLES_TABLE='medidenta_reviewer_roles';
 const DECISIONS={verified:'Fachlich freigegeben – Aussage korrekt',needs_revision:'Überarbeitung erforderlich',rejected:'Aussage fachlich nicht bestätigt'};
-const A={configured:false,base:'',key:'',session:null,user:null,role:null,events:[],message:'',error:false,busy:false,pendingEmail:'',getState:null,draw:null};
+const A={configured:false,base:'',key:'',reviewApiBase:null,session:null,user:null,role:null,events:[],message:'',error:false,busy:false,pendingEmail:'',getState:null,draw:null};
 const esc=x=>String(x==null?'':x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function config(){
  const c=global.MEDIIDENTA_AUTH_CONFIG||{};
@@ -16,7 +16,7 @@ function config(){
  try{u=new URL(c.supabaseUrl||'');}catch{return false;}
  if(u.protocol!=='https:'||!/^([a-z0-9-]+)\.supabase\.co$/.test(u.hostname)||u.pathname!=='/'||u.search||u.hash||u.port)return false;
  if(typeof c.publishableKey!=='string'||!/^sb_publishable_[A-Za-z0-9_-]{12,}$/.test(c.publishableKey))return false;
- A.base=u.origin;A.key=c.publishableKey;A.configured=true;return true;
+ A.base=u.origin;A.key=c.publishableKey;A.reviewApiBase=c.reviewApiBase==='/api/v1'?'/api/v1':null;A.configured=true;return true;
 }
 function headers(token,extra={}){
  return {'apikey':A.key,...(token?{'Authorization':'Bearer '+token}:{}),...extra};
@@ -135,7 +135,7 @@ function isActiveRevision(D){
  const commit=D?.syncMeta?.source_commit;
  return typeof commit==='string'&&/^[0-9a-f]{40}$/.test(commit)&&
  D.catalogRevision===commit&&D.draftRevision===commit&&
- D.syncMeta.mode==='STATIC_PUBLIC_PREVIEW'&&D.draftLoadError===false;
+ ['STATIC_PUBLIC_PREVIEW','LIVE_SUPABASE'].includes(D.syncMeta.mode)&&D.draftLoadError===false;
 }
 function lastReview(f,D){
  const c=D.syncMeta?.source_commit;
@@ -167,6 +167,22 @@ async function digestFact(f){
  const hash=await global.crypto.subtle.digest('SHA-256',bytes);
  return [...new Uint8Array(hash)].map(x=>x.toString(16).padStart(2,'0')).join('');
 }
+async function submitLiveReview(data,token){
+ const payload={
+   fact_id:data.fact_id,source_commit:data.source_commit,
+   statement_sha256:data.statement_sha256,decision:data.decision,
+   source_checked:data.source_checked,notes:data.notes
+ };
+ const response=await fetch('/api/v1/reviews',{method:'POST',cache:'no-store',
+    headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json','Accept':'application/json'},
+    body:JSON.stringify(payload)});
+ let body;try{body=await response.json();}catch{body=null;}
+ if(!response.ok)throw Error(
+   typeof body?.detail==='string'&&body.detail.length<220?body.detail:
+   'Die zentrale Prüfdatenbank hat die Anfrage abgelehnt (HTTP '+response.status+').'
+ );
+ return body;
+}
 async function submitReview(id,form){
  if(A.busy)return;
  const D=A.getState?.();
@@ -189,14 +205,17 @@ async function submitReview(id,form){
     source_url:f.reference.document_url,source_locator:f.reference.locator,
     decision,source_checked:checked,notes
   };
-  const result=await request('/rest/v1/'+REVIEW_TABLE+'?select=fact_id,source_commit,statement_sha256,decision,created_at',{
-   method:'POST',token,body:JSON.stringify(data),
-   headers:headers(token,{'Content-Type':'application/json','Prefer':'return=representation'})
-  });
+  const result=A.reviewApiBase
+   ? await submitLiveReview(data,token)
+   : await request('/rest/v1/'+REVIEW_TABLE+'?select=fact_id,source_commit,statement_sha256,decision,created_at',{
+       method:'POST',token,body:JSON.stringify(data),
+       headers:headers(token,{'Content-Type':'application/json','Prefer':'return=representation'})
+     });
   if(!Array.isArray(result)||result.length!==1||result[0].fact_id!==f.id||
      result[0].source_commit!==data.source_commit||result[0].statement_sha256!==data.statement_sha256)
    throw Error('Die Datenbankbestätigung konnte nicht verifiziert werden.');
   A.events.unshift(result[0]);
+  if(A.reviewApiBase)await global.MediIdentaReloadCatalog?.();
   done(decision==='verified'?'Fachliche Freigabe dokumentiert. Nach dem nächsten gesicherten Abgleich wird genau diese Textfassung im Katalog als fachlich freigegeben angezeigt.':'Deine Entscheidung wurde dokumentiert. Eine ältere Freigabe wird nach dem nächsten gesicherten Abgleich widerrufen.');
  }catch(e){done(e.message,true);}
 }

@@ -1,0 +1,12 @@
+.git
+.github
+*.pyc
+__pycache__/
+.venv/
+.env
+.env.*
+!important.env.example
+node_modules/
+*.sqlite
+*.db
+.DS_Store

@@ -1,0 +1,1 @@
+"""MediIdenta API tests."""
