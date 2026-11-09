@@ -444,6 +444,22 @@ async def moderate_comment(comment_id: str, payload: ModerateCommentInput, reque
     return no_store(result)
 
 
+class RoleAssignmentInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    user_id: str = Field(pattern=r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
+    role: str
+
+
+@app.post("/api/v1/admin/roles")
+async def assign_role(payload: RoleAssignmentInput, request: Request):
+    if payload.role not in ("user", "moderator", "admin"):
+        raise HTTPException(422, "Ungültige Benutzerrolle")
+    result = await _supabase_rpc("medidenta_admin_set_role",
+            {"p_user_id": payload.user_id, "p_role": payload.role},
+            _user_bearer(request))
+    return no_store({"user_id": result.get("id"), "role": result.get("role")})
+
+
 @app.post("/api/v1/reviews")
 async def submit_review(payload: ReviewInput, request: Request):
     if not IS_LIVE_CONFIGURED:
