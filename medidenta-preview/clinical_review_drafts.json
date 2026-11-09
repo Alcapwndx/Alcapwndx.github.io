@@ -444,26 +444,6 @@
     {
       "assignment_status": "exact_match",
       "batch": "v0.5",
-      "content_text": "Apixaban ist ein gerinnungshemmender Wirkstoff. Vor der Anwendung müssen Blutungsrisiken, begleitende Antikoagulanzien und patientenbezogene Faktoren anhand der aktuellen Fachinformation geprüft werden.",
-      "editorial_status": "draft_unreviewed",
-      "fact_type": "warning",
-      "id": "legacy-v05-023",
-      "linked_product_ids": [
-        "ema_eliquis"
-      ],
-      "reference": {
-        "document_title": "Eliquis – EMA EPAR",
-        "document_url": "https://www.ema.europa.eu/en/medicines/human/EPAR/eliquis",
-        "locator": "Product information / Annex I, sections 4.3–4.5",
-        "publication_date": null
-      },
-      "risk_level": "critical",
-      "target_name": "Eliquis",
-      "target_type": "product"
-    },
-    {
-      "assignment_status": "exact_match",
-      "batch": "v0.5",
       "content_text": "Xarelto enthält Rivaroxaban, einen direkten Gerinnungshemmer. Die konkrete Indikation ist abhängig von Patientengruppe und Präparat.",
       "editorial_status": "draft_unreviewed",
       "fact_type": "summary",
@@ -1064,26 +1044,6 @@
     {
       "assignment_status": "exact_match",
       "batch": "v0.8",
-      "content_text": "Unter Apixaban besteht ein erhöhtes Blutungsrisiko. Bei aktiver klinisch relevanter Blutung oder Verdacht auf innere Blutung ist eine sofortige medizinische Bewertung erforderlich; begleitende Gerinnungshemmer müssen berücksichtigt werden.",
-      "editorial_status": "draft_unreviewed",
-      "fact_type": "warning",
-      "id": "v08-eliquis-bleed",
-      "linked_product_ids": [
-        "ema_eliquis"
-      ],
-      "reference": {
-        "document_title": "EMA Eliquis – EU-Produktinformation (SmPC)",
-        "document_url": "https://www.ema.europa.eu/en/documents/product-information/eliquis-epar-product-information_en.pdf",
-        "locator": "SmPC 4.3 und 4.4",
-        "publication_date": "2026-04-10"
-      },
-      "risk_level": "critical",
-      "target_name": "Eliquis",
-      "target_type": "product"
-    },
-    {
-      "assignment_status": "exact_match",
-      "batch": "v0.8",
       "content_text": "Nierenfunktion, Alter, Körpergewicht und Behandlungsindikation können die Wahl des Apixaban-Schemas beeinflussen. Eine pauschale Dosisanpassung allein anhand eines dieser Merkmale ist nicht zulässig.",
       "editorial_status": "draft_unreviewed",
       "fact_type": "renal",
@@ -1178,26 +1138,6 @@
         "publication_date": "2026-09-22"
       },
       "risk_level": "normal",
-      "target_name": "Xarelto",
-      "target_type": "product"
-    },
-    {
-      "assignment_status": "exact_match",
-      "batch": "v0.8",
-      "content_text": "Unter Rivaroxaban sind relevante Blutungen möglich. Die Eignung hängt unter anderem von Indikation, Nierenfunktion und Begleitmedikation ab; die verordnete Wirkstärke und Anwendung müssen präparatspezifisch abgeglichen werden.",
-      "editorial_status": "draft_unreviewed",
-      "fact_type": "warning",
-      "id": "v08-xarelto-bleed",
-      "linked_product_ids": [
-        "ema_xarelto"
-      ],
-      "reference": {
-        "document_title": "EMA Xarelto – EPAR und Produktinformation",
-        "document_url": "https://www.ema.europa.eu/en/medicines/human/EPAR/xarelto",
-        "locator": "EPAR: Risks; Produktinformation SmPC 4.4–4.5",
-        "publication_date": "2026-09-22"
-      },
-      "risk_level": "critical",
       "target_name": "Xarelto",
       "target_type": "product"
     },
@@ -1598,26 +1538,6 @@
         "publication_date": "2026-04-10"
       },
       "risk_level": "normal",
-      "target_name": "Apixaban",
-      "target_type": "substance"
-    },
-    {
-      "assignment_status": "exact_match",
-      "batch": "v0.8",
-      "content_text": "Bei Apixaban besteht ein relevantes Blutungsrisiko. Beschwerden, die auf innere Blutungen hindeuten, benötigen unverzüglich eine medizinische Bewertung; die genaue Risikobeurteilung ist präparat- und patientenbezogen.",
-      "editorial_status": "draft_unreviewed",
-      "fact_type": "warning",
-      "id": "v08-api-subst-bleed",
-      "linked_product_ids": [
-        "ema_eliquis"
-      ],
-      "reference": {
-        "document_title": "EMA Eliquis – EU-Produktinformation (SmPC)",
-        "document_url": "https://www.ema.europa.eu/en/documents/product-information/eliquis-epar-product-information_en.pdf",
-        "locator": "SmPC 4.4",
-        "publication_date": "2026-04-10"
-      },
-      "risk_level": "critical",
       "target_name": "Apixaban",
       "target_type": "substance"
     },
@@ -2109,27 +2029,6 @@
     {
       "assignment_status": "exact_match",
       "batch": "v0.8 EMA Addendum",
-      "content_text": "Eine wesentliche Gefahr unter Apixaban sind Blutungen. Vor der Anwendung müssen Blutungszeichen, weitere Antikoagulanzien und das individuelle Blutungsrisiko berücksichtigt werden.",
-      "editorial_status": "draft_unreviewed",
-      "fact_type": "warning",
-      "id": "v08-ema-014",
-      "linked_product_ids": [
-        "ema_eliquis"
-      ],
-      "reference": {
-        "accessed_on": "2026-11-09",
-        "document_title": "Eliquis – EMA EPAR Arzneimittelseite",
-        "document_url": "https://www.ema.europa.eu/en/medicines/human/EPAR/eliquis",
-        "locator": "Overview / What is Eliquis used for? / What are the risks?",
-        "publication_date": null
-      },
-      "risk_level": "critical",
-      "target_name": "Eliquis",
-      "target_type": "product"
-    },
-    {
-      "assignment_status": "exact_match",
-      "batch": "v0.8 EMA Addendum",
       "content_text": "Aktive klinisch relevante Blutungen sind eine wichtige Gegenanzeige für Eliquis.",
       "editorial_status": "draft_unreviewed",
       "fact_type": "contraindication",
@@ -2166,69 +2065,6 @@
         "publication_date": null
       },
       "risk_level": "normal",
-      "target_name": "Xarelto",
-      "target_type": "product"
-    },
-    {
-      "assignment_status": "exact_match",
-      "batch": "v0.8 EMA Addendum",
-      "content_text": "Rivaroxaban kann relevante bis schwere Blutungen verursachen. Blutungszeichen und gleichzeitig angewendete gerinnungshemmende Arzneimittel müssen beachtet werden.",
-      "editorial_status": "draft_unreviewed",
-      "fact_type": "warning",
-      "id": "v08-ema-017",
-      "linked_product_ids": [
-        "ema_xarelto"
-      ],
-      "reference": {
-        "accessed_on": "2026-11-09",
-        "document_title": "Xarelto – EMA EPAR Arzneimittelseite",
-        "document_url": "https://www.ema.europa.eu/en/medicines/human/EPAR/xarelto",
-        "locator": "Overview / What are the risks associated with Xarelto?",
-        "publication_date": null
-      },
-      "risk_level": "critical",
-      "target_name": "Xarelto",
-      "target_type": "product"
-    },
-    {
-      "assignment_status": "exact_match",
-      "batch": "v0.8 EMA Addendum",
-      "content_text": "Zu den häufig genannten Nebenwirkungen von Xarelto gehören Blutungen, Hämatome und Anämie.",
-      "editorial_status": "draft_unreviewed",
-      "fact_type": "adverse_effect",
-      "id": "v08-ema-018",
-      "linked_product_ids": [
-        "ema_xarelto"
-      ],
-      "reference": {
-        "accessed_on": "2026-11-09",
-        "document_title": "Xarelto – EMA EPAR Arzneimittelseite",
-        "document_url": "https://www.ema.europa.eu/en/medicines/human/EPAR/xarelto",
-        "locator": "Overview / What are the risks associated with Xarelto?",
-        "publication_date": null
-      },
-      "risk_level": "high",
-      "target_name": "Xarelto",
-      "target_type": "product"
-    },
-    {
-      "assignment_status": "exact_match",
-      "batch": "v0.8 EMA Addendum",
-      "content_text": "Die Nierenfunktion ist bei der Behandlung mit Rivaroxaban klinisch relevant; das individuelle Vorgehen richtet sich nach der aktuellen produktspezifischen Fachinformation.",
-      "editorial_status": "draft_unreviewed",
-      "fact_type": "renal",
-      "id": "v08-ema-019",
-      "linked_product_ids": [
-        "ema_xarelto"
-      ],
-      "reference": {
-        "accessed_on": "2026-11-09",
-        "document_title": "Xarelto – EMA EPAR Arzneimittelseite",
-        "document_url": "https://www.ema.europa.eu/en/medicines/human/EPAR/xarelto",
-        "locator": "Overview / What are the risks associated with Xarelto?",
-        "publication_date": null
-      },
-      "risk_level": "high",
       "target_name": "Xarelto",
       "target_type": "product"
     },
@@ -3579,27 +3415,6 @@
     {
       "assignment_status": "exact_match",
       "batch": "v0.8 EMA Addendum",
-      "content_text": "Cosentyx kann das Infektionsrisiko erhöhen. Bei schwerwiegenden aktiven Infektionen, zum Beispiel aktiver Tuberkulose, darf die Behandlung nicht begonnen beziehungsweise fortgesetzt werden, ohne dies medizinisch abzuklären.",
-      "editorial_status": "draft_unreviewed",
-      "fact_type": "warning",
-      "id": "v08-ema-084",
-      "linked_product_ids": [
-        "756f0347-3953-579a-a4b9-232d3452bef2"
-      ],
-      "reference": {
-        "accessed_on": "2026-11-09",
-        "document_title": "Cosentyx – EMA EPAR Arzneimittelseite",
-        "document_url": "https://www.ema.europa.eu/en/medicines/human/EPAR/cosentyx",
-        "locator": "Overview / What is Cosentyx? / What are the side effects and restrictions?",
-        "publication_date": null
-      },
-      "risk_level": "critical",
-      "target_name": "Cosentyx",
-      "target_type": "product"
-    },
-    {
-      "assignment_status": "exact_match",
-      "batch": "v0.8 EMA Addendum",
       "content_text": "Häufige Nebenwirkungen von Cosentyx sind Infektionen der oberen Atemwege, darunter Nasen-Rachen-Entzündungen.",
       "editorial_status": "draft_unreviewed",
       "fact_type": "adverse_effect",
@@ -3642,12 +3457,216 @@
   ],
   "format": "medidenta-editorial-review-only-v1",
   "notice": "ÖFFENTLICHE REDAKTIONELLE ENTWÜRFE – NICHT KLINISCH GEPRÜFT.",
-  "reviewed_facts": 0,
-  "reviewed_facts_list": [],
-  "source_commit": "752691c75d4b56a32f7f1a3e79bb88a68411f2ec",
+  "reviewed_facts": 9,
+  "reviewed_facts_list": [
+    {
+      "assignment_status": "exact_match",
+      "batch": "v0.5",
+      "content_text": "Apixaban ist ein gerinnungshemmender Wirkstoff. Vor der Anwendung müssen Blutungsrisiken, begleitende Antikoagulanzien und patientenbezogene Faktoren anhand der aktuellen Fachinformation geprüft werden.",
+      "editorial_status": "clinically_reviewed",
+      "fact_type": "warning",
+      "id": "legacy-v05-023",
+      "linked_product_ids": [
+        "ema_eliquis"
+      ],
+      "reference": {
+        "document_title": "Eliquis – EMA EPAR",
+        "document_url": "https://www.ema.europa.eu/en/medicines/human/EPAR/eliquis",
+        "locator": "Product information / Annex I, sections 4.3–4.5",
+        "publication_date": null
+      },
+      "review_status_label": "Fachlich freigegeben durch registriertes Prüfkonto",
+      "reviewed_at": "2026-11-09T21:55:49+00:00",
+      "risk_level": "critical",
+      "target_name": "Eliquis",
+      "target_type": "product"
+    },
+    {
+      "assignment_status": "exact_match",
+      "batch": "v0.8",
+      "content_text": "Unter Apixaban besteht ein erhöhtes Blutungsrisiko. Bei aktiver klinisch relevanter Blutung oder Verdacht auf innere Blutung ist eine sofortige medizinische Bewertung erforderlich; begleitende Gerinnungshemmer müssen berücksichtigt werden.",
+      "editorial_status": "clinically_reviewed",
+      "fact_type": "warning",
+      "id": "v08-eliquis-bleed",
+      "linked_product_ids": [
+        "ema_eliquis"
+      ],
+      "reference": {
+        "document_title": "EMA Eliquis – EU-Produktinformation (SmPC)",
+        "document_url": "https://www.ema.europa.eu/en/documents/product-information/eliquis-epar-product-information_en.pdf",
+        "locator": "SmPC 4.3 und 4.4",
+        "publication_date": "2026-04-10"
+      },
+      "review_status_label": "Fachlich freigegeben durch registriertes Prüfkonto",
+      "reviewed_at": "2026-11-09T21:57:28+00:00",
+      "risk_level": "critical",
+      "target_name": "Eliquis",
+      "target_type": "product"
+    },
+    {
+      "assignment_status": "exact_match",
+      "batch": "v0.8",
+      "content_text": "Unter Rivaroxaban sind relevante Blutungen möglich. Die Eignung hängt unter anderem von Indikation, Nierenfunktion und Begleitmedikation ab; die verordnete Wirkstärke und Anwendung müssen präparatspezifisch abgeglichen werden.",
+      "editorial_status": "clinically_reviewed",
+      "fact_type": "warning",
+      "id": "v08-xarelto-bleed",
+      "linked_product_ids": [
+        "ema_xarelto"
+      ],
+      "reference": {
+        "document_title": "EMA Xarelto – EPAR und Produktinformation",
+        "document_url": "https://www.ema.europa.eu/en/medicines/human/EPAR/xarelto",
+        "locator": "EPAR: Risks; Produktinformation SmPC 4.4–4.5",
+        "publication_date": "2026-09-22"
+      },
+      "review_status_label": "Fachlich freigegeben durch registriertes Prüfkonto",
+      "reviewed_at": "2026-11-09T22:11:42+00:00",
+      "risk_level": "critical",
+      "target_name": "Xarelto",
+      "target_type": "product"
+    },
+    {
+      "assignment_status": "exact_match",
+      "batch": "v0.8",
+      "content_text": "Bei Apixaban besteht ein relevantes Blutungsrisiko. Beschwerden, die auf innere Blutungen hindeuten, benötigen unverzüglich eine medizinische Bewertung; die genaue Risikobeurteilung ist präparat- und patientenbezogen.",
+      "editorial_status": "clinically_reviewed",
+      "fact_type": "warning",
+      "id": "v08-api-subst-bleed",
+      "linked_product_ids": [
+        "ema_eliquis"
+      ],
+      "reference": {
+        "document_title": "EMA Eliquis – EU-Produktinformation (SmPC)",
+        "document_url": "https://www.ema.europa.eu/en/documents/product-information/eliquis-epar-product-information_en.pdf",
+        "locator": "SmPC 4.4",
+        "publication_date": "2026-04-10"
+      },
+      "review_status_label": "Fachlich freigegeben durch registriertes Prüfkonto",
+      "reviewed_at": "2026-11-09T21:44:27+00:00",
+      "risk_level": "critical",
+      "target_name": "Apixaban",
+      "target_type": "substance"
+    },
+    {
+      "assignment_status": "exact_match",
+      "batch": "v0.8 EMA Addendum",
+      "content_text": "Eine wesentliche Gefahr unter Apixaban sind Blutungen. Vor der Anwendung müssen Blutungszeichen, weitere Antikoagulanzien und das individuelle Blutungsrisiko berücksichtigt werden.",
+      "editorial_status": "clinically_reviewed",
+      "fact_type": "warning",
+      "id": "v08-ema-014",
+      "linked_product_ids": [
+        "ema_eliquis"
+      ],
+      "reference": {
+        "accessed_on": "2026-11-09",
+        "document_title": "Eliquis – EMA EPAR Arzneimittelseite",
+        "document_url": "https://www.ema.europa.eu/en/medicines/human/EPAR/eliquis",
+        "locator": "Overview / What is Eliquis used for? / What are the risks?",
+        "publication_date": null
+      },
+      "review_status_label": "Fachlich freigegeben durch registriertes Prüfkonto",
+      "reviewed_at": "2026-11-09T21:57:42+00:00",
+      "risk_level": "critical",
+      "target_name": "Eliquis",
+      "target_type": "product"
+    },
+    {
+      "assignment_status": "exact_match",
+      "batch": "v0.8 EMA Addendum",
+      "content_text": "Rivaroxaban kann relevante bis schwere Blutungen verursachen. Blutungszeichen und gleichzeitig angewendete gerinnungshemmende Arzneimittel müssen beachtet werden.",
+      "editorial_status": "clinically_reviewed",
+      "fact_type": "warning",
+      "id": "v08-ema-017",
+      "linked_product_ids": [
+        "ema_xarelto"
+      ],
+      "reference": {
+        "accessed_on": "2026-11-09",
+        "document_title": "Xarelto – EMA EPAR Arzneimittelseite",
+        "document_url": "https://www.ema.europa.eu/en/medicines/human/EPAR/xarelto",
+        "locator": "Overview / What are the risks associated with Xarelto?",
+        "publication_date": null
+      },
+      "review_status_label": "Fachlich freigegeben durch registriertes Prüfkonto",
+      "reviewed_at": "2026-11-09T22:11:24+00:00",
+      "risk_level": "critical",
+      "target_name": "Xarelto",
+      "target_type": "product"
+    },
+    {
+      "assignment_status": "exact_match",
+      "batch": "v0.8 EMA Addendum",
+      "content_text": "Zu den häufig genannten Nebenwirkungen von Xarelto gehören Blutungen, Hämatome und Anämie.",
+      "editorial_status": "clinically_reviewed",
+      "fact_type": "adverse_effect",
+      "id": "v08-ema-018",
+      "linked_product_ids": [
+        "ema_xarelto"
+      ],
+      "reference": {
+        "accessed_on": "2026-11-09",
+        "document_title": "Xarelto – EMA EPAR Arzneimittelseite",
+        "document_url": "https://www.ema.europa.eu/en/medicines/human/EPAR/xarelto",
+        "locator": "Overview / What are the risks associated with Xarelto?",
+        "publication_date": null
+      },
+      "review_status_label": "Fachlich freigegeben durch registriertes Prüfkonto",
+      "reviewed_at": "2026-11-09T22:11:49+00:00",
+      "risk_level": "high",
+      "target_name": "Xarelto",
+      "target_type": "product"
+    },
+    {
+      "assignment_status": "exact_match",
+      "batch": "v0.8 EMA Addendum",
+      "content_text": "Die Nierenfunktion ist bei der Behandlung mit Rivaroxaban klinisch relevant; das individuelle Vorgehen richtet sich nach der aktuellen produktspezifischen Fachinformation.",
+      "editorial_status": "clinically_reviewed",
+      "fact_type": "renal",
+      "id": "v08-ema-019",
+      "linked_product_ids": [
+        "ema_xarelto"
+      ],
+      "reference": {
+        "accessed_on": "2026-11-09",
+        "document_title": "Xarelto – EMA EPAR Arzneimittelseite",
+        "document_url": "https://www.ema.europa.eu/en/medicines/human/EPAR/xarelto",
+        "locator": "Overview / What are the risks associated with Xarelto?",
+        "publication_date": null
+      },
+      "review_status_label": "Fachlich freigegeben durch registriertes Prüfkonto",
+      "reviewed_at": "2026-11-09T22:11:58+00:00",
+      "risk_level": "high",
+      "target_name": "Xarelto",
+      "target_type": "product"
+    },
+    {
+      "assignment_status": "exact_match",
+      "batch": "v0.8 EMA Addendum",
+      "content_text": "Cosentyx kann das Infektionsrisiko erhöhen. Bei schwerwiegenden aktiven Infektionen, zum Beispiel aktiver Tuberkulose, darf die Behandlung nicht begonnen beziehungsweise fortgesetzt werden, ohne dies medizinisch abzuklären.",
+      "editorial_status": "clinically_reviewed",
+      "fact_type": "warning",
+      "id": "v08-ema-084",
+      "linked_product_ids": [
+        "756f0347-3953-579a-a4b9-232d3452bef2"
+      ],
+      "reference": {
+        "accessed_on": "2026-11-09",
+        "document_title": "Cosentyx – EMA EPAR Arzneimittelseite",
+        "document_url": "https://www.ema.europa.eu/en/medicines/human/EPAR/cosentyx",
+        "locator": "Overview / What is Cosentyx? / What are the side effects and restrictions?",
+        "publication_date": null
+      },
+      "review_status_label": "Fachlich freigegeben durch registriertes Prüfkonto",
+      "reviewed_at": "2026-11-09T21:45:35+00:00",
+      "risk_level": "critical",
+      "target_name": "Cosentyx",
+      "target_type": "product"
+    }
+  ],
+  "source_commit": "b95a7d7741d3b4486ea0f6beb8040d324911f36f",
   "stats": {
-    "fact_drafts": 178,
-    "matched_facts": 174,
+    "fact_drafts": 169,
+    "matched_facts": 165,
     "products": 36,
     "unmatched_facts": 4
   }

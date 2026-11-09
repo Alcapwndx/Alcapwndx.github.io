@@ -1,12 +1,12 @@
 {
-  "draft_count": 178,
+  "draft_count": 169,
   "format": "medidenta-public-sync-v1",
   "identity_count": 36,
   "medical_release_ready": false,
   "mode": "STATIC_PUBLIC_PREVIEW",
-  "reviewed_count": 0,
-  "source_commit": "752691c75d4b56a32f7f1a3e79bb88a68411f2ec",
-  "source_date": "2026-11-09T23:33:20+01:00",
+  "reviewed_count": 9,
+  "source_commit": "b95a7d7741d3b4486ea0f6beb8040d324911f36f",
+  "source_date": "2026-11-09T23:52:08Z",
   "source_of_truth": "Alcapwndx/MediIdenta",
   "unmatched_count": 4
 }
