@@ -7,7 +7,7 @@
 const SESSION_KEY='medidenta_editorial_auth_session_v07';
 const REVIEW_TABLE='medidenta_review_events';
 const ROLES_TABLE='medidenta_reviewer_roles';
-const DECISIONS={verified:'Fachlich geprüft – Aussage korrekt',needs_revision:'Überarbeitung erforderlich',rejected:'Aussage fachlich nicht bestätigt'};
+const DECISIONS={verified:'Fachlich freigegeben – Aussage korrekt',needs_revision:'Überarbeitung erforderlich',rejected:'Aussage fachlich nicht bestätigt'};
 const A={configured:false,base:'',key:'',session:null,user:null,role:null,events:[],message:'',error:false,busy:false,pendingEmail:'',getState:null,draw:null};
 const esc=x=>String(x==null?'':x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function config(){
@@ -103,7 +103,7 @@ async function logout(){
  clearUser();done('Abgemeldet.');
 }
 function accountHtml(){
- const info='<div class="notice warning"><strong>Prüfprotokoll ist keine klinische Veröffentlichung.</strong> Eine Bestätigung speichert nur einen nachvollziehbaren redaktionellen Prüfentscheid. Die private Arzneimitteldatenbank bleibt vorerst unverändert. Keine Patientendaten in die Notizen eintragen.</div>';
+ const info='<div class="notice warning"><strong>Deine Prüfung hat Freigabewirkung auf die konkrete Aussage.</strong> Nach dem serverseitigen Datenabgleich wird eine nachweislich bestätigte, unveränderte Aussage in MediIdenta fachlich freigegeben. Das ist keine pauschale Produkt- oder Dosierungsfreigabe. Keine Patientendaten in die Notizen eintragen.</div>';
  const heading='<div class="eyebrow">MediIdenta · Redaktionskonto</div><h1>Anmeldung und Prüfberechtigung</h1>';
  if(!A.configured)return heading+info+
   '<section class="card"><h2>Anmeldung vorbereitet</h2><p>Die geschützte Kontoverwaltung muss noch einmalig mit Supabase verbunden werden.</p>'+
@@ -157,12 +157,12 @@ function reviewActionHtml(f){
  '<label>Begründung / Korrekturhinweis (ohne Patientendaten)<textarea name="notes" rows="2" maxlength="3000" placeholder="Bei Korrekturbedarf bitte konkret begründen."></textarea></label>'+
  '<label class="editor-attest"><input name="source_checked" type="checkbox" value="yes" required> Ich habe die aktuelle Originalquelle, die genaue Fundstelle, den Produkt- beziehungsweise Wirkstoffbezug sowie die Aussage fachlich geprüft.</label>'+
  '<button class="primary full" type="submit" '+(A.busy?'disabled':'')+'>Prüfentscheidung verbindlich protokollieren</button>'+
- '<p class="tiny muted">Gespeichert werden Benutzer-ID, Datum, Quellrevision und SHA-256 der geprüften Aussage. Die medizinische Veröffentlichung bleibt gesperrt.</p></form>';
+ '<p class="tiny muted">Gespeichert werden Benutzer-ID, Datum, Quellrevision und SHA-256 der geprüften Aussage. Die Freigabe wird erst nach dem sicheren Serverabgleich wirksam. Die App selbst bleibt eine Entwicklungsanwendung.</p></form>';
 }
 async function digestFact(f){
  if(!global.crypto?.subtle||typeof TextEncoder==='undefined')throw Error('Sichere Prüfsummenbildung wird auf diesem Gerät nicht unterstützt.');
  const r=f.reference||{};
- const canonical=JSON.stringify([f.id,f.target_type,f.target_name,f.fact_type,f.content_text,r.document_url,r.locator]);
+ const canonical=JSON.stringify([f.id,f.target_type,f.target_name,f.fact_type,f.content_text,r.document_url,r.locator,r.publication_date||null,r.accessed_on||null]);
  const bytes=new TextEncoder().encode(canonical);
  const hash=await global.crypto.subtle.digest('SHA-256',bytes);
  return [...new Uint8Array(hash)].map(x=>x.toString(16).padStart(2,'0')).join('');
@@ -171,8 +171,8 @@ async function submitReview(id,form){
  if(A.busy)return;
  const D=A.getState?.();
  if(!A.configured||!A.user||!A.role||!D||!isActiveRevision(D)){done('Kein freigeschaltetes Prüfkonto oder unklarer Datenstand.',true);return;}
- const f=(D.drafts||[]).find(x=>x.id===id);
- if(!f||f.editorial_status!=='draft_unreviewed'){done('Die geprüfte Aussage ist nicht mehr verfügbar.',true);return;}
+ const f=[...(D.drafts||[]),...(D.approved||[])].find(x=>x.id===id);
+ if(!f||!['draft_unreviewed','clinically_reviewed'].includes(f.editorial_status)){done('Die geprüfte Aussage ist nicht mehr verfügbar.',true);return;}
  const decision=form.querySelector('[name="decision"]')?.value;
  const notes=String(form.querySelector('[name="notes"]')?.value||'').trim();
  const checked=!!form.querySelector('[name="source_checked"]')?.checked;
@@ -197,7 +197,7 @@ async function submitReview(id,form){
      result[0].source_commit!==data.source_commit||result[0].statement_sha256!==data.statement_sha256)
    throw Error('Die Datenbankbestätigung konnte nicht verifiziert werden.');
   A.events.unshift(result[0]);
-  done('Prüfentscheidung erfolgreich und nachvollziehbar gespeichert. Keine klinische Freigabe der App.');
+  done(decision==='verified'?'Fachliche Freigabe dokumentiert. Nach dem nächsten gesicherten Abgleich wird genau diese Textfassung im Katalog als fachlich freigegeben angezeigt.':'Deine Entscheidung wurde dokumentiert. Eine ältere Freigabe wird nach dem nächsten gesicherten Abgleich widerrufen.');
  }catch(e){done(e.message,true);}
 }
 function init(getState,draw){

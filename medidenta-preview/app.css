@@ -71,3 +71,9 @@ select.search-input{appearance:auto}
 .auth-history{border-top:1px solid #e1ebec;margin-top:10px;padding-top:10px;font-size:12px}
 .auth-history strong{color:#0d5966}
 @media(max-width:390px){.app-header{padding-left:12px;padding-right:12px}.app-header .brand{font-size:18px;gap:5px}.app-header .brand-icon{width:30px;height:30px;font-size:17px}.app-header .version{font-size:8px;padding:6px}.account-entry{width:29px;height:29px}.header-right{gap:5px}}
+
+/* v0.8: reviewed text is visually distinct from unreviewed editorial drafts */
+.clinical-draft:has(.reviewed-tag){border-left-color:#138375;background:#f2faf7}
+.tag.reviewed-tag{background:#daf3e9;color:#08684d}
+.reviewed-info{color:#146d54;font-weight:750}
+@media(prefers-color-scheme:dark){.clinical-draft:has(.reviewed-tag){background:#174d43;border-left-color:#3fd4a2}.tag.reviewed-tag{background:#245f4d;color:#dbfff0}.reviewed-info{color:#a7eacd}}

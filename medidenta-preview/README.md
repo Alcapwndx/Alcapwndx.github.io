@@ -46,3 +46,11 @@ Die Bestätigung dokumentiert die geprüfte Original-EMA-Quelle, die konkrete Gi
 Persönliche lokale Prüfnotizen und zentral gespeicherte, authentifizierte Prüfentscheidungen sind unterschiedliche Funktionen. **Eine authentifizierte Bestätigung ist noch keine klinische Freigabe** für die private MediIdenta-Datenbank; ein separater kontrollierter Publikationsprozess ist nötig.
 
 Siehe private Dokumentation im Repository `Alcapwndx/MediIdenta` unter `docs/KLINISCHER_REVIEW_LOGIN.md`.
+
+## Fachliche Freigabe durch Prüfkonto (0.8, noch nicht aktiviert)
+
+Die persönliche Auswahl **Fachlich freigegeben – Aussage korrekt** wird nach einem erfolgreichen authentifizierten Review in der Supabase-Audit-Tabelle gespeichert. Eine private GitHub Action liest Entscheidungen und den aktuellen Rollenstatus in geschützter Umgebung, prüft unveränderten Text, SHA-256, Original-EMA-Quelle, Fundstelle und Produkt-/Wirkstoffzuordnung und übernimmt nur gültige aktuelle Entscheidungen als `medical_facts.publication_status='published'` in den neu aufgebauten privaten Katalog. Danach synchronisiert das Projekt den öffentlichen Datenstand.
+
+Die Demo unterscheidet in derselben Fachdaten-Datei `facts` (ungeprüfte Entwürfe) und `reviewed_facts_list` (nach tatsächlicher Backend-Freigabe). Ein neues freigegebenes Faktum wird erst nach erfolgreichem GitHub Actions und Pages-Deploy sichtbar. Eine spätere Ablehnung/Korrektur widerruft die vorherige Freigabe.
+
+Das erforderliche Supabase-Projekt mit Rollen und privater Backend-Verbindung ist **noch nicht eingerichtet**. Der Account-Button bleibt bis dahin in einem deaktivierten Einrichtungsmodus. Die Desktop-/Mobil-App ist auch nach fachlichen Einzelbestätigungen nicht als Medizinprodukt oder Therapieentscheidungssystem freigegeben.

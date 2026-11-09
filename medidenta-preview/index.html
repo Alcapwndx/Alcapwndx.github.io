@@ -5,18 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#103f52">
 <meta name="description" content="MediIdenta – Recherche geprüfter Arzneimittelidentitäten für medizinische Fachkräfte. Entwicklungs-App.">
-<title>MediIdenta – Redaktionskonto & Prüfen 0.7</title>
+<title>MediIdenta – Klinische Fachtextfreigabe 0.8</title>
 <link rel="icon" type="image/svg+xml" href="./icon.svg">
 <link rel="manifest" href="./manifest.webmanifest">
-<link rel="stylesheet" href="./app.css?v=0.7">
+<link rel="stylesheet" href="./app.css?v=0.8">
 </head>
 <body>
 <div id="app" class="app-shell">
   <header class="app-header">
     <div class="brand"><span class="brand-icon" aria-hidden="true">✚</span><span>Medi<span class="brand-accent">Identa</span></span></div>
-    <div class="header-right"><span class="version">APP 0.7 · DB 0.8</span><button class="account-entry" type="button" data-nav="account" aria-label="Prüfkonto / Anmeldung" title="Prüfkonto">♙</button></div>
+    <div class="header-right"><span class="version">APP 0.8 · Prüfversion</span><button class="account-entry" type="button" data-nav="account" aria-label="Prüfkonto / Anmeldung" title="Prüfkonto">♙</button></div>
   </header>
-  <div class="public-notice" role="note"><strong>Öffentliche Entwicklungs-Demo</strong> · Öffentlicher Testkatalog mit Datenstandsanzeige. Fachinformationen sind ungeprüfte Entwürfe. Keine klinische Freigabe oder Fotoidentifizierung.</div>
+  <div class="public-notice" role="note"><strong>Öffentliche Entwicklungs-Demo</strong> · Öffentlicher Testkatalog mit Datenstandsanzeige. Fachinformationen erscheinen mit ihrem jeweiligen Prüfstatus: Entwurf oder persönlich fachlich freigegeben. Keine klinische Freigabe der gesamten App.</div>
   <div id="system-status" role="status" aria-live="polite" class="system-status">Datenquelle wird geprüft …</div>
   <main id="screen" tabindex="-1" aria-live="polite"></main>
   <nav class="bottom-nav" aria-label="Hauptnavigation">
@@ -29,10 +29,10 @@
   <div id="toast" role="status" aria-live="polite"></div>
   <input id="photo-picker" type="file" accept="image/*" capture="environment" hidden>
 </div>
-<script src="./identifier.js?v=0.7" defer></script>
-<script src="./review-auth-config.js?v=0.7" defer></script>
-<script src="./review-auth.js?v=0.7" defer></script>
-<script src="./review-ui.js?v=0.7" defer></script>
-<script src="./app.js?v=0.7" defer></script>
+<script src="./identifier.js?v=0.8" defer></script>
+<script src="./review-auth-config.js?v=0.8" defer></script>
+<script src="./review-auth.js?v=0.8" defer></script>
+<script src="./review-ui.js?v=0.8" defer></script>
+<script src="./app.js?v=0.8" defer></script>
 </body>
 </html>
