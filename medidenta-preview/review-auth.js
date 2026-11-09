@@ -212,7 +212,7 @@ function reviewActionHtml(f){
   '<label>Prüfergebnis<select name="assessment" class="search-input"><option value="checked">Quelle geprüft – ohne Freigabewirkung</option>'+
   '<option value="needs_revision">Überarbeitung erforderlich</option><option value="source_question">Quellenbezug unklar</option></select></label>'+
   '<label>Interne Notiz<textarea name="note" rows="2" maxlength="3000" required placeholder="Begründung; keine Patientendaten"></textarea></label>'+
-  '<button class="secondary full" type="submit">Private Prüfung speichern</button></form>':'';
+  '<button class="secondary full" type="submit">Private Prüfung speichern</button></form><div class="collaboration-comments" data-note-list="'+id+'"><p class="tiny muted">Private Notizen werden beim Öffnen geladen.</p></div>':'';
  const comments=
   '<section class="collaboration-comments" data-comment-list="'+id+'"><p class="tiny muted">Kommentare werden beim Öffnen geladen.</p></section>'+
   '<form data-comment-form="'+id+'" class="editor-form">'+
@@ -324,6 +324,23 @@ async function loadComments(details){
   if(details.isConnected)element.textContent='Kommentare derzeit nicht verfügbar. '+String(e.message||'');
  }
 }
+async function loadNotes(details){
+ if(!details?.open||(A.role!=='admin'&&A.role!=='moderator'))return;
+ const id=details.dataset.collabId;
+ const element=details.querySelector('[data-note-list]');if(!element)return;
+ element.textContent='Private Prüfnotizen laden …';
+ try{
+  const data=await liveRequest('/facts/'+encodeURIComponent(id)+'/moderator-notes','GET');
+  if(!details.isConnected)return;
+  const notes=data?.notes||[];
+  element.innerHTML='<p class="tiny bold">Interne Quellenprüfungen</p>'+
+   (notes.length?notes.map(x=>'<div class="collaboration-comment">'+
+     '<span class="tag gray">'+esc(x.assessment==='checked'?'Quelle gesichtet':x.assessment==='needs_revision'?'Überarbeitung':'Quellenrückfrage')+'</span>'+
+     '<p>'+esc(x.note||'')+'</p><time>'+esc(x.created_at?new Date(x.created_at).toLocaleDateString('de-DE'):'')+
+     ' · Revision '+esc((x.source_commit||'').slice(0,10))+'</time></div>').join(''):
+     '<p class="tiny muted">Noch keine privaten Notizen.</p>');
+ }catch(e){if(details.isConnected)element.textContent='Interne Notizen derzeit nicht abrufbar.';}
+}
 async function submitComment(form){
  const details=form.closest('details[data-collab-id]'),id=form.dataset.commentForm;
  if(!A.user||!details)return;
@@ -351,6 +368,7 @@ async function submitModeratorNote(form){
   });
   form.reset();
   collaborationFeedback(details,'Private Quellenprüfung revisionsbezogen gespeichert. Keine klinische Freigabe.');
+  await loadNotes(details);
  }catch(e){collaborationFeedback(details,String(e.message||e),true);}
 }
 async function moderateComment(button){
@@ -396,7 +414,7 @@ function init(getState,draw){
  });
  document.addEventListener('toggle',e=>{
   const element=e.target;
-  if(element?.matches?.('details[data-collab-id]')&&element.open)loadComments(element);
+  if(element?.matches?.('details[data-collab-id]')&&element.open){loadComments(element);loadNotes(element);}
  },true);
 }
 global.MediIdentaReviewAuth={init,accountHtml,reviewActionHtml,
