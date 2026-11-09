@@ -165,6 +165,26 @@ async def health():
     })
 
 
+@app.get("/api/v1/features")
+async def features():
+    """Enable collaboration only after the operator applies the atomic v0.9 SQL migration."""
+    if not IS_LIVE_CONFIGURED:
+        return no_store({"collaboration_enabled": False, "reason": "no_live_database"})
+    async with httpx.AsyncClient(timeout=8.0, follow_redirects=False) as client:
+        try:
+            response = await client.get(
+                f"{URL}/rest/v1/medidenta_fact_comments",
+                headers={"apikey": KEY, "Accept": "application/json"},
+                params={"select": "id", "limit": "0"},
+            )
+            return no_store({
+                "collaboration_enabled": response.status_code == 200,
+                "reason": "available" if response.status_code == 200 else "database_migration_pending",
+            })
+        except httpx.HTTPError:
+            return no_store({"collaboration_enabled": False, "reason": "database_unavailable"})
+
+
 @app.get("/api/v1/readiness")
 async def readiness():
     if not IS_LIVE_CONFIGURED:
