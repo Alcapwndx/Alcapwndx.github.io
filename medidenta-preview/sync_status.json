@@ -1,11 +1,11 @@
 {
-  "format": "medidenta-public-sync-v1",
-  "source_commit": "manual-preview-v06",
-  "source_date": "2026-11-09",
-  "source_of_truth": "Alcapwndx/MediIdenta",
-  "identity_count": 36,
   "draft_count": 178,
-  "unmatched_count": 4,
+  "format": "medidenta-public-sync-v1",
+  "identity_count": 36,
   "medical_release_ready": false,
-  "mode": "MANUAL_STATIC_PREVIEW"
+  "mode": "STATIC_PUBLIC_PREVIEW",
+  "source_commit": "8040815cd77f5ceed1693407c3e413677380b60f",
+  "source_date": "2026-11-09T15:37:20+01:00",
+  "source_of_truth": "Alcapwndx/MediIdenta",
+  "unmatched_count": 4
 }
