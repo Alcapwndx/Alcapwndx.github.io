@@ -100,6 +100,16 @@ async function login(x){
  const oldRole=make("reviewer");await login(oldRole);
  assert.equal(oldRole.auth._debug.role(),"moderator","Legacy reviewers are never admins");
 
+ const preMigration=make("admin");await login(preMigration);
+ preMigration.state.features.collaboration_enabled=false;
+ const preTools=preMigration.auth.reviewActionHtml(fact);
+ assert.match(preTools,/Admin-Entscheidung/,"Existing clinical approval remains usable");
+ assert.doesNotMatch(preTools,/data-comment-form/,"Pending migration never exposes unusable comments");
+ assert.doesNotMatch(preTools,/data-note-form/);
+ const beforeUser=make(null);await login(beforeUser);
+ beforeUser.state.features.collaboration_enabled=false;
+ assert.equal(beforeUser.auth.reviewActionHtml(fact),"","User controls require migration");
+
  const stale=make("admin");await login(stale);
  stale.state.draftRevision="b".repeat(40);
  assert.doesNotMatch(stale.auth.reviewActionHtml(fact),/Admin-Entscheidung/);
