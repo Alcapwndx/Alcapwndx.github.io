@@ -162,7 +162,7 @@ function reviewActionHtml(f){
 async function digestFact(f){
  if(!global.crypto?.subtle||typeof TextEncoder==='undefined')throw Error('Sichere Prüfsummenbildung wird auf diesem Gerät nicht unterstützt.');
  const r=f.reference||{};
- const canonical=JSON.stringify([f.id,f.target_type,f.target_name,f.fact_type,f.content_text,r.document_url,r.locator]);
+ const canonical=JSON.stringify([f.id,f.target_type,f.target_name,f.fact_type,f.content_text,r.document_url,r.locator,r.publication_date||null,r.accessed_on||null]);
  const bytes=new TextEncoder().encode(canonical);
  const hash=await global.crypto.subtle.digest('SHA-256',bytes);
  return [...new Uint8Array(hash)].map(x=>x.toString(16).padStart(2,'0')).join('');
