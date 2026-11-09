@@ -91,7 +91,7 @@ async function send(x,email="editor@example.org"){
  const guest=make(hash);
  await flush();await flush();await flush();
  assert.equal(guest.auth._debug.role(),null,"Magic link never grants a reviewer role");
- assert.match(guest.auth.accountHtml(),/Noch keine Prüfberechtigung/);
+ assert.match(guest.auth.accountHtml(),/User \(Kommentieren\)/);
 
  events.length=0;
  const failed=make("#error=access_denied&error_description=expired");
