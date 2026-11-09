@@ -163,9 +163,17 @@ function accountHtml(){
    '<div class="tiny muted">'+esc(new Date(x.created_at).toLocaleString('de-DE'))+' · Revision '+esc(x.source_commit?.slice(0,12))+'</div></div>').join('');
   return heading+info+'<section class="card"><h2>Mein Konto</h2><p><strong>'+esc(A.user.email)+'</strong></p>'+
    '<p class="account-role small"><strong>Rolle:</strong> '+esc(role)+'</p>'+
-   (!A.role?'<div class="notice">Du kannst Kommentare zu Fachtexten einreichen. Diese werden vor öffentlicher Anzeige moderiert. Die Moderator-/Adminrolle wird nur von der Projektverwaltung zugewiesen.</div>'+
-   '<p class="tiny muted">Benutzer-ID zur einmaligen Rollenvergabe: <code>'+esc(A.user.id)+'</code></p>':'')+
+   '<p class="tiny muted">Deine Benutzer-ID für eine Rollenvergabe: <code>'+esc(A.user.id)+'</code></p>'+
+   (!A.role?'<div class="notice">Als User kannst du Kommentare einreichen. Diese werden vor ihrer öffentlichen Anzeige moderiert.</div>':'')+
    '<button class="secondary full spaced" data-editor-action="logout">Abmelden</button></section>'+
+   (A.role==='admin'?'<section class="card"><h2>Benutzerrollen verwalten</h2>'+
+    '<p class="small muted">Andere Nutzer melden sich zunächst per E-Mail an und teilen dir anschließend ihre Benutzer-ID mit. Nur du als Admin kannst Rollen zuweisen.</p>'+
+    '<form class="editor-form" data-role-form="assign">'+
+    '<label>Benutzer-ID (UUID)<input name="user_id" required maxlength="36" placeholder="00000000-0000-0000-0000-000000000000" autocomplete="off"></label>'+
+    '<label>Neue Rolle<select name="role" class="search-input"><option value="user">User · Kommentieren</option>'+
+    '<option value="moderator">Moderator · Quellen prüfen und Kommentare moderieren</option>'+
+    '<option value="admin">Admin · alle Redaktionsrechte</option></select></label>'+
+    '<button type="submit" class="primary full">Rolle sicher zuweisen</button></form></section>':'')+
    (A.role==='admin'?'<section class="card"><h2>Meine letzten Freigabeentscheidungen</h2>'+(history||'<p class="muted">Noch keine Entscheidungen protokolliert.</p>')+'</section>':'')+
    (A.message?'<div class="notice '+(A.error?'danger':'warning')+'">'+esc(A.message)+'</div>':'');
  }
@@ -341,6 +349,21 @@ async function loadNotes(details){
      '<p class="tiny muted">Noch keine privaten Notizen.</p>');
  }catch(e){if(details.isConnected)element.textContent='Interne Notizen derzeit nicht abrufbar.';}
 }
+async function submitRole(form){
+ if(A.role!=='admin')return;
+ const id=String(form.querySelector('[name="user_id"]')?.value||'').trim();
+ const role=String(form.querySelector('[name="role"]')?.value||'').trim();
+ if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
+    ||!['user','moderator','admin'].includes(role)){
+  done('Bitte eine gültige Benutzer-ID und Rolle wählen.',true);return;
+ }
+ busy('Rollenänderung wird serverseitig geprüft …');
+ try{
+  const x=await liveRequest('/admin/roles','POST',{user_id:id,role});
+  done(x?.role===role?'Rolle erfolgreich zugewiesen. Das andere Konto erhält die Berechtigung beim erneuten Laden.':
+       'Die Rollenbestätigung war unvollständig.',x?.role!==role);
+ }catch(e){done(String(e.message||e),true);}
+}
 async function submitComment(form){
  const details=form.closest('details[data-collab-id]'),id=form.dataset.commentForm;
  if(!A.user||!details)return;
@@ -395,7 +418,7 @@ function init(getState,draw){
  }
  document.addEventListener('submit',async e=>{
   const form=e.target;
-  if(!form?.dataset?.editorForm&&!form?.dataset?.editorFact&&!form?.dataset?.commentForm&&!form?.dataset?.noteForm)return;
+  if(!form?.dataset?.editorForm&&!form?.dataset?.editorFact&&!form?.dataset?.commentForm&&!form?.dataset?.noteForm&&!form?.dataset?.roleForm)return;
   e.preventDefault();
   if(form.dataset.editorForm==='request'){
    await sendOtp(form.querySelector('[name="email"]')?.value?.trim()||'');return;
@@ -403,6 +426,7 @@ function init(getState,draw){
   if(form.dataset.editorForm==='verify'){
    await verifyOtp(form.querySelector('[name="email"]')?.value?.trim()||'',form.querySelector('[name="otp"]')?.value?.trim()||'');return;
   }
+  if(form.dataset.roleForm){await submitRole(form);return;}
   if(form.dataset.commentForm){await submitComment(form);return;}
   if(form.dataset.noteForm){await submitModeratorNote(form);return;}
   if(form.dataset.editorFact)await submitReview(form.dataset.editorFact,form);
