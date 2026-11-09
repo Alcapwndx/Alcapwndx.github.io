@@ -16,7 +16,7 @@ const fact={
 function make(role,configured=true){
  const listeners={},storage={},calls=[];
  const state={drafts:[fact],approved:[],draftLoadError:false,
-   syncMeta:{source_commit:REV,mode:"LIVE_SUPABASE"},catalogRevision:REV,draftRevision:REV};
+   syncMeta:{source_commit:REV,mode:"LIVE_SUPABASE"},catalogRevision:REV,draftRevision:REV,features:{collaboration_enabled:true}};
  const window={
   MEDIIDENTA_AUTH_CONFIG:configured?{supabaseUrl:"https://demo123.supabase.co",
    publishableKey:"sb_publishable_"+"X".repeat(32),reviewApiBase:"/api/v1"}:{},
