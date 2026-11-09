@@ -389,6 +389,38 @@ async def post_fact_comment(fact_id: str, payload: CommentInput, request: Reques
     return no_store(result)
 
 
+@app.get("/api/v1/facts/{fact_id}/moderator-notes")
+async def fact_moderator_notes(fact_id: str, request: Request):
+    if not VALID_ID.fullmatch(fact_id):
+        raise HTTPException(400, "Ungültige Text-ID")
+    bearer = _user_bearer(request)
+    if not IS_LIVE_CONFIGURED:
+        raise HTTPException(503, "Interne Prüfung noch nicht verfügbar")
+    async with httpx.AsyncClient(timeout=12.0, follow_redirects=False) as client:
+        try:
+            response = await client.get(
+                f"{URL}/rest/v1/medidenta_moderator_notes",
+                headers={"apikey": KEY, "Authorization": bearer,
+                         "Accept": "application/json"},
+                params={"fact_id": "eq." + fact_id,
+                        "select": "id,source_commit,statement_sha256,assessment,note,created_at",
+                        "order": "created_at.desc", "limit": "20"},
+            )
+        except httpx.HTTPError:
+            raise HTTPException(503, "Interne Notizen nicht erreichbar") from None
+    if response.status_code in (401,403):
+        raise HTTPException(403, "Kein Zugriff auf interne Notizen")
+    if response.status_code >= 400:
+        raise HTTPException(503, "Moderatorfunktion noch nicht eingerichtet") from None
+    try:
+        notes = response.json()
+        if not isinstance(notes, list):
+            raise ValueError("Invalid notes response")
+    except ValueError:
+        raise HTTPException(503, "Notizantwort ungültig") from None
+    return no_store({"notes": notes})
+
+
 @app.post("/api/v1/facts/{fact_id}/moderator-notes")
 async def add_note(fact_id: str, payload: ModeratorNoteInput, request: Request):
     if not VALID_ID.fullmatch(fact_id):
