@@ -334,6 +334,8 @@ class CommentInput(BaseModel):
 
 class ModeratorNoteInput(BaseModel):
     model_config = ConfigDict(extra="forbid")
+    source_commit: str = Field(pattern=r"^[0-9a-f]{40}$")
+    statement_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
     assessment: str
     note: str = Field(min_length=10, max_length=3000)
 
@@ -394,8 +396,9 @@ async def add_note(fact_id: str, payload: ModeratorNoteInput, request: Request):
     if payload.assessment not in ("checked", "needs_revision", "source_question"):
         raise HTTPException(422, "Unbekanntes Prüfmerkmal")
     result = await _supabase_rpc("medidenta_add_moderator_note",
-                     {"p_fact_id": fact_id, "p_assessment": payload.assessment,
-                      "p_note": payload.note}, _user_bearer(request))
+                     {"p_fact_id": fact_id, "p_source_commit": payload.source_commit,
+                      "p_statement_sha256": payload.statement_sha256,
+                      "p_assessment": payload.assessment, "p_note": payload.note}, _user_bearer(request))
     return no_store(result)
 
 
