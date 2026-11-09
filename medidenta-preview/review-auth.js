@@ -1,4 +1,4 @@
-/* MediIdenta review accounts v0.7 – Supabase email OTP + RLS-backed audit.
+/* MediIdenta review accounts v0.9 – Supabase Magic Links / optional email OTP + RLS.
  * Publishable project key only; NO service_role key and no medicine publication.
  * The audited SHA-256 is an evidence pointer, not proof of clinical correctness.
  */
@@ -75,14 +75,63 @@ async function loadProfile(){
 }
 function busy(msg){A.busy=true;A.error=false;A.message=msg;A.draw?.();}
 function done(msg,error=false){A.busy=false;A.message=msg;A.error=error;A.draw?.();}
+function redirectPath(){
+ // Explicitly allow the callback only on this application's own HTTPS origin.
+ // Supabase independently validates this URL against its Auth Redirect URL allowlist.
+ try{
+   const l=global.location;
+   if(l?.protocol==='https:'&&l.pathname.startsWith('/medidenta-preview/')){
+     return l.origin+'/medidenta-preview/';
+   }
+ }catch{}
+ return '';
+}
+async function consumeMagicLink(){
+ const l=global.location;
+ if(!A.configured||!l?.hash||!l.hash.startsWith('#'))return false;
+ const p=new URLSearchParams(l.hash.slice(1));
+ const hasAuth=p.has('access_token')||p.has('refresh_token')||p.has('error');
+ if(!hasAuth)return false;
+ // Clear the sensitive fragment *before* any network request or user interaction.
+ // URL fragment never needs to be copied, logged or retained in browser history.
+ try{global.history?.replaceState?.(null,'',l.pathname+l.search);}catch{}
+ if(p.has('error')){
+   done('Der Anmeldelink konnte nicht bestätigt werden. Bitte einen neuen Link anfordern.',true);
+   return true;
+ }
+ const token=p.get('access_token')||'';
+ const refresh=p.get('refresh_token')||'';
+ const expires=Number(p.get('expires_in')||3600);
+ const tokenType=p.get('token_type')||'bearer';
+ const flow=p.get('type')||'magiclink';
+ if(token.length<16||refresh.length<8||!Number.isFinite(expires)||
+    expires<=0||expires>86400||tokenType.toLowerCase()!=='bearer'||
+    !['magiclink','signup','email'].includes(flow)){
+   done('Der Anmeldelink enthält keine gültige Sitzung. Bitte neu anmelden.',true);
+   return true;
+ }
+ try{
+   saveSession({access_token:token,refresh_token:refresh,expires_in:expires});
+   await loadProfile(); // Verify access token with Supabase before displaying a user.
+   done(A.role==='admin'?'Erfolgreich als Administrator/in angemeldet.':
+        A.role==='reviewer'?'Erfolgreich als Prüfer/in angemeldet.':
+        'Erfolgreich angemeldet. Dein Konto hat noch keine Prüfberechtigung.');
+ }catch{
+   clearUser();
+   done('Anmeldelink konnte nicht sicher verifiziert werden. Bitte erneut anmelden.',true);
+ }
+ return true;
+}
 async function sendOtp(email){
  if(A.busy)return;
  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||email.length>254){done('Bitte eine gültige E-Mail-Adresse eingeben.',true);return;}
- busy('Einmalcode wird angefordert …');
+ busy('Anmeldelink wird angefordert …');
  try{
-  await request('/auth/v1/otp',{method:'POST',body:JSON.stringify({email,create_user:true})});
+  const redirect=redirectPath();
+  const endpoint='/auth/v1/otp'+(redirect?'?redirect_to='+encodeURIComponent(redirect):'');
+  await request(endpoint,{method:'POST',body:JSON.stringify({email,create_user:true})});
   A.pendingEmail=email;
-  done('Wenn die Anmeldung zugelassen ist, erhältst du einen Einmalcode per E-Mail. Bitte auch den Spamordner prüfen.');
+  done('Wenn die Anmeldung zugelassen ist, erhältst du einen Anmeldelink per E-Mail. Bitte den Link auf diesem Gerät öffnen und den Spamordner prüfen.');
  }catch(e){done(e.message,true);}
 }
 async function verifyOtp(email,token){
@@ -122,12 +171,10 @@ function accountHtml(){
  }
  return heading+info+
  '<section class="card"><h2>Per E-Mail anmelden oder Konto erstellen</h2>'+
- '<p class="small muted">Einmalcode statt Passwort. Ein neues Konto erhält nicht automatisch die Berechtigung, Fachinformationen zu prüfen.</p>'+
+ '<p class="small muted">Ohne Passwort: Du erhältst einen sicheren Anmeldelink per E-Mail. Der Link führt zurück in diese MediIdenta-App. Ein neues Konto erhält nicht automatisch medizinische Prüfrechte.</p>'+
  '<form data-editor-form="request" class="editor-form"><label>E-Mail-Adresse<input name="email" type="email" autocomplete="email" required maxlength="254" value="'+esc(A.pendingEmail)+'" placeholder="name@beispiel.de"></label>'+
- '<button type="submit" class="primary full" '+(A.busy?'disabled':'')+'>Einmalcode senden</button></form>'+
- '<form data-editor-form="verify" class="editor-form"><label>E-Mail-Adresse<input name="email" type="email" autocomplete="email" required maxlength="254" value="'+esc(A.pendingEmail)+'"></label>'+
- '<label>Code aus der E-Mail<input name="otp" type="text" inputmode="numeric" autocomplete="one-time-code" minlength="6" maxlength="8" pattern="[0-9]{6,8}" required placeholder="6-stelliger Code"></label>'+
- '<button type="submit" class="secondary full" '+(A.busy?'disabled':'')+'>Anmelden und Code bestätigen</button></form>'+
+ '<button type="submit" class="primary full" '+(A.busy?'disabled':'')+'>Anmeldelink per E-Mail senden</button></form>'+
+ '<p class="tiny muted">Für die kostenlose Supabase-Standard-E-Mail ist keine eigene SMTP-Vorlage erforderlich. Falls du später einen SMTP-Anbieter und einen Code-Versand einrichtest, kann der Code-Login wieder aktiviert werden.</p>'+
  (A.message?'<div class="notice '+(A.error?'danger':'warning')+'">'+esc(A.message)+'</div>':'')+
  '</section>';
 }
@@ -223,8 +270,12 @@ function init(getState,draw){
  A.getState=getState;A.draw=draw;
  config();
  try{const raw=sessionStorage.getItem(SESSION_KEY);if(raw){const x=JSON.parse(raw);if(x.access_token&&x.refresh_token)A.session=x;}}catch{}
- if(A.configured&&A.session){
-  loadProfile().then(()=>draw?.()).catch(()=>{clearUser();draw?.();});
+ if(A.configured){
+  consumeMagicLink().then(handled=>{
+    if(!handled&&A.session){
+      loadProfile().then(()=>draw?.()).catch(()=>{clearUser();draw?.();});
+    }
+  }).catch(()=>{clearUser();done('Anmeldung konnte nicht verarbeitet werden.',true);});
  }
  document.addEventListener('submit',async e=>{
   const form=e.target;
