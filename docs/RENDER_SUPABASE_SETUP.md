@@ -10,7 +10,7 @@
 | Supabase Free, nach Möglichkeit EU-Region | PostgreSQL mit Medikamenten-/Fachdatensätzen, Supabase Auth, Audit-Protokoll |
 | `Alcapwndx/MediIdenta` (privat) | geprüfte Quellidentitäten, redaktionelle Entwürfe, Exporter und Sicherheitsregeln |
 | `Alcapwndx/Alcapwndx.github.io` (öffentlich) | Render-Dockerfile, API, statische PWA für die Entwicklung |
-| GitHub Actions (privat) | Export nach Supabase mit privatem Datenbankzugang; GitHub Pages bleibt unabhängig optional |
+| GitHub Actions (privat) | Eigenständiger Live-Sync nach Supabase mit privatem Datenbankzugang; GitHub Pages bleibt optional |
 
 **Das Hosting ist nicht länger von GitHub Pages abhängig.** Die bisherige öffentliche JSON-Demo kann als Fallback und Vergleich bestehen bleiben. Wenn Supabase verbunden ist, werden die App-Datensätze live aus PostgreSQL geladen.
 
@@ -47,7 +47,7 @@
 1. Im privaten Repository `Alcapwndx/MediIdenta` unter **Settings → Secrets and variables → Actions → New repository secret** ein Secret anlegen:
    - Name: `MEDIIDENTA_SUPABASE_DB_URL`
    - Wert: der **private PostgreSQL-Verbindungsstring**, wie er im Supabase Dashboard unter Connect angezeigt wird, einschließlich URL-kodiertem Passwort. Wird **nicht** an Render übergeben.
-2. Im selben privaten Repo unter **Actions** den Workflow **„MediIdenta – öffentliche Testdaten synchronisieren“** einmal manuell auf `main` starten.
+2. Im selben privaten Repo unter **Actions** den Workflow **„MediIdenta – zentrale Supabase-Datenbank synchronisieren“** einmal manuell auf `main` starten.
 3. Der Workflow baut die private SQLite-Quelldatenbank auf, testet sie, exportiert nur den freigabefähigen öffentlichen Teil und schreibt über eine SSL-geschützte PostgreSQL-Verbindung transaktional in Supabase. Bereits fachlich bestätigte **oder widerrufene** Aussagen bleiben bei einem Import derselben unveränderten Quelle in ihrem Status bestehen.
 4. `/api/v1/readiness` erneut aufrufen. Erst bei `ready: true` ist der zentrale Datenbestand verfügbar.
 
