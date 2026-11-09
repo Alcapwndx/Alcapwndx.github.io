@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#103f52">
 <meta name="description" content="MediIdenta – Recherche geprüfter Arzneimittelidentitäten für medizinische Fachkräfte. Entwicklungs-App.">
-<title>MediIdenta – Öffentliche Testversion 0.5</title>
+<title>MediIdenta – Redaktionelle Testversion 0.6</title>
 <link rel="icon" type="image/svg+xml" href="./icon.svg">
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="stylesheet" href="./app.css">
@@ -14,9 +14,9 @@
 <div id="app" class="app-shell">
   <header class="app-header">
     <div class="brand"><span class="brand-icon" aria-hidden="true">✚</span><span>Medi<span class="brand-accent">Identa</span></span></div>
-    <span class="version">APP 0.5 · DB 0.6</span>
+    <span class="version">APP 0.6 · DB 0.8</span>
   </header>
-  <div class="public-notice" role="note"><strong>Öffentliche Entwicklungs-Demo</strong> · Nur 12 Beispiel-Produktidentitäten. Keine Echtzeitdaten, keine klinische Freigabe, keine echte Fotoidentifizierung.</div>
+  <div class="public-notice" role="note"><strong>Öffentliche Entwicklungs-Demo</strong> · 36 Produktidentitäten · 178 fachlich ungeprüfte Entwürfe. Keine Live-Daten, keine klinische Freigabe, keine Fotoidentifizierung.</div>
   <div id="system-status" role="status" aria-live="polite" class="system-status">Datenquelle wird geprüft …</div>
   <main id="screen" tabindex="-1" aria-live="polite"></main>
   <nav class="bottom-nav" aria-label="Hauptnavigation">
@@ -30,6 +30,7 @@
   <input id="photo-picker" type="file" accept="image/*" capture="environment" hidden>
 </div>
 <script src="./identifier.js" defer></script>
+<script src="./review-ui.js" defer></script>
 <script src="./app.js" defer></script>
 </body>
 </html>
