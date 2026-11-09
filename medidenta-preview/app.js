@@ -2,7 +2,7 @@
    Keine Fotos, PZN oder Fachtexte ohne explizite Backend-Freigabe als identifiziert darstellen. */
 'use strict';
 /* Public preview build: static-only, no private backend calls. */
-const IS_PUBLIC_PREVIEW=true;
+const IS_PUBLIC_PREVIEW=window.MEDIIDENTA_AUTH_CONFIG?.reviewApiBase!=='/api/v1';
 const root=document.querySelector('#screen'),bar=document.querySelector('#system-status'),picker=document.querySelector('#photo-picker');
 const escapeHtml=value=>String(value==null?'':value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const trim=x=>String(x==null?'':x).trim();
@@ -12,7 +12,7 @@ const D={page:'home',connected:false,meta:null,offline:[],hits:[],search:'',deta
 try{D.favorites=JSON.parse(localStorage.getItem('medidenta_favs_v04')||'[]');if(!Array.isArray(D.favorites))D.favorites=[];}catch{D.favorites=[]}
 const api=async path=>{const c=new AbortController(),t=setTimeout(()=>c.abort(),5000);try{const r=await fetch('/api/v1'+path,{signal:c.signal,cache:'no-store',headers:{Accept:'application/json'}});const data=await r.json();if(!r.ok)throw Error(data.error||'HTTP '+r.status);return data;}finally{clearTimeout(t)}};
 function clinicalNotice(){return '<div class="notice warning"><strong>Entwicklungsstand – keine klinische Einsatzfreigabe der App.</strong> Einzelne Fachtextaussagen können nach persönlicher Kontrolle fachlich freigegeben sein, nicht jedoch automatisch ganze Präparate oder Dosierungen. Aktuelle Originalquellen und Anordnungen bleiben maßgeblich.</div>'}
-function status(){if(IS_PUBLIC_PREVIEW){bar.className='system-status offline';bar.textContent='● Öffentliche GitHub-Pages-Demo · '+D.offline.length+' Produkte · '+D.drafts.length+' Entwürfe · '+D.approved.length+' fachlich freigegeben · '+(D.syncMeta?.mode==='STATIC_PUBLIC_PREVIEW'?'Datenstand '+new Date(D.syncMeta.source_date).toLocaleDateString('de-DE'):'manueller Testdatenstand')+' · keine Live-API';return;}bar.className='system-status'+(D.connected?'':' offline');bar.textContent=D.connected?'● Verbunden · eigene MediIdenta Datenbank v0.6 · Produktidentitäten':'● Offline-Entwicklungsbestand · Produktidentitäten, keine Live-Prüfung';}
+function status(){if(IS_PUBLIC_PREVIEW){bar.className='system-status offline';bar.textContent='● Öffentliche GitHub-Pages-Demo · '+D.offline.length+' Produkte · '+D.drafts.length+' Entwürfe · '+D.approved.length+' fachlich freigegeben · '+(['STATIC_PUBLIC_PREVIEW','LIVE_SUPABASE'].includes(D.syncMeta?.mode)?'Datenstand '+new Date(D.syncMeta.source_date).toLocaleDateString('de-DE'):'manueller Testdatenstand')+' · keine Live-API';return;}bar.className='system-status'+(D.connected?'':' offline');bar.textContent=D.connected?'● Verbunden · eigene MediIdenta Datenbank v0.6 · Produktidentitäten':'● Offline-Entwicklungsbestand · Produktidentitäten, keine Live-Prüfung';}
 function title(s){return '<div class="eyebrow">MediIdenta · Fachkreiskatalog</div><h1>'+escapeHtml(s)+'</h1>'}
 function badge(s,cls){return '<span class="tag '+(cls||'')+'">'+escapeHtml(s)+'</span>'}
 function fav(id){return '<button class="fav '+(D.favorites.includes(id)?'on':'')+'" data-action="fav" data-id="'+escapeHtml(id)+'" aria-label="Favorit">'+(D.favorites.includes(id)?'★':'☆')+'</button>'}
@@ -63,10 +63,12 @@ function scanHtml(){
 function knowledgeHtml(){return window.MediIdentaReviewUI?.knowledge(D)||title('Fachtextprüfung nicht verfügbar');}
 function syncHtml(){
  const m=D.syncMeta;
- const when=m?.mode==='STATIC_PUBLIC_PREVIEW'&&m.source_date?
+ const when=['STATIC_PUBLIC_PREVIEW','LIVE_SUPABASE'].includes(m?.mode)&&m.source_date?
    new Date(m.source_date).toLocaleString('de-DE',{dateStyle:'medium',timeStyle:'short'}):
    'Noch kein automatischer Datenabgleich';
- const detail=m?.mode==='STATIC_PUBLIC_PREVIEW'?
+ const detail=m?.mode==='LIVE_SUPABASE'?
+   'Direkte Verbindung zur zentralen Supabase-PostgreSQL-Datenbank. Fachtextfreigaben werden nach serverseitiger Bestätigung unmittelbar übernommen.':
+   m?.mode==='STATIC_PUBLIC_PREVIEW'?
    'Aus dem privaten MediIdenta-Katalog automatisch exportiert. Änderungen erscheinen erst nach dem GitHub-Pages-Deployment.':
    'Derzeit manuell exportierter Testbestand. Die automatische Übertragung benötigt noch den eingerichteten GitHub-Zugriff.';
  return '<section class="card"><h2>Aktualisierung der Datenbank</h2><p class="small"><strong>'+escapeHtml(when)+'</strong></p>'+
@@ -105,7 +107,7 @@ document.addEventListener('input',e=>{if(e.target.id!=='search')return;D.search=
 document.addEventListener('change',e=>{if(e.target.id==='code-system'){window.MediIdentaIdentifiers?.stopCamera?.();D.identifierSystem=e.target.value==='GTIN'?'GTIN':'PZN8';D.scanMessage='';D.scanMatches=[];draw();}});
 picker.addEventListener('change',e=>{const f=e.target.files?.[0];if(!f||!f.type.startsWith('image/')||f.size>8e6)return;if(D.photo)URL.revokeObjectURL(D.photo);D.photo=URL.createObjectURL(f);D.photoName=f.name;draw()});
 async function checkForCatalogUpdates(force=false){
- if(!IS_PUBLIC_PREVIEW||D.syncBusy||document.hidden||document.activeElement?.matches?.('textarea[data-review-note]'))return;
+ if(D.syncBusy||document.hidden||document.activeElement?.matches?.('textarea[data-review-note]'))return;
  D.syncBusy=true;
  try{
   const res=await fetch('./sync_status.json',{cache:'no-store'});
@@ -160,4 +162,5 @@ async function init(){try{const x=await (await fetch('./catalog_snapshot.json',{
  try{const r=await fetch('./sync_status.json',{cache:'no-store'});if(r.ok){const x=await r.json();if(x.format==='medidenta-public-sync-v1'&&x.medical_release_ready===false)D.syncMeta=x;}}catch{}D.hits=D.offline.slice(0,50);draw();await connect();if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('./service-worker.js').catch(()=>{});}
 window.MediIdentaReviewUI?.configure(D,draw);
 window.MediIdentaReviewAuth?.init(()=>D,()=>draw());
+window.MediIdentaReloadCatalog=()=>checkForCatalogUpdates(true);
 init();
