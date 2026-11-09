@@ -43,6 +43,23 @@ jobs:
           node --check medidenta-preview/app.js
           node --check medidenta-preview/review-auth.js
           node --check medidenta-preview/review-ui.js
+      - name: Echte Docker-Image-Erstellung und HTTP-Smoke-Test
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker build -t medidenta-staging-ci:latest .
+          CONTAINER_ID="$(docker run -d --rm -p 127.0.0.1:10000:10000 medidenta-staging-ci:latest)"
+          trap 'docker logs "$CONTAINER_ID" || true; docker rm -f "$CONTAINER_ID" || true' EXIT
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:10000/api/v1/health >/tmp/medidenta-health.json; then
+              break
+            fi
+            sleep 1
+          done
+          python -c 'import json; r=json.load(open("/tmp/medidenta-health.json")); assert r["service"]=="MediIdenta" and r["supabase_configured"] is False'
+          curl --fail --silent http://127.0.0.1:10000/medidenta-preview/ | grep -q 'MediIdenta'
+          echo 'Dockerized MediIdenta API and PWA startup: OK.'
+
       - name: Nur öffentliche Zugangsdaten in der Client-Konfiguration
         shell: bash
         run: |
