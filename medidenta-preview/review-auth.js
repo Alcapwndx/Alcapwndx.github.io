@@ -166,7 +166,7 @@ function accountHtml(){
    '<p class="tiny muted">Deine Benutzer-ID für eine Rollenvergabe: <code>'+esc(A.user.id)+'</code></p>'+
    (!A.role?'<div class="notice">Als User kannst du Kommentare einreichen. Diese werden vor ihrer öffentlichen Anzeige moderiert.</div>':'')+
    '<button class="secondary full spaced" data-editor-action="logout">Abmelden</button></section>'+
-   (A.role==='admin'?'<section class="card"><h2>Benutzerrollen verwalten</h2>'+
+   (A.role==='admin'&&A.getState?.()?.features?.collaboration_enabled===true?'<section class="card"><h2>Benutzerrollen verwalten</h2>'+
     '<p class="small muted">Andere Nutzer melden sich zunächst per E-Mail an und teilen dir anschließend ihre Benutzer-ID mit. Nur du als Admin kannst Rollen zuweisen.</p>'+
     '<form class="editor-form" data-role-form="assign">'+
     '<label>Benutzer-ID (UUID)<input name="user_id" required maxlength="36" placeholder="00000000-0000-0000-0000-000000000000" autocomplete="off"></label>'+
@@ -174,6 +174,7 @@ function accountHtml(){
     '<option value="moderator">Moderator · Quellen prüfen und Kommentare moderieren</option>'+
     '<option value="admin">Admin · alle Redaktionsrechte</option></select></label>'+
     '<button type="submit" class="primary full">Rolle sicher zuweisen</button></form></section>':'')+
+   (A.role==='admin'&&A.getState?.()?.features?.collaboration_enabled!==true?'<div class="notice warning">Zusätzliche Alpha-Funktionen werden nach der v0.9-Supabase-Migration freigeschaltet. Deine bisherige Admin-Freigabe bleibt erhalten.</div>':'')+
    (A.role==='admin'?'<section class="card"><h2>Meine letzten Freigabeentscheidungen</h2>'+(history||'<p class="muted">Noch keine Entscheidungen protokolliert.</p>')+'</section>':'')+
    (A.message?'<div class="notice '+(A.error?'danger':'warning')+'">'+esc(A.message)+'</div>':'');
  }
@@ -198,7 +199,7 @@ function lastReview(f,D){
 }
 function reviewActionHtml(f){
  const D=A.getState?.();
- if(!D||!A.configured||!A.user||!A.reviewApiBase||D.syncMeta?.mode!=='LIVE_SUPABASE')return '';
+ if(!D||!A.configured||!A.user||!A.reviewApiBase||D.syncMeta?.mode!=='LIVE_SUPABASE'||D.features?.collaboration_enabled!==true)return '';
  const role=A.role==='admin'?'admin':A.role==='moderator'?'moderator':'user';
  const id=esc(f.id);
  const marker=role==='admin'?'Redaktion & Freigabe':role==='moderator'?'Private Prüfung & Moderation':'Diskussion & Kommentare';
