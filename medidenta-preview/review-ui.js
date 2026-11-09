@@ -36,7 +36,7 @@ function card(f,editable){
  '<select id="rm-'+esc(f.id)+'" data-review-mark="'+esc(f.id)+'">'+Object.entries(MARKS).map(([k,v])=>'<option value="'+k+'" '+(status===k?'selected':'')+'>'+esc(v)+'</option>').join('')+'</select>'+
  '<label for="rn-'+esc(f.id)+'">Eigene Prüfnotiz</label>'+
  '<textarea id="rn-'+esc(f.id)+'" data-review-note="'+esc(f.id)+'" rows="2" maxlength="3000" placeholder="Was muss an der Quelle nachgeprüft werden?">'+esc(m.note||'')+'</textarea></div>':'')+
- '<div class="tiny muted">Charge: '+esc(f.batch)+' · Datenbankstatus: draft · '+esc(f.id)+'</div></article>';
+ '<div class="tiny muted">Charge: '+esc(f.batch)+' · Datenbankstatus: draft · '+esc(f.id)+'</div>'+(global.MediIdentaReviewAuth?.reviewActionHtml(f)||'')+'</article>';
 }
 function linked(D,p){return (D.drafts||[]).filter(f=>Array.isArray(f.linked_product_ids)&&f.linked_product_ids.includes(p.id)).sort((a,b)=>(riskRank[a.risk_level]??3)-(riskRank[b.risk_level]??3));}
 function details(D,p){
@@ -58,7 +58,7 @@ function knowledge(D){
  const all=filtered(D),size=12,pages=Math.max(1,Math.ceil(all.length/size));R.page=Math.min(Math.max(0,R.page),pages-1);
  const list=all.slice(R.page*size,(R.page+1)*size);
  const unassigned=(D.drafts||[]).filter(f=>f.assignment_status==='unmatched').length;
- return '<div class="eyebrow">MediIdenta · Redaktionsansicht</div><h1>Fachinformationen prüfen</h1>'+notice()+
+ return '<div class="eyebrow">MediIdenta · Redaktionsansicht</div><h1>Fachinformationen prüfen</h1><button class="secondary" data-nav="account">♙ Prüfkonto / Anmeldung</button>'+notice()+
  '<div class="stats"><div class="stat"><strong>'+D.drafts.length+'</strong><span>Fachtextentwürfe (0 freigegeben)</span></div>'+
  '<div class="stat"><strong>'+unassigned+'</strong><span>Zuordnung noch offen</span></div></div>'+
  '<section class="card"><label class="search-label" for="clinical-search">Suche nach Präparat, Wirkstoff oder Text</label>'+
@@ -83,7 +83,7 @@ function quality(D){
  '<div class="stat"><strong>'+a.length+'</strong><span>Öffentlich sichtbare Fachtextentwürfe</span></div>'+
  '<div class="stat"><strong>'+unassigned+'</strong><span>Zuordnung offen</span></div></div>'+
  '<p class="small muted">Redaktionschargen: 45 ältere Fachtexte, 47 v0.8-Entwürfe, 86 zusätzliche EMA-Entwürfe. Keine Aussage ist klinisch freigegeben.</p>'+
- '<button class="secondary full" data-nav="knowledge">Entwürfe jetzt prüfen</button></section>';
+ '<button class="secondary full" data-nav="knowledge">Entwürfe jetzt prüfen</button><button class="secondary full spaced" data-nav="account">Prüfkonto öffnen</button></section>';
 }
 function exportMarks(D){
  const entries=(D.drafts||[]).map(f=>({fact_id:f.id,target_name:f.target_name,source_url:f.reference?.document_url||null,decision:mark(f).status||'open',note:mark(f).note||''}));

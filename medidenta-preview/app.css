@@ -53,3 +53,21 @@ select.search-input{appearance:auto}
 .draft-section .draft-text{font-size:13px}
 @media(max-width:350px){.draft-filters{grid-template-columns:1fr}}
 @media(prefers-color-scheme:dark){.clinical-draft,.clinical-draft.draft-critical{background:#1c3b46;border-color:#456269;border-left-color:#c98c46}.clinical-draft .draft-head strong,.draft-text{color:#e0eff2}.review-ref{background:#284a56;color:#bbd0d6}.review-fields{border-top-color:#47656b}.review-fields select,.review-fields textarea{background:#203f4a;color:#e3f0f2;border-color:#4e6c75}}
+
+/* MediIdenta v0.7: authentifizierte redaktionelle Prüfbestätigung */
+.header-right{display:flex;align-items:center;gap:7px;flex-shrink:0}
+.account-entry{width:32px;height:32px;border:1px solid #cbdddf;border-radius:11px;color:#135967;background:#eff8f8;font-size:22px;line-height:1;display:grid;place-items:center}
+.editor-form,.editor-review-form{display:grid;gap:13px;margin-top:14px}
+.editor-form label,.editor-review-form label{display:grid;gap:5px;font-size:12px;font-weight:750;color:#3b5867}
+.editor-form input,.editor-review-form select,.editor-review-form textarea{width:100%;border:1px solid #c1d7dc;border-radius:9px;background:#fff;padding:11px;font:inherit;color:#203d49;font-size:13px}
+.editor-form input:focus-visible,.editor-review-form select:focus-visible,.editor-review-form textarea:focus-visible{outline:2px solid #1c938c}
+.editor-form+.editor-form{border-top:1px solid #e5eeef;padding-top:16px;margin-top:19px}
+.editor-review-form{border:1px solid #cce4de;background:#eef8f5;border-radius:12px;padding:13px;margin-top:14px;gap:12px}
+.editor-review-form .editor-attest{display:flex;align-items:flex-start;gap:9px;line-height:1.5;font-size:11px}
+.editor-attest input{width:19px;height:19px;flex:0 0 19px;margin:0}
+.editor-review-form p{margin:0}
+.review-auth-gate{border-top:1px solid #e6eeee;padding-top:12px;margin-top:12px}
+.review-auth-gate button{font-size:12px}
+.auth-history{border-top:1px solid #e1ebec;margin-top:10px;padding-top:10px;font-size:12px}
+.auth-history strong{color:#0d5966}
+@media(max-width:390px){.app-header{padding-left:12px;padding-right:12px}.app-header .brand{font-size:18px;gap:5px}.app-header .brand-icon{width:30px;height:30px;font-size:17px}.app-header .version{font-size:8px;padding:6px}.account-entry{width:29px;height:29px}.header-right{gap:5px}}

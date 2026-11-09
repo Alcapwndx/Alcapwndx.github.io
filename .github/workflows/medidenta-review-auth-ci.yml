@@ -1,0 +1,37 @@
+name: MediIdenta – Review Login Qualität
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'medidenta-preview/review-auth.js'
+      - 'medidenta-preview/review-ui.js'
+      - 'medidenta-preview/tests/**'
+      - '.github/workflows/medidenta-review-auth-ci.yml'
+  pull_request:
+    paths:
+      - 'medidenta-preview/**'
+      - '.github/workflows/medidenta-review-auth-ci.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  review-auth-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v7
+      - name: JavaScript-/Account-Test
+        run: |
+          node --version
+          node --check medidenta-preview/review-auth.js
+          node --check medidenta-preview/review-ui.js
+          node --check medidenta-preview/app.js
+          node medidenta-preview/tests/test_review_auth.js
+      - name: Kein privates Supabase-Secret im öffentlichen Client
+        shell: bash
+        run: |
+          if grep -Eiq 'sb_secret_[a-zA-Z0-9]+' medidenta-preview/review-auth-config.js; then
+            echo 'Unexpected privileged credential marker in public auth config!'
+            exit 1
+          fi
+          echo 'Only a disabled public auth config is checked in.'
