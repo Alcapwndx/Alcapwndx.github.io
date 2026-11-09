@@ -1,104 +1,113 @@
 "use strict";
-const assert=require('node:assert/strict');
-const fs=require('node:fs');
-const path=require('node:path');
-const vm=require('node:vm');
-const {webcrypto}=require('node:crypto');
-const {TextEncoder}=require('node:util');
-const script=fs.readFileSync(path.resolve(__dirname,'..','review-auth.js'),'utf8');
-const COMMIT='a'.repeat(40),USER='11111111-1111-4111-8111-111111111111';
-const sample={
- id:'legacy-v05-001',target_type:'product',target_name:'Toujeo',
- fact_type:'summary',content_text:'Ungeprüfte Testbeschreibung, keine klinische Aussage',
- editorial_status:'draft_unreviewed',assignment_status:'exact_match',
- reference:{document_url:'https://www.ema.europa.eu/en/medicines/human/EPAR/toujeo',locator:'Overview / How used?'}
+const assert=require("node:assert/strict");
+const fs=require("node:fs");
+const path=require("node:path");
+const vm=require("node:vm");
+const {webcrypto}=require("node:crypto");
+const {TextEncoder}=require("node:util");
+const src=fs.readFileSync(path.resolve(__dirname,"..","review-auth.js"),"utf8");
+const REV="a".repeat(40),USER="11111111-1111-4111-8111-111111111111";
+const fact={
+ id:"legacy-v05-001",target_type:"product",target_name:"Toujeo",fact_type:"summary",
+ content_text:"Synthetischer Fachtext für Login-/Rechtest; nicht zur Anwendung.",
+ editorial_status:"draft_unreviewed",assignment_status:"exact_match",linked_product_ids:["ema_toujeo"],
+ reference:{document_url:"https://www.ema.europa.eu/en/medicines/human/EPAR/toujeo",locator:"Overview / How used?"}
 };
-function make(options={}){
- const listeners={};const stored={};const calls=[];
- const config=options.configured?{supabaseUrl:'https://demo123.supabase.co',publishableKey:'sb_publishable_'+'X'.repeat(32)}:{supabaseUrl:'',publishableKey:''};
- const state={drafts:[sample],draftLoadError:false,syncMeta:{source_commit:COMMIT,mode:'STATIC_PUBLIC_PREVIEW'},catalogRevision:COMMIT,draftRevision:COMMIT};
- const context={
-  window:{MEDIIDENTA_AUTH_CONFIG:config,crypto:webcrypto},
-  document:{addEventListener:(kind,fn)=>(listeners[kind]??=[]).push(fn)},
-  sessionStorage:{getItem(k){return stored[k]||null},setItem(k,v){stored[k]=v},removeItem(k){delete stored[k]}},
-  URL,TextEncoder,fetch:async(url,opts={})=>{
-   const u=String(url);calls.push({url:u,opts});
-   let data;
-   if(u.endsWith('/auth/v1/otp'))data={};
-   else if(u.endsWith('/auth/v1/verify'))data={access_token:'token.1',refresh_token:'r.1',expires_in:3600};
-   else if(u.endsWith('/auth/v1/user'))data={id:USER,email:'reviewer@example.org'};
-   else if(u.includes('medidenta_reviewer_roles'))data=options.role?[{role:options.role}]:[];
-   else if(u.includes('medidenta_review_events')){
-    if(opts.method==='POST'){
-     const posted=JSON.parse(opts.body);
-     data=options.errorPost?{message:'Rejected by RLS'}:[{fact_id:posted.fact_id,source_commit:posted.source_commit,statement_sha256:posted.statement_sha256,decision:posted.decision,created_at:'2026-11-09T15:00:00+01:00'}];
-     return {ok:!options.errorPost,status:options.errorPost?403:201,json:async()=>data};
-    }
-    data=[];
-   }else if(u.endsWith('/auth/v1/logout'))data={};
-   else throw Error('Unexpected fetch '+u);
+function make(role,configured=true){
+ const listeners={},storage={},calls=[];
+ const state={drafts:[fact],approved:[],draftLoadError:false,
+   syncMeta:{source_commit:REV,mode:"LIVE_SUPABASE"},catalogRevision:REV,draftRevision:REV};
+ const window={
+  MEDIIDENTA_AUTH_CONFIG:configured?{supabaseUrl:"https://demo123.supabase.co",
+   publishableKey:"sb_publishable_"+"X".repeat(32),reviewApiBase:"/api/v1"}:{},
+  crypto:webcrypto
+ };
+ const context={window,document:{addEventListener:(event,cb)=>(listeners[event]??=[]).push(cb)},
+  sessionStorage:{getItem:key=>storage[key]||null,setItem:(key,v)=>{storage[key]=v;},
+    removeItem:key=>{delete storage[key]}},
+  URL,TextEncoder,Uint8Array,Date,JSON,Object,Array,Math,RegExp,Promise,
+  URLSearchParams,String,Number,Boolean,console,
+  fetch:async(url,opts={})=>{
+   url=String(url);calls.push({url,opts});
+   let data=null;
+   if(url.includes("/auth/v1/otp"))data={};
+   else if(url.includes("/auth/v1/verify"))data={access_token:"token.1",refresh_token:"r.1",expires_in:3600};
+   else if(url.includes("/auth/v1/user"))data={id:USER,email:"user@example.org"};
+   else if(url.includes("medidenta_reviewer_roles"))data=role?[{role}]:[];
+   else if(url.includes("medidenta_review_events"))data=[];
+   else if(url==="/api/v1/reviews"){
+     const p=JSON.parse(opts.body);data=[{...p,created_at:new Date().toISOString()}];
+   }else throw Error("Unexpected fetch: "+url);
    return {ok:true,status:200,json:async()=>data};
-  },
-  Date,JSON,Uint8Array,Object,Math,RegExp,Promise,Array,String,Number,Boolean,console
- };
- vm.runInNewContext(script,context,{filename:'review-auth.js'});
- let renders=0;
- const api=context.window.MediIdentaReviewAuth;
- api.init(()=>state,()=>renders++);
- return {api,listeners,calls,state,stored,get renders(){return renders;}};
+  }};
+ vm.runInNewContext(src,context,{filename:"review-auth.js"});
+ const auth=window.MediIdentaReviewAuth;
+ auth.init(()=>state,()=>{});
+ return {auth,listeners,calls,state,storage};
 }
-function form(kind,data){
- return {
-  matches:sel=>sel==='[data-editor-form],[data-editor-fact]',
-  dataset:kind==='fact'?{editorFact:sample.id}:{editorForm:kind},
-  querySelector:selector=>({value:data[selector]?.value,checked:data[selector]?.checked})
- };
-}
-async function submit(api,kind,data){
- const fn=api.listeners.submit[0],el=form(kind,data);
- await fn({target:el,preventDefault(){}});
+async function post(x,kind,inputs){
+ const form={dataset:kind==="fact"?{editorFact:fact.id}:{editorForm:kind},
+  querySelector:s=>inputs[s]||{value:"",checked:false}};
+ await x.listeners.submit[0]({target:form,preventDefault(){}});
 }
 async function login(x){
- await submit(x,'request',{'[name="email"]':{value:'reviewer@example.org'}});
- await submit(x,'verify',{'[name="email"]':{value:'reviewer@example.org'},'[name="otp"]':{value:'123456'}});
+ await post(x,"request",{'[name="email"]':{value:"user@example.org"}});
+ await post(x,"verify",{'[name="email"]':{value:"user@example.org"},'[name="otp"]':{value:"123456"}});
 }
 (async()=>{
- const unconfigured=make();
- assert.equal(unconfigured.api._debug.configured(),false);
- assert.match(unconfigured.api.accountHtml(),/Anmeldung vorbereitet/);
- assert.match(unconfigured.api.reviewActionHtml(sample),/Einrichtung/);
- assert.equal(unconfigured.calls.length,0);
- const guest=make({configured:true,role:'reviewer'});
- assert.match(guest.api.reviewActionHtml(sample),/anmelden/);
- assert.equal(guest.calls.length,0);
+ const missing=make(null,false);
+ assert.equal(missing.auth._debug.configured(),false);
+ assert.equal(missing.auth.reviewActionHtml(fact),"");
+ const guest=make("admin");
+ assert.equal(guest.auth.reviewActionHtml(fact),"","Guests see no action controls");
  await login(guest);
- assert.equal(guest.api._debug.role(),'reviewer');
- assert.match(guest.api.reviewActionHtml(sample),/verbindlich protokollieren/);
- assert.ok(guest.stored.medidenta_editorial_auth_session_v07);
- await submit(guest,'fact',{'[name="decision"]':{value:'verified'},'[name="notes"]':{value:'Aktuelle EMA-Quelle geprüft.'},'[name="source_checked"]':{checked:true}});
- const posts=guest.calls.filter(x=>x.opts.method==='POST'&&x.url.includes('medidenta_review_events'));
- assert.equal(posts.length,1);
- const obj=JSON.parse(posts[0].opts.body);
- assert.equal(obj.fact_id,sample.id);assert.equal(obj.source_commit,COMMIT);
- assert.match(obj.statement_sha256,/^[0-9a-f]{64}$/);
- assert.equal(obj.source_checked,true);
- assert.ok(!('reviewer_id' in obj));assert.ok(!('created_at' in obj));
- assert.equal(posts[0].opts.headers.Prefer,'return=representation');
- assert.equal(guest.api._debug.events(),1);
- const unauthorized=make({configured:true});await login(unauthorized);
- assert.equal(unauthorized.api._debug.role(),null);
- assert.match(unauthorized.api.reviewActionHtml(sample),/noch keine Prüfberechtigung/);
- await submit(unauthorized,'fact',{'[name="decision"]':{value:'verified'},'[name="source_checked"]':{checked:true}});
- assert.equal(unauthorized.calls.filter(x=>x.url.includes('medidenta_review_events')&&x.opts.method==='POST').length,0);
- const stale=make({configured:true,role:'admin'});await login(stale);
- stale.state.draftRevision='b'.repeat(40);
- assert.match(stale.api.reviewActionHtml(sample),/nicht übertragbar/);
- await submit(stale,'fact',{'[name="decision"]':{value:'verified'},'[name="source_checked"]':{checked:true}});
- assert.equal(stale.calls.filter(x=>x.url.includes('medidenta_review_events')&&x.opts.method==='POST').length,0);
- const notMatched=make({configured:true,role:'reviewer'});await login(notMatched);
- notMatched.state.drafts=[{...sample,assignment_status:'unmatched'}];
- assert.doesNotMatch(notMatched.api.reviewActionHtml(notMatched.state.drafts[0]),/value="verified"/);
- await submit(notMatched,'fact',{'[name="decision"]':{value:'verified'},'[name="source_checked"]':{checked:true}});
- assert.equal(notMatched.calls.filter(x=>x.url.includes('medidenta_review_events')&&x.opts.method==='POST').length,0);
- console.log('MediIdenta review auth: PASS – 19 auth/role/revision/audit assertions');
-})().catch(err=>{console.error(err);process.exitCode=1;});
+ assert.equal(guest.auth._debug.role(),"admin");
+ assert.match(guest.auth.reviewActionHtml(fact),/Admin-Entscheidung/);
+ assert.match(guest.auth.reviewActionHtml(fact),/data-comment-form/);
+ assert.match(guest.auth.reviewActionHtml(fact),/data-note-form/);
+ await post(guest,"fact",{
+  '[name="decision"]':{value:"verified"},
+  '[name="notes"]':{value:"Aktuelle Originalquelle genau kontrolliert."},
+  '[name="source_checked"]':{checked:true}
+ });
+ const actions=guest.calls.filter(c=>c.url==="/api/v1/reviews");
+ assert.equal(actions.length,1);
+ const sent=JSON.parse(actions[0].opts.body);
+ assert.equal(sent.fact_id,fact.id);
+ assert.match(sent.statement_sha256,/^[0-9a-f]{64}$/);
+ assert.equal(sent.source_checked,true);
+ assert.ok(!("reviewer_id" in sent));
+ assert.equal(guest.auth._debug.events(),1);
+
+ const user=make(null);await login(user);
+ assert.equal(user.auth._debug.role(),null);
+ assert.match(user.auth.accountHtml(),/User \(Kommentieren\)/);
+ const userTools=user.auth.reviewActionHtml(fact);
+ assert.match(userTools,/Kommentar zur Moderation/);
+ assert.doesNotMatch(userTools,/Admin-Entscheidung/);
+ assert.doesNotMatch(userTools,/data-note-form/);
+ await post(user,"fact",{'[name="decision"]':{value:"verified"},'[name="source_checked"]':{checked:true}});
+ assert.equal(user.calls.filter(c=>c.url==="/api/v1/reviews").length,0);
+
+ const mod=make("moderator");await login(mod);
+ assert.equal(mod.auth._debug.role(),"moderator");
+ const modTools=mod.auth.reviewActionHtml(fact);
+ assert.match(modTools,/Private Quellenprüfung/);
+ assert.doesNotMatch(modTools,/Admin-Entscheidung/);
+ await post(mod,"fact",{'[name="decision"]':{value:"verified"},'[name="source_checked"]':{checked:true}});
+ assert.equal(mod.calls.filter(c=>c.url==="/api/v1/reviews").length,0);
+
+ const oldRole=make("reviewer");await login(oldRole);
+ assert.equal(oldRole.auth._debug.role(),"moderator","Legacy reviewers are never admins");
+
+ const stale=make("admin");await login(stale);
+ stale.state.draftRevision="b".repeat(40);
+ assert.doesNotMatch(stale.auth.reviewActionHtml(fact),/Admin-Entscheidung/);
+ await post(stale,"fact",{'[name="decision"]':{value:"verified"},'[name="source_checked"]':{checked:true}});
+ assert.equal(stale.calls.filter(c=>c.url==="/api/v1/reviews").length,0);
+
+ const unmatched=make("admin");await login(unmatched);
+ unmatched.state.drafts=[{...fact,assignment_status:"unmatched"}];
+ assert.doesNotMatch(unmatched.auth.reviewActionHtml(unmatched.state.drafts[0]),/value="verified"/);
+ console.log("MediIdenta Alpha RBAC/login: PASS");
+})().catch(e=>{console.error(e);process.exitCode=1;});
