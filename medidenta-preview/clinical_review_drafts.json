@@ -3643,7 +3643,7 @@
   "format": "medidenta-editorial-review-only-v1",
   "notice": "ÖFFENTLICHE REDAKTIONELLE ENTWÜRFE – NICHT KLINISCH GEPRÜFT.",
   "reviewed_facts": 0,
-  "source_commit": "8040815cd77f5ceed1693407c3e413677380b60f",
+  "source_commit": "7102b31636fe3efb4aae92b45c1a2a59023ae8aa",
   "stats": {
     "fact_drafts": 178,
     "matched_facts": 174,
