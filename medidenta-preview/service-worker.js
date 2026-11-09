@@ -1,6 +1,32 @@
-/* Nur App-Shell. Keine API-Antworten oder klinischen Fakten offline cachen. */
-const CACHE='medidenta-pages-v0.6.0';
-const SHELL=['./','./index.html','./app.js','./identifier.js','./review-ui.js','./app.css','./icon.svg','./manifest.webmanifest'];
-self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(SHELL)).then(()=>self.skipWaiting())));
-self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
-self.addEventListener('fetch',e=>{const u=new URL(e.request.url);if(e.request.method!=='GET'||u.origin!==self.location.origin||u.pathname.includes('/api/')||u.pathname.endsWith('catalog_snapshot.json')||u.pathname.endsWith('clinical_review_drafts.json'))return;if(e.request.mode==='navigate'){e.respondWith(fetch(e.request).catch(()=>caches.match('./index.html')));return;}e.respondWith(caches.match(e.request).then(c=>c||fetch(e.request)));});
+/* MediIdenta 0.6.1 – network-first fuer UI-Dateien.
+   Medizinische Entwuerfe/JSON werden NICHT im Service-Worker gespeichert. */
+'use strict';
+const CACHE='medidenta-pages-v0.6.1';
+const SHELL=['./','./index.html','./app.js','./review-ui.js','./identifier.js','./app.css','./icon.svg','./manifest.webmanifest'];
+self.addEventListener('install', event=>{
+  event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(SHELL)).then(()=>self.skipWaiting()));
+});
+self.addEventListener('activate', event=>{
+  event.waitUntil(caches.keys().then(keys=>Promise.all(
+    keys.filter(key=>key.startsWith('medidenta-')&&key!==CACHE).map(key=>caches.delete(key))
+  )).then(()=>self.clients.claim()));
+});
+self.addEventListener('fetch', event=>{
+  const req=event.request, u=new URL(req.url);
+  if(req.method!=='GET'||u.origin!==self.location.origin)return;
+  if(u.pathname.includes('/api/')||u.pathname.endsWith('catalog_snapshot.json')||
+     u.pathname.endsWith('clinical_review_drafts.json'))return;
+  if(req.mode==='navigate'){
+    event.respondWith(fetch(req,{cache:'no-store'}).catch(()=>caches.match('./index.html')));
+    return;
+  }
+  const withinScope=u.pathname.startsWith(new URL(self.registration.scope).pathname);
+  if(!withinScope)return;
+  event.respondWith(fetch(req,{cache:'no-store'}).then(response=>{
+    if(response.ok){
+      const cloned=response.clone();
+      caches.open(CACHE).then(cache=>cache.put(req,cloned)).catch(()=>{});
+    }
+    return response;
+  }).catch(()=>caches.match(req)));
+});
