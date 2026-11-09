@@ -199,10 +199,12 @@ function lastReview(f,D){
 }
 function reviewActionHtml(f){
  const D=A.getState?.();
- if(!D||!A.configured||!A.user||!A.reviewApiBase||D.syncMeta?.mode!=='LIVE_SUPABASE'||D.features?.collaboration_enabled!==true)return '';
+ if(!D||!A.configured||!A.user||!A.reviewApiBase||D.syncMeta?.mode!=='LIVE_SUPABASE')return '';
+ const upgraded=D.features?.collaboration_enabled===true;
+ if(!upgraded&&A.role!=='admin')return '';
  const role=A.role==='admin'?'admin':A.role==='moderator'?'moderator':'user';
  const id=esc(f.id);
- const marker=role==='admin'?'Redaktion & Freigabe':role==='moderator'?'Private Prüfung & Moderation':'Diskussion & Kommentare';
+ const marker=!upgraded?'Admin-Freigabe':role==='admin'?'Redaktion & Freigabe':role==='moderator'?'Private Prüfung & Moderation':'Diskussion & Kommentare';
  const canCheck=role==='admin'||role==='moderator';
  const current=lastReview(f,D);
  const status=role==='admin'&&current?
@@ -215,19 +217,19 @@ function reviewActionHtml(f){
   '<label class="editor-attest"><input name="source_checked" type="checkbox" required> Ich habe Originalquelle, Fundstelle und Produktbezug persönlich geprüft.</label>'+
   '<button class="primary full" type="submit" '+(A.busy?'disabled':'')+'>Fachentscheidung protokollieren</button>'+
   '<p class="tiny muted">Nur diese konkrete Textfassung kann durch einen Admin validiert werden.</p></form>':'';
- const check=canCheck&&isActiveRevision(D)?
+ const check=upgraded&&canCheck&&isActiveRevision(D)?
   '<form data-note-form="'+id+'" class="editor-form private-check-panel">'+
   '<strong>Private Quellenprüfung (keine Freigabe)</strong>'+
   '<label>Prüfergebnis<select name="assessment" class="search-input"><option value="checked">Quelle geprüft – ohne Freigabewirkung</option>'+
   '<option value="needs_revision">Überarbeitung erforderlich</option><option value="source_question">Quellenbezug unklar</option></select></label>'+
   '<label>Interne Notiz<textarea name="note" rows="2" maxlength="3000" required placeholder="Begründung; keine Patientendaten"></textarea></label>'+
   '<button class="secondary full" type="submit">Private Prüfung speichern</button></form><div class="collaboration-comments" data-note-list="'+id+'"><p class="tiny muted">Private Notizen werden beim Öffnen geladen.</p></div>':'';
- const comments=
+ const comments=upgraded?
   '<section class="collaboration-comments" data-comment-list="'+id+'"><p class="tiny muted">Kommentare werden beim Öffnen geladen.</p></section>'+
   '<form data-comment-form="'+id+'" class="editor-form">'+
   '<label>Kommentar zur Aussage<textarea name="body" rows="2" minlength="10" maxlength="2000" required placeholder="Sachlicher Hinweis oder Frage zur Quelle – keine Patientendaten"></textarea></label>'+
   '<button type="submit" class="secondary full">Kommentar zur Moderation einreichen</button>'+
-  '<p class="tiny muted">Kommentare werden erst nach Freigabe durch die Moderation öffentlich angezeigt. Eine Kommentarfreigabe ist keine fachliche Validierung.</p></form>';
+  '<p class="tiny muted">Kommentare werden erst nach Freigabe durch die Moderation öffentlich angezeigt. Eine Kommentarfreigabe ist keine fachliche Validierung.</p></form>':'';
  return '<details class="editor-tools" data-collab-id="'+id+'"><summary>'+esc(marker)+'</summary>'+
   '<div class="tiny muted" data-collab-feedback role="status"></div>'+comments+check+review+'</details>';
 }
