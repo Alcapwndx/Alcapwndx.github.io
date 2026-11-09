@@ -27,6 +27,7 @@ jobs:
           node --check medidenta-preview/review-ui.js
           node --check medidenta-preview/app.js
           node medidenta-preview/tests/test_review_auth.js
+          node medidenta-preview/tests/test_magic_link.js
           node medidenta-preview/tests/test_release_ui.js
       - name: Kein privates Supabase-Secret im öffentlichen Client
         shell: bash
