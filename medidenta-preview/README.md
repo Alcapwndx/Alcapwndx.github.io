@@ -34,3 +34,15 @@ Statische GitHub Pages ohne Python-API; kein Echtzeitdatenbankabgleich. Kamera-B
 Der private MediIdenta-Datenkern enthält jetzt den sicheren Exporter und eine GitHub Action für den öffentlichen Testkatalog. Sobald im privaten Repository das eng begrenzte Actions-Secret `MEDIIDENTA_PAGES_TOKEN` hinterlegt wird, können Änderungen an veröffentlichten Produktidentitäten und redaktionellen Entwürfen regelmäßig in die drei öffentlichen JSON-Dateien synchronisiert werden.
 
 Die App zeigt den letzten Quell-Datenstand im Qualitätscenter, bietet „Öffentlich verfügbare Daten neu laden“ und prüft bei Rückkehr zum Tab beziehungsweise alle fünf Minuten auf Änderungen. Bis der automatische Upload aktiviert wurde, lautet die Kennzeichnung ausdrücklich „manueller Testdatenstand“. Es bleibt eine öffentliche statische Vorschau ohne Live-Datenbank-API.
+
+## Geschützte Prüfung (Version 0.7, derzeit noch ohne aktiviertes Backend)
+
+Eine neue Kontooberfläche ist auf der öffentlichen Demo vorbereitet. Supabase Auth soll sechsstellige E-Mail-Codes für die Anmeldung verwenden. Nur als `reviewer` oder `admin` in einer Supabase-Rollentabelle freigeschaltete Nutzer dürfen eine fachliche Prüfentscheidung abgeben.
+
+Die Bestätigung dokumentiert die geprüfte Original-EMA-Quelle, die konkrete GitHub-Katalogrevision und einen SHA-256-Fingerabdruck der Aussage. Prüfereignisse sind nach dem vorgesehenen RLS-Schema nur anhängbar, nicht editierbar oder löschbar. Diese Prüfdaten liegen getrennt vom öffentlichen GitHub-Pages-Quellcode.
+
+**Aktivierung steht aus:** Das Supabase-Projekt, die RLS-Migration und die `review-auth-config.js` mit öffentlicher Projekt-URL und Publishable Key müssen erst eingerichtet werden. Kein Service-Role- oder Secret-Key darf in öffentliche Dateien gelangen. Bis dahin zeigt die App transparent „Anmeldung vorbereitet“.
+
+Persönliche lokale Prüfnotizen und zentral gespeicherte, authentifizierte Prüfentscheidungen sind unterschiedliche Funktionen. **Eine authentifizierte Bestätigung ist noch keine klinische Freigabe** für die private MediIdenta-Datenbank; ein separater kontrollierter Publikationsprozess ist nötig.
+
+Siehe private Dokumentation im Repository `Alcapwndx/MediIdenta` unter `docs/KLINISCHER_REVIEW_LOGIN.md`.
