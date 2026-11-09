@@ -36,13 +36,13 @@ async function request(path,opts={}){
  return data;
 }
 function saveSession(session){
- A.session=session;
- if(!session){try{sessionStorage.removeItem(SESSION_KEY);}catch{}return;}
- try{sessionStorage.setItem(SESSION_KEY,JSON.stringify({
+ if(!session){A.session=null;try{sessionStorage.removeItem(SESSION_KEY);}catch{}return;}
+ A.session={
   access_token:session.access_token,
   refresh_token:session.refresh_token,
   expires_at:session.expires_at || (Math.floor(Date.now()/1000)+(session.expires_in||3600))
- }));}catch{}
+ };
+ try{sessionStorage.setItem(SESSION_KEY,JSON.stringify(A.session));}catch{}
 }
 async function validToken(){
  if(!A.session?.access_token)return null;
