@@ -1,4 +1,4 @@
-/* MediIdenta App v0.6 – ausschließlich eigene MediIdenta-API / Identity-Snapshot.
+/* MediIdenta App v0.6.2 – ausschließlich eigene MediIdenta-API / Identity-Snapshot.
    Keine Fotos, PZN oder Fachtexte ohne explizite Backend-Freigabe als identifiziert darstellen. */
 'use strict';
 /* Public preview build: static-only, no private backend calls. */
@@ -8,11 +8,11 @@ const escapeHtml=value=>String(value==null?'':value).replace(/[&<>"']/g,c=>({'&'
 const trim=x=>String(x==null?'':x).trim();
 const normalize=x=>trim(x).normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 const safeUrl=x=>{try{const u=new URL(x);return u.protocol==='https:'?u.href:null}catch{return null}};
-const D={page:'home',connected:false,meta:null,offline:[],hits:[],search:'',detail:null,photo:null,photoName:'',scanMessage:'',scanMatches:[],loading:false,seq:0,identifierSystem:'PZN8',compare:[],compareDetails:{},attributions:[],drafts:[],draftLoadError:false};
+const D={page:'home',connected:false,meta:null,offline:[],hits:[],search:'',detail:null,photo:null,photoName:'',scanMessage:'',scanMatches:[],loading:false,seq:0,identifierSystem:'PZN8',compare:[],compareDetails:{},attributions:[],drafts:[],draftLoadError:false,syncMeta:null,syncBusy:false,syncMessage:''};
 try{D.favorites=JSON.parse(localStorage.getItem('medidenta_favs_v04')||'[]');if(!Array.isArray(D.favorites))D.favorites=[];}catch{D.favorites=[]}
 const api=async path=>{const c=new AbortController(),t=setTimeout(()=>c.abort(),5000);try{const r=await fetch('/api/v1'+path,{signal:c.signal,cache:'no-store',headers:{Accept:'application/json'}});const data=await r.json();if(!r.ok)throw Error(data.error||'HTTP '+r.status);return data;}finally{clearTimeout(t)}};
 function clinicalNotice(){return '<div class="notice danger"><strong>Entwicklungsstand – keine klinische Freigabe.</strong> Identität, Stärke und Dosierung vor einer Gabe unabhängig anhand sicherer Quellen prüfen. Fotoübereinstimmungen sind keine Medikamentenidentifikation.</div>'}
-function status(){if(IS_PUBLIC_PREVIEW){bar.className='system-status offline';bar.textContent='● Öffentliche GitHub-Pages-Demo · '+D.offline.length+' Produkte · '+D.drafts.length+' ungeprüfte Fachtexte · kein Live-Server';return;}bar.className='system-status'+(D.connected?'':' offline');bar.textContent=D.connected?'● Verbunden · eigene MediIdenta Datenbank v0.6 · Produktidentitäten':'● Offline-Entwicklungsbestand · Produktidentitäten, keine Live-Prüfung';}
+function status(){if(IS_PUBLIC_PREVIEW){bar.className='system-status offline';bar.textContent='● Öffentliche GitHub-Pages-Demo · '+D.offline.length+' Produkte · '+D.drafts.length+' ungeprüfte Fachtexte · '+(D.syncMeta?.mode==='STATIC_PUBLIC_PREVIEW'?'Datenstand '+new Date(D.syncMeta.source_date).toLocaleDateString('de-DE'):'manueller Testdatenstand')+' · keine Live-API';return;}bar.className='system-status'+(D.connected?'':' offline');bar.textContent=D.connected?'● Verbunden · eigene MediIdenta Datenbank v0.6 · Produktidentitäten':'● Offline-Entwicklungsbestand · Produktidentitäten, keine Live-Prüfung';}
 function title(s){return '<div class="eyebrow">MediIdenta · Fachkreiskatalog</div><h1>'+escapeHtml(s)+'</h1>'}
 function badge(s,cls){return '<span class="tag '+(cls||'')+'">'+escapeHtml(s)+'</span>'}
 function fav(id){return '<button class="fav '+(D.favorites.includes(id)?'on':'')+'" data-action="fav" data-id="'+escapeHtml(id)+'" aria-label="Favorit">'+(D.favorites.includes(id)?'★':'☆')+'</button>'}
@@ -61,7 +61,21 @@ function scanHtml(){
  '<div class="notice warning">Noch keine KI-Fotoerkennung: Bilder werden nur lokal angezeigt, keine Arzneimittelidentifizierung.</div></section>'+clinicalNotice();
 }
 function knowledgeHtml(){return window.MediIdentaReviewUI?.knowledge(D)||title('Fachtextprüfung nicht verfügbar');}
-function qualityHtml(){const m=D.meta;return title('Qualitätscenter')+'<p class="small muted">Die Anzeige unterscheidet technische Datensätze von klinisch geprüften Inhalten.</p><div class="stats"><div class="stat"><strong>'+(m?escapeHtml(m.products_published):D.offline.length)+'</strong><span>Produktidentitäten</span></div><div class="stat"><strong>'+(m?escapeHtml(m.published_facts):'0')+'</strong><span>Freigegebene Fachtexte</span></div><div class="stat"><strong>'+(m?escapeHtml(m.published_images):'0')+'</strong><span>Verifizierte Bilder</span></div><div class="stat"><strong>'+(m?escapeHtml(m.substances):'–')+'</strong><span>Wirkstoffe laut API</span></div></div><section class="card"><h2>Live-Verbindung</h2>'+badge(D.connected?'API erreichbar':'Offline-Snapshot',D.connected?'':'amber')+'<p class="small muted">Datenbankkern v0.6 · '+(D.connected?'Lokale Entwickler-API':(IS_PUBLIC_PREVIEW?'Öffentlicher Testkatalog ohne Serverzugriff':'Kein Abgleich mit laufender Server-Datenbank'))+'</p><button class="secondary full" data-action="reconnect">Verbindung neu prüfen</button></section><section class="card"><h2>Freigabegrenzen</h2><ul class="list-plain"><li>Wirkstoff und Name: quellbezogene Identität</li><li>Packungen, PZN und Bilder: noch nicht freigegeben</li><li>Medizinische Entwürfe werden nur nach gesonderter Prüfung freigegeben</li><li>Keine klinische Verwendung oder Dosierungsaussage</li></ul></section><section class="card"><h2>Rechte und Datenquellen</h2>'+(D.attributions.length?D.attributions.map(x=>'<div class="fact"><strong>'+escapeHtml(x.name||x.source_key)+'</strong><p class="tiny">Lizenz: '+escapeHtml(x.license_code||'Nicht angegeben')+'</p><p class="tiny muted">'+escapeHtml(x.attribution_text||'')+'</p></div>').join(''):'<p class="small muted">Die Quellenliste ist nur bei aktiver API-Verbindung verfügbar.</p>')+'</section>'+(window.MediIdentaReviewUI?.quality(D)||'')+clinicalNotice();}
+function syncHtml(){
+ const m=D.syncMeta;
+ const when=m?.mode==='STATIC_PUBLIC_PREVIEW'&&m.source_date?
+   new Date(m.source_date).toLocaleString('de-DE',{dateStyle:'medium',timeStyle:'short'}):
+   'Noch kein automatischer Datenabgleich';
+ const detail=m?.mode==='STATIC_PUBLIC_PREVIEW'?
+   'Aus dem privaten MediIdenta-Katalog automatisch exportiert. Änderungen erscheinen erst nach dem GitHub-Pages-Deployment.':
+   'Derzeit manuell exportierter Testbestand. Die automatische Übertragung benötigt noch den eingerichteten GitHub-Zugriff.';
+ return '<section class="card"><h2>Aktualisierung der Datenbank</h2><p class="small"><strong>'+escapeHtml(when)+'</strong></p>'+
+ '<p class="small muted">'+escapeHtml(detail)+'</p>'+
+ '<button class="secondary full" data-action="sync-check" '+(D.syncBusy?'disabled':'')+'>↻ Öffentlich verfügbare Daten neu laden</button>'+
+ (D.syncMessage?'<p class="small muted">'+escapeHtml(D.syncMessage)+'</p>':'')+
+ '<p class="tiny muted">Nur veröffentlichte Produktidentitäten und ausdrücklich ungeprüfte redaktionelle Fachtextentwürfe. Keine direkte Verbindung zur privaten SQLite-Datei.</p></section>';
+}
+function qualityHtml(){const m=D.meta;return title('Qualitätscenter')+'<p class="small muted">Die Anzeige unterscheidet technische Datensätze von klinisch geprüften Inhalten.</p><div class="stats"><div class="stat"><strong>'+(m?escapeHtml(m.products_published):D.offline.length)+'</strong><span>Produktidentitäten</span></div><div class="stat"><strong>'+(m?escapeHtml(m.published_facts):'0')+'</strong><span>Freigegebene Fachtexte</span></div><div class="stat"><strong>'+(m?escapeHtml(m.published_images):'0')+'</strong><span>Verifizierte Bilder</span></div><div class="stat"><strong>'+(m?escapeHtml(m.substances):'–')+'</strong><span>Wirkstoffe laut API</span></div></div><section class="card"><h2>Live-Verbindung</h2>'+badge(D.connected?'API erreichbar':'Offline-Snapshot',D.connected?'':'amber')+'<p class="small muted">Datenbankkern v0.6 · '+(D.connected?'Lokale Entwickler-API':(IS_PUBLIC_PREVIEW?'Öffentlicher Testkatalog ohne Serverzugriff':'Kein Abgleich mit laufender Server-Datenbank'))+'</p><button class="secondary full" data-action="reconnect">Verbindung neu prüfen</button></section><section class="card"><h2>Freigabegrenzen</h2><ul class="list-plain"><li>Wirkstoff und Name: quellbezogene Identität</li><li>Packungen, PZN und Bilder: noch nicht freigegeben</li><li>Medizinische Entwürfe werden nur nach gesonderter Prüfung freigegeben</li><li>Keine klinische Verwendung oder Dosierungsaussage</li></ul></section><section class="card"><h2>Rechte und Datenquellen</h2>'+(D.attributions.length?D.attributions.map(x=>'<div class="fact"><strong>'+escapeHtml(x.name||x.source_key)+'</strong><p class="tiny">Lizenz: '+escapeHtml(x.license_code||'Nicht angegeben')+'</p><p class="tiny muted">'+escapeHtml(x.attribution_text||'')+'</p></div>').join(''):'<p class="small muted">Die Quellenliste ist nur bei aktiver API-Verbindung verfügbar.</p>')+'</section>'+(window.MediIdentaReviewUI?.quality(D)||'')+syncHtml()+clinicalNotice();}
 function draw(preserveFocus){let active=preserveFocus&&document.activeElement&&document.activeElement.id==='search';let pos=active?document.activeElement.selectionStart:null;root.innerHTML=({home:home,search:searchHtml,detail:detailHtml,compare:compareHtml,scan:scanHtml,knowledge:knowledgeHtml,quality:qualityHtml}[D.page]||home)();document.querySelectorAll('.bottom-nav button').forEach(x=>x.classList.toggle('active',x.dataset.nav===D.page));status();if(D.photo&&document.querySelector('#photo'))document.querySelector('#photo').src=D.photo;if(active&&document.querySelector('#search')){let el=document.querySelector('#search');el.focus();try{el.setSelectionRange(pos,pos)}catch{}}}
 function localSearch(q){if(trim(q).length<2)return D.offline.slice(0,50);const tokens=normalize(q).split(/\s+/).filter(Boolean);return D.offline.filter(x=>tokens.every(t=>normalize(x.name+' '+x.substances).includes(t))).slice(0,50)}
 async function find(q){const n=++D.seq;D.loading=true;D.hits=localSearch(q);draw(true);if(D.connected&&trim(q).length>=2){try{const r=await api('/search?q='+encodeURIComponent(q)+'&limit=50');if(n!==D.seq)return;D.hits=(r.results||[]).map(x=>({id:x.id,name:x.name,substances:x.substances||'',country_code:x.country_code,marketing_status:x.marketing_status}));}catch{D.connected=false;D.hits=localSearch(q)}}if(n===D.seq){D.loading=false;draw(true)}}
@@ -86,10 +100,52 @@ async function identify(){
 function go(where){window.MediIdentaIdentifiers?.stopCamera?.();D.page=where;D.scanMessage='';D.scanMatches=[];draw();document.documentElement.scrollTop=0;}
 async function connect(){if(IS_PUBLIC_PREVIEW){D.connected=false;D.meta=null;D.attributions=[{source_key:'EU_UR',name:'European Commission – Union Register',license_code:'CC-BY-4.0',attribution_text:'Quellgebundene Produktidentitäten aus dem EU-Register.'},{source_key:'EMA_EPAR',name:'European Medicines Agency – EPAR',license_code:'EMA-REUSE-ATTRIBUTION',attribution_text:'Produktidentitäten und unabhängig formulierte Entwürfe mit EMA-Quellenverweisen.'}];draw();return;}try{D.meta=await api('/meta');D.connected=true;try{const x=await api('/attributions');D.attributions=Array.isArray(x.sources)?x.sources:[];}catch{D.attributions=[];}}catch{D.meta=null;D.connected=false;D.attributions=[];}if(D.page==='search')find(D.search);else draw();}
 let debounce;
-document.addEventListener('click',e=>{const b=e.target.closest('[data-nav],[data-action],[data-filter]');if(!b)return;if(b.dataset.nav){go(b.dataset.nav);return;}if(b.dataset.filter){D.hits=b.dataset.filter==='fav'?D.offline.filter(x=>D.favorites.includes(x.id)):localSearch(D.search);draw();return;}const a=b.dataset.action;if(a==='detail')openProduct(b.dataset.id);else if(a==='fav'){const id=b.dataset.id;D.favorites=D.favorites.includes(id)?D.favorites.filter(x=>x!==id):[id,...D.favorites];try{localStorage.setItem('medidenta_favs_v04',JSON.stringify(D.favorites))}catch{}draw();}else if(a==='compare'){const id=b.dataset.id;D.compare=D.compare.includes(id)?D.compare.filter(x=>x!==id):[...D.compare,id].slice(-2);draw();}else if(a==='compare-clear'){D.compare=[];D.compareDetails={};draw();}else if(a==='compare-view')showCompare();else if(a==='pzn')identify();else if(a==='photo')picker.click();else if(a==='reconnect')connect();});
+document.addEventListener('click',e=>{const b=e.target.closest('[data-nav],[data-action],[data-filter]');if(!b)return;if(b.dataset.nav){go(b.dataset.nav);return;}if(b.dataset.filter){D.hits=b.dataset.filter==='fav'?D.offline.filter(x=>D.favorites.includes(x.id)):localSearch(D.search);draw();return;}const a=b.dataset.action;if(a==='detail')openProduct(b.dataset.id);else if(a==='fav'){const id=b.dataset.id;D.favorites=D.favorites.includes(id)?D.favorites.filter(x=>x!==id):[id,...D.favorites];try{localStorage.setItem('medidenta_favs_v04',JSON.stringify(D.favorites))}catch{}draw();}else if(a==='compare'){const id=b.dataset.id;D.compare=D.compare.includes(id)?D.compare.filter(x=>x!==id):[...D.compare,id].slice(-2);draw();}else if(a==='compare-clear'){D.compare=[];D.compareDetails={};draw();}else if(a==='compare-view')showCompare();else if(a==='pzn')identify();else if(a==='photo')picker.click();else if(a==='reconnect')connect();else if(a==='sync-check')checkForCatalogUpdates(true);});
 document.addEventListener('input',e=>{if(e.target.id!=='search')return;D.search=e.target.value;clearTimeout(debounce);debounce=setTimeout(()=>find(D.search),220)});
 document.addEventListener('change',e=>{if(e.target.id==='code-system'){window.MediIdentaIdentifiers?.stopCamera?.();D.identifierSystem=e.target.value==='GTIN'?'GTIN':'PZN8';D.scanMessage='';D.scanMatches=[];draw();}});
 picker.addEventListener('change',e=>{const f=e.target.files?.[0];if(!f||!f.type.startsWith('image/')||f.size>8e6)return;if(D.photo)URL.revokeObjectURL(D.photo);D.photo=URL.createObjectURL(f);D.photoName=f.name;draw()});
+async function checkForCatalogUpdates(force=false){
+ if(!IS_PUBLIC_PREVIEW||D.syncBusy||document.hidden||document.activeElement?.matches?.('textarea[data-review-note]'))return;
+ D.syncBusy=true;
+ try{
+  const res=await fetch('./sync_status.json',{cache:'no-store'});
+  if(!res.ok)throw Error('Datenstand nicht erreichbar');
+  const meta=await res.json();
+  if(meta.format!=='medidenta-public-sync-v1'||meta.medical_release_ready!==false||!meta.source_commit)throw Error('Ungültiger Synchronisationsstatus');
+  const unchanged=D.syncMeta?.source_commit===meta.source_commit;
+  if(unchanged&&!force){D.syncBusy=false;return;}
+  const [pr,dr]=await Promise.all([
+   fetch('./catalog_snapshot.json',{cache:'no-store'}),
+   fetch('./clinical_review_drafts.json',{cache:'no-store'})
+  ]);
+  if(!pr.ok||!dr.ok)throw Error('Die neuen Datendateien konnten nicht geladen werden');
+  const [catalog,drafts]=await Promise.all([pr.json(),dr.json()]);
+  if(catalog.format!=='medidenta-identity-only-v1'||catalog.clinical_release_ready!==false||
+     drafts.format!=='medidenta-editorial-review-only-v1'||drafts.clinical_release_ready!==false||
+     !Array.isArray(catalog.products)||!Array.isArray(drafts.facts)||
+     meta.identity_count!==catalog.products.length||meta.draft_count!==drafts.facts.length||
+     catalog.products.length<1)throw Error('Datenstände stimmen nicht überein');
+  const products=catalog.products.filter(x=>typeof x.id==='string'&&typeof x.name==='string');
+  const facts=drafts.facts.filter(x=>x.editorial_status==='draft_unreviewed'&&Array.isArray(x.linked_product_ids)&&x.id&&x.target_name);
+  if(products.length!==catalog.products.length||facts.length!==drafts.facts.length)throw Error('Unvollständige Einträge');
+  if(catalog.source_commit&&catalog.source_commit!==meta.source_commit)throw Error('Unterschiedliche Katalogrevisionen');
+  if(drafts.source_commit&&drafts.source_commit!==meta.source_commit)throw Error('Unterschiedliche Fachtextrevisionen');
+  const ids=new Set(products.map(x=>x.id));
+  if(facts.some(x=>x.linked_product_ids.some(id=>!ids.has(id))))throw Error('Unbekannte Produktzuordnungen');
+  D.offline=products;D.drafts=facts;D.syncMeta=meta;D.draftLoadError=false;
+  D.hits=localSearch(D.search);D.compareDetails={};
+  if(D.page==='detail'&&D.detail){
+   const p=D.offline.find(x=>x.id===D.detail.id);
+   if(!p){D.page='search';D.detail=null;}
+   else D.detail={...p,substances:trim(p.substances).split(', ').map(name=>({name})),facts:[],photos:[],presentations:[],
+     source:{name:p.source_name,url:p.source_url,license:p.license}};
+  }
+  D.syncMessage=unchanged?'Keine neuen öffentlichen Daten gefunden.':'Aktualisierter Testkatalog erfolgreich geladen.';
+ }catch(e){D.syncMessage='Aktualisierung nicht möglich: '+String(e.message||'Netzwerkfehler')+'. Vorheriger Datenstand bleibt sichtbar.';}
+ finally{D.syncBusy=false;draw();}
+}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkForCatalogUpdates(false);});
+setInterval(()=>{if(!document.hidden)checkForCatalogUpdates(false);},5*60*1000);
 async function init(){try{const x=await (await fetch('./catalog_snapshot.json',{cache:'no-store'})).json();if(x.format!=='medidenta-identity-only-v1')throw Error('Unbekanntes Snapshot-Format');D.offline=(x.products||[]).filter(x=>x.id&&x.name);}catch{D.offline=Array.isArray(window.MEDIIDENTA_EMBEDDED_SNAPSHOT)?window.MEDIIDENTA_EMBEDDED_SNAPSHOT:[]}try{
   const response=await fetch('./clinical_review_drafts.json',{cache:'no-store'});
   if(!response.ok)throw Error('HTTP '+response.status);
@@ -97,6 +153,6 @@ async function init(){try{const x=await (await fetch('./catalog_snapshot.json',{
   if(file.format!=='medidenta-editorial-review-only-v1'||file.clinical_release_ready!==false||!Array.isArray(file.facts))throw Error('Unexpected draft data');
   D.drafts=file.facts.filter(x=>x.editorial_status==='draft_unreviewed'&&Array.isArray(x.linked_product_ids)&&x.id&&x.target_name);
  }catch{D.draftLoadError=true;D.drafts=[];}
- D.hits=D.offline.slice(0,50);draw();await connect();if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('./service-worker.js').catch(()=>{});}
+ try{const r=await fetch('./sync_status.json',{cache:'no-store'});if(r.ok){const x=await r.json();if(x.format==='medidenta-public-sync-v1'&&x.medical_release_ready===false)D.syncMeta=x;}}catch{}D.hits=D.offline.slice(0,50);draw();await connect();if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('./service-worker.js').catch(()=>{});}
 window.MediIdentaReviewUI?.configure(D,draw);
 init();
