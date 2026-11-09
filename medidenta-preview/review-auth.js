@@ -24,7 +24,7 @@ function headers(token,extra={}){
 async function request(path,opts={}){
  if(!A.configured)throw Error('Die Kontenverwaltung ist noch nicht eingerichtet.');
  const url=A.base+path;
- const r=await fetch(url,{cache:'no-store',...opts,headers:headers(opts.token,opts.body?{'Content-Type':'application/json'}:{})});
+ const r=await fetch(url,{cache:'no-store',...opts,headers:headers(opts.token,{...(opts.body?{'Content-Type':'application/json'}:{}),...(opts.headers||{})})});
  let data;try{data=await r.json();}catch{data=null;}
  if(!r.ok){
   if(r.status===401||r.status===403)throw Error('Anmeldung oder Berechtigung ungültig. Bitte erneut anmelden.');
