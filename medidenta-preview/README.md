@@ -28,3 +28,9 @@ Die Seite ist öffentlich und die Entwürfe sind dadurch ebenfalls öffentlich l
 ## Technische Grenzen
 
 Statische GitHub Pages ohne Python-API; kein Echtzeitdatenbankabgleich. Kamera-Barcodeerkennung browserabhängig, ohne verifizierte Kennungen keine Identifizierung. Tablettenfotos sind nur Vorschau ohne KI-Zuordnung. Nicht für Dosierung, Medikamentengabe oder Therapieentscheidungen benutzen.
+
+## Automatische Datenaktualisierung (v0.6.2)
+
+Der private MediIdenta-Datenkern enthält jetzt den sicheren Exporter und eine GitHub Action für den öffentlichen Testkatalog. Sobald im privaten Repository das eng begrenzte Actions-Secret `MEDIIDENTA_PAGES_TOKEN` hinterlegt wird, können Änderungen an veröffentlichten Produktidentitäten und redaktionellen Entwürfen regelmäßig in die drei öffentlichen JSON-Dateien synchronisiert werden.
+
+Die App zeigt den letzten Quell-Datenstand im Qualitätscenter, bietet „Öffentlich verfügbare Daten neu laden“ und prüft bei Rückkehr zum Tab beziehungsweise alle fünf Minuten auf Änderungen. Bis der automatische Upload aktiviert wurde, lautet die Kennzeichnung ausdrücklich „manueller Testdatenstand“. Es bleibt eine öffentliche statische Vorschau ohne Live-Datenbank-API.
