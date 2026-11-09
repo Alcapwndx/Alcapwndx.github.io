@@ -1,7 +1,7 @@
-/* MediIdenta 0.6.1 – network-first fuer UI-Dateien.
+/* MediIdenta 0.6.2 – network-first fuer UI-Dateien.
    Medizinische Entwuerfe/JSON werden NICHT im Service-Worker gespeichert. */
 'use strict';
-const CACHE='medidenta-pages-v0.6.1';
+const CACHE='medidenta-pages-v0.6.2';
 const SHELL=['./','./index.html','./app.js','./review-ui.js','./identifier.js','./app.css','./icon.svg','./manifest.webmanifest'];
 self.addEventListener('install', event=>{
   event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(SHELL)).then(()=>self.skipWaiting()));
@@ -15,7 +15,8 @@ self.addEventListener('fetch', event=>{
   const req=event.request, u=new URL(req.url);
   if(req.method!=='GET'||u.origin!==self.location.origin)return;
   if(u.pathname.includes('/api/')||u.pathname.endsWith('catalog_snapshot.json')||
-     u.pathname.endsWith('clinical_review_drafts.json'))return;
+     u.pathname.endsWith('clinical_review_drafts.json')||
+     u.pathname.endsWith('sync_status.json'))return;
   if(req.mode==='navigate'){
     event.respondWith(fetch(req,{cache:'no-store'}).catch(()=>caches.match('./index.html')));
     return;
