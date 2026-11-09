@@ -9,4 +9,4 @@ COPY hosting /srv/medidenta/hosting
 COPY medidenta-preview /srv/medidenta/medidenta-preview
 USER medidenta
 EXPOSE 10000
-CMD ["sh", "-c", "exec uvicorn hosting.main:app --host 0.0.0.0 --port ${PORT:-10000} --proxy-headers --forwarded-allow-ips='*'"]
+CMD ["sh", "-c", "exec uvicorn hosting.main:app --host 0.0.0.0 --port ${PORT:-10000} --proxy-headers"]
