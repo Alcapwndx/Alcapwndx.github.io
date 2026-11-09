@@ -20,7 +20,7 @@
 2. Unter **SQL Editor** zuerst den Inhalt der Datei im **privaten** GitHub-Repository
    `ops/supabase/medidenta_review_rls.sql` ausführen.
 3. Anschließend `ops/supabase/medidenta_live_catalog.sql` ausführen. Die zweite Migration erstellt die Produkt- und Fachdaten-Tabellen, schützt sie per Row-Level Security und stellt die sichere Review-Funktion `medidenta_submit_clinical_review` bereit.
-4. Unter **Authentication → Providers → Email** die E-Mail-Anmeldung aktivieren. Für Einmalcodes das passende E-Mail-Template mit `{{ .Token }}` konfigurieren (und den E-Mail-Versand sowie die Ratenlimits testen).
+4. Unter **Authentication → Sign In / Providers → Email** die E-Mail-Anmeldung aktivieren. **Keine E-Mail-Vorlage ändern:** Supabase Free sperrt seit dem 03.06.2026 die Template-Anpassung ohne eigenes SMTP. MediIdenta verwendet stattdessen die unveränderten **Magic-Link-E-Mails**, die direkt zur App zurückführen. Unter **Authentication → URL Configuration** die Site URL auf `https://alcapwndx-github-io.onrender.com/medidenta-preview/` setzen und unter Redirect URLs **exakt dieselbe URL** erlauben. Der eingebaute Test-Maildienst versendet nur an E-Mail-Adressen von Mitgliedern des Supabase-Projektteams und maximal zwei E-Mails/Stunde; für andere Empfänger später einen eigenen SMTP-Dienst konfigurieren. Quellen: https://supabase.com/changelog/46599-changes-to-email-template-customisation-on-free-tier und https://supabase.com/docs/guides/auth/testing-auth-flows.
 5. Unter **Settings → API Keys** den **Publishable Key** (`sb_publishable_...`) und die öffentliche Projekt-URL (`https://<projekt>.supabase.co`) für Render notieren. Das sind keine Administrator-Schlüssel.
 6. Unter **Connect** den PostgreSQL-Datenbank-Verbindungsstring für eine serverseitige Verbindung beziehen. Ist IPv6 aus dem GitHub Runner nicht verfügbar, bietet Supabase den **Session Pooler** als IPv4-kompatible Verbindung an. Das Datenbankpasswort bleibt ausschließlich im privaten Repository-Secret.
 
@@ -55,7 +55,7 @@ Der private Datenkern bleibt Eigentümer der Quelldaten. **Quarantänedaten des 
 
 ## Schritt D – Dein Admin-Konto aktivieren
 
-1. In der neuen Render-App das Kontosymbol öffnen und einen E-Mail-Einmalcode anfordern.
+1. In der Render-App das Kontosymbol öffnen, eine **Anmeldelink-E-Mail** anfordern und den Link im Browser öffnen. Nach der Rückleitung zur MediIdenta-App wird die Supabase-Sitzung aus dem URL-Fragment übernommen und der sensible Fragmentteil unmittelbar entfernt.
 2. Nach der ersten Anmeldung gibt es zunächst **keine Berechtigung**, Fachinformationen zu bestätigen.
 3. Supabase Dashboard → **Authentication → Users** → eigene Benutzer-UUID kopieren.
 4. Im SQL Editor als Projektinhaber ausführen (UUID ersetzen):
@@ -66,7 +66,7 @@ values ('00000000-0000-0000-0000-000000000000'::uuid, 'admin')
 on conflict (user_id) do update set role = excluded.role;
 ```
 
-5. Erneut anmelden. In der Fachtextansicht eine **bekannte, anhand der aktuellen Originalquelle kontrollierte** Aussage öffnen. Die Freigabe geht **direkt** an die serverseitige Supabase-Funktion; nur die unveränderte registrierte Textversion kann bestätigt werden.
+5. Konto in der App neu laden oder erneut anmelden und kontrollieren, dass **Administrator/in** angezeigt wird. In der Fachtextansicht eine **bekannte, anhand der aktuellen Originalquelle kontrollierte** Aussage öffnen. Die Freigabe geht **direkt** an die serverseitige Supabase-Funktion; nur die unveränderte registrierte Textversion kann bestätigt werden.
 6. Eine Ablehnung oder Überarbeitung widerruft die fachliche Freigabe derselben Version ebenfalls direkt in der zentralen Datenbank.
 
 **Achtung:** Der Schreibschutz der Audit-Tabelle wird durch die zweite Migration auf eine einzige überprüfte serverseitige RPC beschränkt. Die alte GitHub-Pages-Login-Demo ohne Backend ist absichtlich nicht für produktive Freigaben verwendbar.
