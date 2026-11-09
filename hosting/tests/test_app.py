@@ -52,6 +52,9 @@ class AppTests(unittest.TestCase):
         with patch.object(main,"IS_LIVE_CONFIGURED",True),patch.object(main,"_read_table",side_effect=fake_read):
             meta=client.get("/medidenta-preview/sync_status.json").json()
             self.assertEqual(meta["mode"],"LIVE_SUPABASE")
+            self.assertEqual(meta["release_phase"], "alpha")
+            self.assertFalse(meta["beta_gate"]["ready"])
+            self.assertIsNone(meta["last_ema_check_at"])
             self.assertEqual((meta["identity_count"],meta["draft_count"],meta["reviewed_count"]),(1,1,1))
             reviewed=client.get("/medidenta-preview/clinical_review_drafts.json").json()
             self.assertEqual(reviewed["reviewed_facts_list"][0]["editorial_status"],"clinically_reviewed")
@@ -60,6 +63,29 @@ class AppTests(unittest.TestCase):
             self.assertEqual(client.get("/api/v1/search?q=approved").json()["results"][0]["id"],"p1")
             self.assertEqual(client.get("/api/v1/products/p1").json()["id"],"p1")
             self.assertEqual(client.get("/api/v1/readiness").json()["ready"],True)
+
+    def test_alpha_permissions_fail_closed_without_login(self):
+        with patch.object(main, "IS_LIVE_CONFIGURED", True):
+            p = {"body": "Eine sachliche Quellenrückfrage für Testdaten"}
+            self.assertEqual(
+                client.post("/api/v1/facts/legacy-v05-001/comments", json=p).status_code, 401)
+            self.assertEqual(
+                client.post("/api/v1/facts/legacy-v05-001/moderator-notes",
+                            json={"source_commit": "a"*40, "statement_sha256": "b"*64,
+                                  "assessment": "checked", "note": "Synthetische Notiz"}).status_code, 401)
+            self.assertEqual(
+                client.get("/api/v1/facts/legacy-v05-001/moderator-notes").status_code, 401)
+            self.assertEqual(
+                client.post("/api/v1/comments/11111111-1111-4111-8111-111111111111/moderate",
+                            json={"approve": True}).status_code, 401)
+            self.assertEqual(
+                client.post("/api/v1/admin/roles",
+                            json={"user_id": "11111111-1111-4111-8111-111111111111",
+                                  "role": "moderator"}).status_code, 401)
+            self.assertEqual(
+                client.post("/api/v1/admin/roles",
+                            json={"user_id": "11111111-1111-4111-8111-111111111111",
+                                  "role": "god"}).status_code, 422)
 
     def test_no_fake_live_backend_or_unauthenticated_reviews(self):
         with patch.object(main,"IS_LIVE_CONFIGURED",True):

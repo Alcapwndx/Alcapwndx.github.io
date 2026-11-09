@@ -1,4 +1,4 @@
-/* MediIdenta review accounts v0.9 – Supabase Magic Links / optional email OTP + RLS.
+/* MediIdenta Alpha v0.9 – Magic Link login, private checks and tiered RLS.
  * Publishable project key only; NO service_role key and no medicine publication.
  * The audited SHA-256 is an evidence pointer, not proof of clinical correctness.
  */
@@ -64,9 +64,9 @@ async function loadProfile(){
  if(!user?.id)throw Error('Konto konnte nicht zugeordnet werden.');
  A.user={id:user.id,email:String(user.email||'')};
  const p=await request('/rest/v1/'+ROLES_TABLE+'?select=role&user_id=eq.'+encodeURIComponent(user.id)+'&limit=1',{token});
- A.role=Array.isArray(p)&&p[0]&&['reviewer','admin'].includes(p[0].role)?p[0].role:null;
+ A.role=Array.isArray(p)&&p[0]&&['reviewer','moderator','admin'].includes(p[0].role)?(p[0].role==='reviewer'?'moderator':p[0].role):null;
  A.events=[];
- if(A.role){
+ if(A.role==='admin'){
   const list=await request('/rest/v1/'+REVIEW_TABLE+
    '?select=fact_id,source_commit,statement_sha256,decision,created_at&order=created_at.desc&limit=1000',{token});
   A.events=Array.isArray(list)?list:[];
@@ -114,7 +114,7 @@ async function consumeMagicLink(){
    saveSession({access_token:token,refresh_token:refresh,expires_in:expires});
    await loadProfile(); // Verify access token with Supabase before displaying a user.
    done(A.role==='admin'?'Erfolgreich als Administrator/in angemeldet.':
-        A.role==='reviewer'?'Erfolgreich als Prüfer/in angemeldet.':
+        A.role==='moderator'?'Erfolgreich als Moderator/in angemeldet.':
         'Erfolgreich angemeldet. Dein Konto hat noch keine Prüfberechtigung.');
  }catch{
    clearUser();
@@ -144,7 +144,7 @@ async function verifyOtp(email,token){
   saveSession(data);
   await loadProfile();
   A.pendingEmail='';
-  done(A.role?'Erfolgreich angemeldet. Prüfentscheidungen können sicher dokumentiert werden.':'Konto angemeldet, aber noch keine Prüfberechtigung freigeschaltet.');
+  done(A.role==='admin'?'Als Administrator/in angemeldet.':A.role==='moderator'?'Als Moderator/in angemeldet.':'Als User angemeldet. Kommentare sind möglich.');
  }catch(e){clearUser();done(e.message,true);}
 }
 async function logout(){
@@ -152,21 +152,30 @@ async function logout(){
  clearUser();done('Abgemeldet.');
 }
 function accountHtml(){
- const info='<div class="notice warning"><strong>Deine Prüfung hat Freigabewirkung auf die konkrete Aussage.</strong> Nach dem serverseitigen Datenabgleich wird eine nachweislich bestätigte, unveränderte Aussage in MediIdenta fachlich freigegeben. Das ist keine pauschale Produkt- oder Dosierungsfreigabe. Keine Patientendaten in die Notizen eintragen.</div>';
- const heading='<div class="eyebrow">MediIdenta · Redaktionskonto</div><h1>Anmeldung und Prüfberechtigung</h1>';
+ const info='<div class="notice warning"><strong>Alpha-Test:</strong> User können Kommentare einreichen. Moderatoren prüfen Quellen und Kommentare, erteilen aber keine klinische Freigabe. Nur Administratoren dürfen einzelne Aussagen fachlich validieren. Keine Patientendaten in die App eingeben.</div>';
+ const heading='<div class="eyebrow">MediIdenta · Mein Konto</div><h1>Konto & Mitwirkung</h1>';
  if(!A.configured)return heading+info+
   '<section class="card"><h2>Anmeldung vorbereitet</h2><p>Die geschützte Kontoverwaltung muss noch einmalig mit Supabase verbunden werden.</p>'+
   '<p class="small muted">Bis dahin können Fachtexte wie bisher gelesen und lokale Prüfnotizen erstellt werden. Eine gespeicherte, authentifizierte Bestätigung ist noch nicht möglich.</p></section>';
  if(A.user){
-  const role=A.role==='admin'?'Administrator/in':A.role==='reviewer'?'Fachliche/r Prüfer/in':'Noch keine Prüfberechtigung';
+  const role=A.role==='admin'?'Administrator/in':A.role==='moderator'?'Moderator/in':'User (Kommentieren)';
   const history=A.events.slice(0,15).map(x=>'<div class="auth-history"><strong>'+esc(x.fact_id)+'</strong> · '+esc(DECISIONS[x.decision]||x.decision)+
    '<div class="tiny muted">'+esc(new Date(x.created_at).toLocaleString('de-DE'))+' · Revision '+esc(x.source_commit?.slice(0,12))+'</div></div>').join('');
   return heading+info+'<section class="card"><h2>Mein Konto</h2><p><strong>'+esc(A.user.email)+'</strong></p>'+
-   '<p class="small">Rolle: '+esc(role)+'</p>'+
-   (!A.role?'<div class="notice warning">Für die ersten Prüfungen muss dein Konto von der Projektverwaltung in der Supabase-Datenbank als „reviewer“ oder „admin“ freigeschaltet werden.</div>'+
-   '<p class="tiny muted">Benutzer-ID zur einmaligen Rollenvergabe: <code>'+esc(A.user.id)+'</code></p>':'')+
+   '<p class="account-role small"><strong>Rolle:</strong> '+esc(role)+'</p>'+
+   '<p class="tiny muted">Deine Benutzer-ID für eine Rollenvergabe: <code>'+esc(A.user.id)+'</code></p>'+
+   (!A.role?'<div class="notice">Als User kannst du Kommentare einreichen. Diese werden vor ihrer öffentlichen Anzeige moderiert.</div>':'')+
    '<button class="secondary full spaced" data-editor-action="logout">Abmelden</button></section>'+
-   (A.role?'<section class="card"><h2>Meine letzten Prüfentscheidungen</h2>'+(history||'<p class="muted">Noch keine Entscheidungen protokolliert.</p>')+'</section>':'')+
+   (A.role==='admin'&&A.getState?.()?.features?.collaboration_enabled===true?'<section class="card"><h2>Benutzerrollen verwalten</h2>'+
+    '<p class="small muted">Andere Nutzer melden sich zunächst per E-Mail an und teilen dir anschließend ihre Benutzer-ID mit. Nur du als Admin kannst Rollen zuweisen.</p>'+
+    '<form class="editor-form" data-role-form="assign">'+
+    '<label>Benutzer-ID (UUID)<input name="user_id" required maxlength="36" placeholder="00000000-0000-0000-0000-000000000000" autocomplete="off"></label>'+
+    '<label>Neue Rolle<select name="role" class="search-input"><option value="user">User · Kommentieren</option>'+
+    '<option value="moderator">Moderator · Quellen prüfen und Kommentare moderieren</option>'+
+    '<option value="admin">Admin · alle Redaktionsrechte</option></select></label>'+
+    '<button type="submit" class="primary full">Rolle sicher zuweisen</button></form></section>':'')+
+   (A.role==='admin'&&A.getState?.()?.features?.collaboration_enabled!==true?'<div class="notice warning">Zusätzliche Alpha-Funktionen werden nach der v0.9-Supabase-Migration freigeschaltet. Deine bisherige Admin-Freigabe bleibt erhalten.</div>':'')+
+   (A.role==='admin'?'<section class="card"><h2>Meine letzten Freigabeentscheidungen</h2>'+(history||'<p class="muted">Noch keine Entscheidungen protokolliert.</p>')+'</section>':'')+
    (A.message?'<div class="notice '+(A.error?'danger':'warning')+'">'+esc(A.message)+'</div>':'');
  }
  return heading+info+
@@ -189,22 +198,40 @@ function lastReview(f,D){
  return A.events.find(x=>x.fact_id===f.id&&x.source_commit===c);
 }
 function reviewActionHtml(f){
- const D=A.getState?.();if(!D)return '';
+ const D=A.getState?.();
+ if(!D||!A.configured||!A.user||!A.reviewApiBase||D.syncMeta?.mode!=='LIVE_SUPABASE')return '';
+ const upgraded=D.features?.collaboration_enabled===true;
+ if(!upgraded&&A.role!=='admin')return '';
+ const role=A.role==='admin'?'admin':A.role==='moderator'?'moderator':'user';
+ const id=esc(f.id);
+ const marker=!upgraded?'Admin-Freigabe':role==='admin'?'Redaktion & Freigabe':role==='moderator'?'Private Prüfung & Moderation':'Diskussion & Kommentare';
+ const canCheck=role==='admin'||role==='moderator';
  const current=lastReview(f,D);
- const status=current?'<div class="notice warning"><strong>Zu dieser Katalogrevision dokumentiert:</strong> '+
-   esc(DECISIONS[current.decision]||current.decision)+'. <span class="tiny">Dies ist keine klinische Veröffentlichung.</span></div>':'';
- if(!A.configured)return '<p class="tiny muted">Verbindliche Prüfbestätigung: Einrichtung der geschützten Kontenverwaltung ausstehend.</p>';
- if(!A.user)return '<div class="review-auth-gate"><p class="small muted">Zum Dokumentieren einer Prüfung bitte anmelden.</p><button class="secondary" data-nav="account">Mit Prüfkonto anmelden</button></div>';
- if(!A.role)return '<div class="review-auth-gate"><p class="tiny muted">Dein Konto hat noch keine Prüfberechtigung.</p><button class="secondary" data-nav="account">Mein Konto ansehen</button></div>';
- if(!isActiveRevision(D))return '<div class="notice warning">Prüfung nicht übertragbar: Der öffentliche Datenstand ist noch nicht eindeutig mit einer GitHub-Revision verknüpft. Bitte zuerst den Katalog aktualisieren.</div>';
- const nonmatch=f.assignment_status==='unmatched';
- const opts=Object.entries(DECISIONS).filter(([k])=>!(nonmatch&&k==='verified'));
- return status+'<form class="editor-review-form" data-editor-fact="'+esc(f.id)+'">'+
- '<label>Meine fachliche Prüfentscheidung<select name="decision" required>'+opts.map(([k,v])=>'<option value="'+k+'">'+esc(v)+'</option>').join('')+'</select></label>'+
- '<label>Begründung / Korrekturhinweis (ohne Patientendaten)<textarea name="notes" rows="2" maxlength="3000" placeholder="Bei Korrekturbedarf bitte konkret begründen."></textarea></label>'+
- '<label class="editor-attest"><input name="source_checked" type="checkbox" value="yes" required> Ich habe die aktuelle Originalquelle, die genaue Fundstelle, den Produkt- beziehungsweise Wirkstoffbezug sowie die Aussage fachlich geprüft.</label>'+
- '<button class="primary full" type="submit" '+(A.busy?'disabled':'')+'>Prüfentscheidung verbindlich protokollieren</button>'+
- '<p class="tiny muted">Gespeichert werden Benutzer-ID, Datum, Quellrevision und SHA-256 der geprüften Aussage. Die Freigabe wird erst nach dem sicheren Serverabgleich wirksam. Die App selbst bleibt eine Entwicklungsanwendung.</p></form>';
+ const status=role==='admin'&&current?
+   '<p class="small muted">Deine letzte Entscheidung: '+esc(DECISIONS[current.decision]||current.decision)+'</p>':'';
+ const opts=Object.entries(DECISIONS).filter(([k])=>!(f.assignment_status==='unmatched'&&k==='verified'));
+ const review=role==='admin'&&isActiveRevision(D)?status+
+  '<form class="editor-review-form" data-editor-fact="'+id+'">'+
+  '<label>Admin-Entscheidung<select name="decision" required>'+opts.map(([k,v])=>'<option value="'+k+'">'+esc(v)+'</option>').join('')+'</select></label>'+
+  '<label>Begründung / Korrekturhinweis<textarea name="notes" rows="2" maxlength="3000" placeholder="Ohne Patientendaten"></textarea></label>'+
+  '<label class="editor-attest"><input name="source_checked" type="checkbox" required> Ich habe Originalquelle, Fundstelle und Produktbezug persönlich geprüft.</label>'+
+  '<button class="primary full" type="submit" '+(A.busy?'disabled':'')+'>Fachentscheidung protokollieren</button>'+
+  '<p class="tiny muted">Nur diese konkrete Textfassung kann durch einen Admin validiert werden.</p></form>':'';
+ const check=upgraded&&canCheck&&isActiveRevision(D)?
+  '<form data-note-form="'+id+'" class="editor-form private-check-panel">'+
+  '<strong>Private Quellenprüfung (keine Freigabe)</strong>'+
+  '<label>Prüfergebnis<select name="assessment" class="search-input"><option value="checked">Quelle geprüft – ohne Freigabewirkung</option>'+
+  '<option value="needs_revision">Überarbeitung erforderlich</option><option value="source_question">Quellenbezug unklar</option></select></label>'+
+  '<label>Interne Notiz<textarea name="note" rows="2" maxlength="3000" required placeholder="Begründung; keine Patientendaten"></textarea></label>'+
+  '<button class="secondary full" type="submit">Private Prüfung speichern</button></form><div class="collaboration-comments" data-note-list="'+id+'"><p class="tiny muted">Private Notizen werden beim Öffnen geladen.</p></div>':'';
+ const comments=upgraded?
+  '<section class="collaboration-comments" data-comment-list="'+id+'"><p class="tiny muted">Kommentare werden beim Öffnen geladen.</p></section>'+
+  '<form data-comment-form="'+id+'" class="editor-form">'+
+  '<label>Kommentar zur Aussage<textarea name="body" rows="2" minlength="10" maxlength="2000" required placeholder="Sachlicher Hinweis oder Frage zur Quelle – keine Patientendaten"></textarea></label>'+
+  '<button type="submit" class="secondary full">Kommentar zur Moderation einreichen</button>'+
+  '<p class="tiny muted">Kommentare werden erst nach Freigabe durch die Moderation öffentlich angezeigt. Eine Kommentarfreigabe ist keine fachliche Validierung.</p></form>':'';
+ return '<details class="editor-tools" data-collab-id="'+id+'"><summary>'+esc(marker)+'</summary>'+
+  '<div class="tiny muted" data-collab-feedback role="status"></div>'+comments+check+review+'</details>';
 }
 async function digestFact(f){
  if(!global.crypto?.subtle||typeof TextEncoder==='undefined')throw Error('Sichere Prüfsummenbildung wird auf diesem Gerät nicht unterstützt.');
@@ -233,7 +260,7 @@ async function submitLiveReview(data,token){
 async function submitReview(id,form){
  if(A.busy)return;
  const D=A.getState?.();
- if(!A.configured||!A.user||!A.role||!D||!isActiveRevision(D)){done('Kein freigeschaltetes Prüfkonto oder unklarer Datenstand.',true);return;}
+ if(!A.configured||!A.user||A.role!=='admin'||!D||!isActiveRevision(D)){done('Kein freigeschaltetes Prüfkonto oder unklarer Datenstand.',true);return;}
  const f=[...(D.drafts||[]),...(D.approved||[])].find(x=>x.id===id);
  if(!f||!['draft_unreviewed','clinically_reviewed'].includes(f.editorial_status)){done('Die geprüfte Aussage ist nicht mehr verfügbar.',true);return;}
  const decision=form.querySelector('[name="decision"]')?.value;
@@ -266,6 +293,121 @@ async function submitReview(id,form){
   done(decision==='verified'?'Fachliche Freigabe dokumentiert. Nach dem nächsten gesicherten Abgleich wird genau diese Textfassung im Katalog als fachlich freigegeben angezeigt.':'Deine Entscheidung wurde dokumentiert. Eine ältere Freigabe wird nach dem nächsten gesicherten Abgleich widerrufen.');
  }catch(e){done(e.message,true);}
 }
+
+async function liveRequest(path,method,body){
+ if(!A.reviewApiBase)throw Error('Nur in der Live-Anwendung verfügbar.');
+ const token=await validToken();if(!token)throw Error('Deine Sitzung ist abgelaufen.');
+ const r=await fetch('/api/v1'+path,{
+  method,cache:'no-store',
+  headers:{Accept:'application/json','Content-Type':'application/json','Authorization':'Bearer '+token},
+  ...(body?{body:JSON.stringify(body)}:{})
+ });
+ let data;try{data=await r.json();}catch{data=null;}
+ if(!r.ok)throw Error(typeof data?.detail==='string'&&data.detail.length<200?
+   data.detail:'Datenbankaktion derzeit nicht verfügbar (HTTP '+r.status+').');
+ return data;
+}
+function collaborationFeedback(details,msg,isError=false){
+ const el=details?.querySelector('[data-collab-feedback]');
+ if(el){el.className=isError?'notice warning':'small muted';el.textContent=msg;}
+}
+async function loadComments(details){
+ if(!details?.open)return;
+ const id=details.dataset.collabId;
+ const element=details.querySelector('[data-comment-list]');if(!element)return;
+ element.textContent='Kommentare laden …';
+ try{
+  const data=await liveRequest('/facts/'+encodeURIComponent(id)+'/comments','GET');
+  if(!details.isConnected)return;
+  const comments=data?.comments||[];
+  const mod=A.role==='moderator'||A.role==='admin';
+  element.innerHTML=comments.length?comments.map(x=>{
+    const state=x.moderation_status;
+    const date=x.created_at?new Date(x.created_at).toLocaleDateString('de-DE'):'';
+    const buttons=mod&&state==='pending'?
+      '<div class="row"><button type="button" class="secondary" data-comment-moderate="'+esc(x.id)+'" data-comment-approve="true">Sichtbar machen</button>'+
+      '<button type="button" class="secondary" data-comment-moderate="'+esc(x.id)+'" data-comment-approve="false">Zurückweisen</button></div>':'';
+    return '<div class="collaboration-comment"><span class="tag gray">'+
+      esc(state==='visible'?'Öffentlicher Kommentar':state==='pending'?'Wartet auf Moderation':'Zurückgewiesen')+
+      '</span><p>'+esc(x.body||'')+'</p><time>'+esc(date)+'</time>'+buttons+'</div>';
+  }).join(''):'<p class="tiny muted">Noch keine Kommentare zu diesem Fachtext.</p>';
+ }catch(e){
+  if(details.isConnected)element.textContent='Kommentare derzeit nicht verfügbar. '+String(e.message||'');
+ }
+}
+async function loadNotes(details){
+ if(!details?.open||(A.role!=='admin'&&A.role!=='moderator'))return;
+ const id=details.dataset.collabId;
+ const element=details.querySelector('[data-note-list]');if(!element)return;
+ element.textContent='Private Prüfnotizen laden …';
+ try{
+  const data=await liveRequest('/facts/'+encodeURIComponent(id)+'/moderator-notes','GET');
+  if(!details.isConnected)return;
+  const notes=data?.notes||[];
+  element.innerHTML='<p class="tiny bold">Interne Quellenprüfungen</p>'+
+   (notes.length?notes.map(x=>'<div class="collaboration-comment">'+
+     '<span class="tag gray">'+esc(x.assessment==='checked'?'Quelle gesichtet':x.assessment==='needs_revision'?'Überarbeitung':'Quellenrückfrage')+'</span>'+
+     '<p>'+esc(x.note||'')+'</p><time>'+esc(x.created_at?new Date(x.created_at).toLocaleDateString('de-DE'):'')+
+     ' · Revision '+esc((x.source_commit||'').slice(0,10))+'</time></div>').join(''):
+     '<p class="tiny muted">Noch keine privaten Notizen.</p>');
+ }catch(e){if(details.isConnected)element.textContent='Interne Notizen derzeit nicht abrufbar.';}
+}
+async function submitRole(form){
+ if(A.role!=='admin')return;
+ const id=String(form.querySelector('[name="user_id"]')?.value||'').trim();
+ const role=String(form.querySelector('[name="role"]')?.value||'').trim();
+ if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
+    ||!['user','moderator','admin'].includes(role)){
+  done('Bitte eine gültige Benutzer-ID und Rolle wählen.',true);return;
+ }
+ busy('Rollenänderung wird serverseitig geprüft …');
+ try{
+  const x=await liveRequest('/admin/roles','POST',{user_id:id,role});
+  done(x?.role===role?'Rolle erfolgreich zugewiesen. Das andere Konto erhält die Berechtigung beim erneuten Laden.':
+       'Die Rollenbestätigung war unvollständig.',x?.role!==role);
+ }catch(e){done(String(e.message||e),true);}
+}
+async function submitComment(form){
+ const details=form.closest('details[data-collab-id]'),id=form.dataset.commentForm;
+ if(!A.user||!details)return;
+ const body=String(form.querySelector('[name="body"]')?.value||'').trim();
+ if(body.length<10||body.length>2000){collaborationFeedback(details,'10 bis 2000 Zeichen erforderlich.',true);return;}
+ try{
+  await liveRequest('/facts/'+encodeURIComponent(id)+'/comments','POST',{body});
+  form.reset();
+  collaborationFeedback(details,'Kommentar eingereicht. Er wird vor der Veröffentlichung moderiert.');
+  await loadComments(details);
+ }catch(e){collaborationFeedback(details,String(e.message||e),true);}
+}
+async function submitModeratorNote(form){
+ const details=form.closest('details[data-collab-id]'),id=form.dataset.noteForm,D=A.getState?.();
+ if(!details||!D||(A.role!=='moderator'&&A.role!=='admin')||!isActiveRevision(D))return;
+ const f=[...(D.approved||[]),...(D.drafts||[])].find(f=>f.id===id);
+ if(!f)return;
+ const note=String(form.querySelector('[name="note"]')?.value||'').trim();
+ const assessment=form.querySelector('[name="assessment"]')?.value;
+ if(note.length<10||note.length>3000){collaborationFeedback(details,'Private Notiz: 10–3000 Zeichen erforderlich.',true);return;}
+ try{
+  await liveRequest('/facts/'+encodeURIComponent(id)+'/moderator-notes','POST',{
+    source_commit:D.syncMeta.source_commit,statement_sha256:await digestFact(f),
+    assessment,note
+  });
+  form.reset();
+  collaborationFeedback(details,'Private Quellenprüfung revisionsbezogen gespeichert. Keine klinische Freigabe.');
+  await loadNotes(details);
+ }catch(e){collaborationFeedback(details,String(e.message||e),true);}
+}
+async function moderateComment(button){
+ const details=button.closest('details[data-collab-id]');
+ if(!details||(A.role!=='moderator'&&A.role!=='admin'))return;
+ try{
+  await liveRequest('/comments/'+encodeURIComponent(button.dataset.commentModerate)+'/moderate',
+   'POST',{approve:button.dataset.commentApprove==='true'});
+  collaborationFeedback(details,'Kommentarstatus durch Moderatorrolle aktualisiert.');
+  await loadComments(details);
+ }catch(e){collaborationFeedback(details,String(e.message||e),true);}
+}
+
 function init(getState,draw){
  A.getState=getState;A.draw=draw;
  config();
@@ -279,7 +421,7 @@ function init(getState,draw){
  }
  document.addEventListener('submit',async e=>{
   const form=e.target;
-  if(!form.matches?.('[data-editor-form],[data-editor-fact]'))return;
+  if(!form?.dataset?.editorForm&&!form?.dataset?.editorFact&&!form?.dataset?.commentForm&&!form?.dataset?.noteForm&&!form?.dataset?.roleForm)return;
   e.preventDefault();
   if(form.dataset.editorForm==='request'){
    await sendOtp(form.querySelector('[name="email"]')?.value?.trim()||'');return;
@@ -287,12 +429,20 @@ function init(getState,draw){
   if(form.dataset.editorForm==='verify'){
    await verifyOtp(form.querySelector('[name="email"]')?.value?.trim()||'',form.querySelector('[name="otp"]')?.value?.trim()||'');return;
   }
+  if(form.dataset.roleForm){await submitRole(form);return;}
+  if(form.dataset.commentForm){await submitComment(form);return;}
+  if(form.dataset.noteForm){await submitModeratorNote(form);return;}
   if(form.dataset.editorFact)await submitReview(form.dataset.editorFact,form);
  });
  document.addEventListener('click',e=>{
   const b=e.target.closest?.('[data-editor-action]');if(!b)return;
   if(b.dataset.editorAction==='logout')logout();
+  if(b.dataset.commentModerate)moderateComment(b);
  });
+ document.addEventListener('toggle',e=>{
+  const element=e.target;
+  if(element?.matches?.('details[data-collab-id]')&&element.open){loadComments(element);loadNotes(element);}
+ },true);
 }
 global.MediIdentaReviewAuth={init,accountHtml,reviewActionHtml,
  _debug:{isActiveRevision,digestFact,configured:()=>A.configured,role:()=>A.role,events:()=>A.events.length}};

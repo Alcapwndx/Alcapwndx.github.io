@@ -92,7 +92,7 @@ async def _bundle():
             "sync": {**_demo("sync_status.json"), "mode": "STATIC_DEVELOPMENT_PREVIEW"},
         }
     rows = await _read_table("medidenta_catalog_metadata",
-                             columns="singleton,source_commit,source_date,source_schema_version")
+                             columns="singleton,source_commit,source_date,source_schema_version,imported_at")
     if len(rows) != 1:
         raise HTTPException(503, "Supabase-Katalog wurde noch nicht importiert")
     meta = rows[0]
@@ -143,6 +143,15 @@ async def _bundle():
         "reviewed_count": len(reviewed_facts),
         "unmatched_count": counts["unmatched_facts"],
         "medical_release_ready": False,
+        "last_catalog_import_at": meta.get("imported_at"),
+        "last_ema_check_at": None, # Not claimed until a real EMA fetch/check is audited.
+        "release_phase": "alpha",
+        "beta_gate": {
+            "target_clinically_validated_product_coverage": 0.70,
+            "requires_verified_pack_identification": True,
+            "requires_broad_catalog_coverage": True,
+            "ready": False,
+        },
     }
     return {"catalog": catalog, "clinical": clinical, "sync": sync}
 
@@ -154,6 +163,26 @@ async def health():
         "supabase_configured": IS_LIVE_CONFIGURED,
         "clinical_app_release_ready": False,
     })
+
+
+@app.get("/api/v1/features")
+async def features():
+    """Enable collaboration only after the operator applies the atomic v0.9 SQL migration."""
+    if not IS_LIVE_CONFIGURED:
+        return no_store({"collaboration_enabled": False, "reason": "no_live_database"})
+    async with httpx.AsyncClient(timeout=8.0, follow_redirects=False) as client:
+        try:
+            response = await client.get(
+                f"{URL}/rest/v1/medidenta_fact_comments",
+                headers={"apikey": KEY, "Accept": "application/json"},
+                params={"select": "id", "limit": "0"},
+            )
+            return no_store({
+                "collaboration_enabled": response.status_code == 200,
+                "reason": "available" if response.status_code == 200 else "database_migration_pending",
+            })
+        except httpx.HTTPError:
+            return no_store({"collaboration_enabled": False, "reason": "database_unavailable"})
 
 
 @app.get("/api/v1/readiness")
@@ -207,6 +236,9 @@ async def meta():
         "published_facts": len(b["clinical"]["reviewed_facts_list"]),
         "source_commit": b["sync"].get("source_commit"),
         "mode": b["sync"]["mode"],
+        "last_catalog_import_at": b["sync"].get("last_catalog_import_at"),
+        "last_ema_check_at": b["sync"].get("last_ema_check_at"),
+        "release_phase": "alpha",
         "published_images": 0,
         "clinical_release_ready": False,
     })
@@ -277,13 +309,195 @@ class ReviewInput(BaseModel):
     notes: str = Field(default="", max_length=3000)
 
 
+
+def _user_bearer(request: Request, *, required: bool = True) -> str:
+    """Forward only well-formed end-user JWTs, never server-admin credentials."""
+    bearer = request.headers.get("authorization", "")
+    if not bearer and not required:
+        return ""
+    if not re.fullmatch(r"Bearer [A-Za-z0-9._~+/-]{40,8192}", bearer):
+        raise HTTPException(401, "Bitte mit deinem MediIdenta-Konto anmelden")
+    return bearer
+
+
+async def _supabase_rpc(name: str, args: dict, bearer: str):
+    if not IS_LIVE_CONFIGURED:
+        raise HTTPException(503, "Redaktionsfunktionen noch nicht initialisiert")
+    async with httpx.AsyncClient(timeout=12.0, follow_redirects=False) as client:
+        try:
+            response = await client.post(
+                f"{URL}/rest/v1/rpc/{name}",
+                headers={"apikey": KEY, "Authorization": bearer,
+                         "Content-Type": "application/json", "Accept": "application/json"},
+                json=args,
+            )
+        except httpx.HTTPError:
+            raise HTTPException(503, "Redaktionsdatenbank nicht erreichbar") from None
+    if response.status_code in (401, 403):
+        raise HTTPException(403, "Keine Berechtigung für diese Aktion")
+    if response.status_code >= 400:
+        raise HTTPException(409 if response.status_code in (400, 404) else 503,
+                            "Aktion abgelehnt. Berechtigung oder Datenbankmigration überprüfen.")
+    try:
+        result = response.json()
+        if not isinstance(result, dict) or not result.get("id", result.get("fact_id")):
+            raise ValueError("Unexpected Supabase RPC response")
+    except ValueError:
+        raise HTTPException(503, "Prüfung der Datenbankbestätigung fehlgeschlagen") from None
+    return result
+
+
+class CommentInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    body: str = Field(min_length=10, max_length=2000)
+
+
+class ModeratorNoteInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    source_commit: str = Field(pattern=r"^[0-9a-f]{40}$")
+    statement_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    assessment: str
+    note: str = Field(min_length=10, max_length=3000)
+
+
+class ModerateCommentInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    approve: bool
+
+
+@app.get("/api/v1/facts/{fact_id}/comments")
+async def fact_comments(fact_id: str, request: Request):
+    if not VALID_ID.fullmatch(fact_id):
+        raise HTTPException(400, "Ungültige Text-ID")
+    if not IS_LIVE_CONFIGURED:
+        raise HTTPException(503, "Diskussion noch nicht verfügbar")
+    bearer = _user_bearer(request, required=False)
+    # RLS reveals visible comments to everyone, pending comments only to
+    # author and moderators. Never include user UUID or e-mail in response.
+    async with httpx.AsyncClient(timeout=12.0, follow_redirects=False) as client:
+        try:
+            response = await client.get(
+                f"{URL}/rest/v1/medidenta_fact_comments",
+                headers={"apikey": KEY, "Accept": "application/json",
+                         **({"Authorization": bearer} if bearer else {})},
+                params={"fact_id": "eq." + fact_id,
+                        "select": "id,body,moderation_status,created_at",
+                        "order": "created_at.desc", "limit": "40"},
+            )
+        except httpx.HTTPError:
+            raise HTTPException(503, "Kommentare derzeit nicht erreichbar") from None
+    if response.status_code in (401, 403):
+        raise HTTPException(403, "Zugriff auf Kommentare nicht erlaubt")
+    if response.status_code >= 400:
+        raise HTTPException(503, "Kommentarfunktion noch nicht aktiviert") from None
+    try:
+        comments = response.json()
+        if not isinstance(comments, list):
+            raise ValueError("Bad response")
+    except ValueError:
+        raise HTTPException(503, "Kommentarantwort ungültig") from None
+    return no_store({"comments": comments})
+
+
+@app.post("/api/v1/facts/{fact_id}/comments")
+async def post_fact_comment(fact_id: str, payload: CommentInput, request: Request):
+    if not VALID_ID.fullmatch(fact_id):
+        raise HTTPException(400, "Ungültige Text-ID")
+    result = await _supabase_rpc("medidenta_post_comment",
+                     {"p_fact_id": fact_id, "p_body": payload.body},
+                     _user_bearer(request))
+    return no_store(result)
+
+
+@app.get("/api/v1/facts/{fact_id}/moderator-notes")
+async def fact_moderator_notes(fact_id: str, request: Request):
+    if not VALID_ID.fullmatch(fact_id):
+        raise HTTPException(400, "Ungültige Text-ID")
+    bearer = _user_bearer(request)
+    if not IS_LIVE_CONFIGURED:
+        raise HTTPException(503, "Interne Prüfung noch nicht verfügbar")
+    async with httpx.AsyncClient(timeout=12.0, follow_redirects=False) as client:
+        try:
+            response = await client.get(
+                f"{URL}/rest/v1/medidenta_moderator_notes",
+                headers={"apikey": KEY, "Authorization": bearer,
+                         "Accept": "application/json"},
+                params={"fact_id": "eq." + fact_id,
+                        "select": "id,source_commit,statement_sha256,assessment,note,created_at",
+                        "order": "created_at.desc", "limit": "20"},
+            )
+        except httpx.HTTPError:
+            raise HTTPException(503, "Interne Notizen nicht erreichbar") from None
+    if response.status_code in (401,403):
+        raise HTTPException(403, "Kein Zugriff auf interne Notizen")
+    if response.status_code >= 400:
+        raise HTTPException(503, "Moderatorfunktion noch nicht eingerichtet") from None
+    try:
+        notes = response.json()
+        if not isinstance(notes, list):
+            raise ValueError("Invalid notes response")
+    except ValueError:
+        raise HTTPException(503, "Notizantwort ungültig") from None
+    return no_store({"notes": notes})
+
+
+@app.post("/api/v1/facts/{fact_id}/moderator-notes")
+async def add_note(fact_id: str, payload: ModeratorNoteInput, request: Request):
+    if not VALID_ID.fullmatch(fact_id):
+        raise HTTPException(400, "Ungültige Text-ID")
+    if payload.assessment not in ("checked", "needs_revision", "source_question"):
+        raise HTTPException(422, "Unbekanntes Prüfmerkmal")
+    result = await _supabase_rpc("medidenta_add_moderator_note",
+                     {"p_fact_id": fact_id, "p_source_commit": payload.source_commit,
+                      "p_statement_sha256": payload.statement_sha256,
+                      "p_assessment": payload.assessment, "p_note": payload.note}, _user_bearer(request))
+    return no_store(result)
+
+
+@app.post("/api/v1/comments/{comment_id}/moderate")
+async def moderate_comment(comment_id: str, payload: ModerateCommentInput, request: Request):
+    if not re.fullmatch(r"[0-9a-fA-F-]{36}", comment_id):
+        raise HTTPException(400, "Ungültige Kommentar-ID")
+    result = await _supabase_rpc("medidenta_moderate_comment",
+                     {"p_comment_id": comment_id, "p_approve": payload.approve},
+                     _user_bearer(request))
+    return no_store(result)
+
+
+class RoleAssignmentInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    user_id: str = Field(pattern=r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
+    role: str
+
+
+@app.post("/api/v1/admin/roles")
+async def assign_role(payload: RoleAssignmentInput, request: Request):
+    if payload.role not in ("user", "moderator", "admin"):
+        raise HTTPException(422, "Ungültige Benutzerrolle")
+    result = await _supabase_rpc("medidenta_admin_set_role",
+            {"p_user_id": payload.user_id, "p_role": payload.role},
+            _user_bearer(request))
+    return no_store({"user_id": result.get("id"), "role": result.get("role")})
+
+
 @app.post("/api/v1/reviews")
 async def submit_review(payload: ReviewInput, request: Request):
     if not IS_LIVE_CONFIGURED:
         raise HTTPException(503, "Supabase review backend not configured")
-    bearer = request.headers.get("authorization", "")
-    if not re.fullmatch(r"Bearer [A-Za-z0-9._~+/-]{40,8192}", bearer):
-        raise HTTPException(401, "Please authenticate with a reviewer account")
+    bearer = _user_bearer(request)
+    # Defense in depth: old Supabase installations still permit 'reviewer' in
+    # their legacy RPC. Never forward a non-admin review even before migration.
+    async with httpx.AsyncClient(timeout=12.0, follow_redirects=False) as client:
+        try:
+            rights = await client.get(
+                f"{URL}/rest/v1/medidenta_reviewer_roles",
+                headers={"apikey": KEY, "Authorization": bearer},
+                params={"select": "role", "limit": "1"},
+            )
+            if rights.status_code != 200 or not isinstance(rights.json(), list) or                not any(x.get("role") == "admin" for x in rights.json()):
+                raise HTTPException(403, "Nur Administratoren dürfen Fachtexte freigeben")
+        except httpx.HTTPError:
+            raise HTTPException(503, "Adminberechtigung nicht überprüfbar") from None
     if payload.decision not in ("verified", "needs_revision", "rejected"):
         raise HTTPException(422, "Unknown review decision")
     # User JWT is forwarded to PostgREST. PostgreSQL auth.uid() + reviewer role

@@ -8,7 +8,7 @@ main{padding:24px 19px 30px;min-height:65vh}h1{font-size:28px;line-height:1.12;m
 .grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.tile,.card{background:white;border-radius:17px;border:1px solid #e3eaed;box-shadow:0 2px 10px #14394808}.tile{padding:18px;text-align:left;min-height:115px;color:#143b4c}.tile .symbol{font-size:27px;color:#159d98;display:block;margin-bottom:8px}.tile strong{display:block}.tile small{font-size:11px;color:#718591}.card{padding:16px;margin:10px 0}.row{display:flex;gap:11px;align-items:center;justify-content:space-between}.row>.grow{flex:1;min-width:0}.round-icon{display:grid;place-items:center;border-radius:12px;background:#e7f3f3;color:#138c86;font-size:24px;width:48px;height:48px;flex:0 0 auto}.med-button{display:flex;gap:12px;text-align:left;align-items:center;border:0;background:none;width:100%;padding:0;color:inherit}.med-title{font-weight:800;font-size:16px;display:block;color:#173e4e}.med-sub{display:block;color:#647e8a;font-size:12px;margin-top:4px;line-height:1.4}.tag{background:#e4f4ef;color:#087b6e;padding:5px 8px;border-radius:8px;font-weight:800;font-size:10px;display:inline-block}.tag.gray{background:#edf1f3;color:#58717e}.tag.amber{background:#fff0d4;color:#96621c}.tag.red{background:#fce4e1;color:#ad4037}
 .search-input{background:#fff;border:1.5px solid #cbdbe0;border-radius:13px;padding:15px 14px;width:100%;font-size:16px;color:#183344}.search-input:focus{border-color:#149a94;outline:3px solid #14a6a233}.search-label{font-size:12px;font-weight:800;color:#4a6d79;display:block;margin-bottom:8px}.filters{display:flex;gap:8px;overflow-x:auto;margin:14px 0 10px;padding-bottom:3px}.filter{border:1px solid #d8e5e7;background:#fff;border-radius:30px;padding:9px 13px;font-size:12px;white-space:nowrap;font-weight:750;color:#55747e}.filter.active{background:#123f50;color:white;border-color:#123f50}.primary,.secondary{border-radius:12px;font-weight:800;padding:13px 15px;border:0;display:inline-flex;align-items:center;justify-content:center;gap:7px}.primary{background:#12978e;color:white}.secondary{background:#e4f1f3;color:#145466}.full{width:100%}.primary:disabled{background:#6f9d9b}.inline-button{padding:9px 11px;border:0;border-radius:10px;background:#ecf5f5;color:#087d7b;font-weight:800;font-size:12px}.back{border:0;background:none;color:#097e7d;font-weight:750;padding:0;margin-bottom:15px}.notice{background:#f0f5f7;border-left:3px solid #7096a1;padding:13px 14px;border-radius:10px;font-size:12px;color:#4a6370;line-height:1.55;margin:12px 0}.notice.warning{background:#fff3e0;border-left-color:#d49b41;color:#775722}.notice.danger{background:#fff0ec;border-left-color:#cf5951;color:#7c3d39}.facts{display:grid;gap:9px}.fact{background:#f4f9f9;padding:12px;border-radius:10px;border:1px solid #e4eded}.fact strong{display:block;font-size:13px;margin-bottom:5px}.fact p{font-size:13px;margin:0 0 7px}.empty{text-align:center;border:1px dashed #c8d8df;border-radius:15px;padding:25px 16px;color:#647f8c;font-size:13px}.empty .symbol{font-size:33px;display:block;margin-bottom:10px}.detail-name{font-size:29px;margin:0 0 4px}.detail-sub{color:#617983;font-size:14px}.detail-list{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin:12px 0}.detail-list span{display:block;color:#708792;font-size:11px}.detail-list strong{display:block;color:#234456;font-size:13px;margin-top:3px;word-break:break-word}.photo-box{background:#ecf4f5;border:1px dashed #b5ccd3;border-radius:14px;min-height:148px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#64818c;gap:7px;padding:14px;font-size:12px;text-align:center}.photo-box img{max-width:100%;max-height:240px;object-fit:contain;border-radius:8px}.pill{background:#eaf3f3;color:#237b80;border-radius:10px;padding:5px 8px;font-size:11px}.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}.stat{padding:14px 15px;border-radius:13px;background:#fff;border:1px solid #e3edef}.stat strong{display:block;color:#124456;font-size:30px}.stat span{font-size:11px;color:#6b828e;line-height:1.35}.list-plain{padding-left:16px;color:#566f7a;font-size:12px;line-height:1.7}.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:530px;display:grid;grid-template-columns:repeat(5,1fr);height:calc(73px + env(safe-area-inset-bottom));background:#fff;border-top:1px solid #dce9ed;padding-bottom:env(safe-area-inset-bottom);z-index:15;box-shadow:0 -5px 20px #0b3b4809}.bottom-nav button{border:0;background:transparent;color:#8a9fa5;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-weight:750}.bottom-nav button>span{font-size:25px;line-height:1}.bottom-nav button small{font-size:10px}.bottom-nav button.active{color:#078e88}.bottom-nav button.active span{background:#e4f6f2;padding:0 12px;border-radius:20px}.divider{border:0;border-top:1px solid #e8eff0;margin:13px 0}.fav{background:none;border:1px solid #d5e4e8;color:#62818b;border-radius:10px;font-size:22px;width:39px;height:39px}.fav.on{color:#cb8030;background:#fff4e1;border-color:#f2d9b5}#toast{position:fixed;z-index:99;bottom:90px;left:50%;transform:translateX(-50%);font-size:13px;font-weight:750;max-width:450px;text-align:center}#toast:not(:empty){color:white;background:#173b4a;border-radius:13px;padding:12px 18px;box-shadow:0 6px 20px #16364844}.footer{color:#869ca5;font-size:10px;text-align:center;padding:18px 0}.link-list{display:grid;gap:8px}.link-list a{font-size:12px}
 @media(min-width:700px){body{padding:28px 0}.app-shell{border-radius:27px;overflow:hidden;min-height:850px;max-height:95vh}.bottom-nav{position:sticky;bottom:0;left:auto;transform:none;max-width:530px}main{max-height:calc(95vh - 193px);overflow-y:auto}}
-@media(prefers-color-scheme:dark){:root{background:#102632;color:#dceef2}body{background:#102632}.app-shell{background:#16303d}.app-header,.bottom-nav,.card,.stat,.tile{background:#1b3946;border-color:#35505c}.hero{background:linear-gradient(132deg,#12485c,#0d706f)}h1,h2,h3,.med-title,.detail-list strong,.brand,.stat strong,.tile{color:#e5f3f6}.muted,.med-sub,.detail-sub{color:#a7c0c8}.search-input,.filter{background:#1b3946;color:#e8f5f6;border-color:#44616e}.card{box-shadow:none}.fact{background:#254754;border-color:#41616b}.system-status{background:#24444e;color:#b2d8dc}.system-status.offline{background:#443921;color:#ffdda1}.system-status.error{background:#522b30;color:#ffc5c5}.notice{background:#23454f;color:#cce2e7}.notice.warning{background:#54452a;color:#ffe4a9}.notice.danger{background:#583431;color:#ffd4c4}.photo-box{background:#244550;border-color:#51737c}.empty{border-color:#43616a}.brand-accent{color:#66cfca}}
+
 /* Version 0.5: Kennungsscan und Produktidentitätsvergleich */
 select.search-input{appearance:auto}
 .barcode-video{display:block;width:100%;max-height:320px;object-fit:cover;border-radius:12px;background:#193744;margin:12px 0}
@@ -26,7 +26,7 @@ select.search-input{appearance:auto}
 .compare-card dd{margin:0;font-size:12px;font-weight:650;overflow-wrap:anywhere}
 .compare-card a{font-size:11px}
 @media(max-width:350px){.comparison{grid-template-columns:1fr}}
-@media(prefers-color-scheme:dark){.compare-card,.compare-tray{background:#1b3946;border-color:#355a62}.compare-card dt{color:#aac1c9}.compare-tray strong{color:#b8e9e4}}
+
 
 .public-notice{padding:10px 20px;background:#fff0d7;color:#684720;font-size:11px;line-height:1.5;border-bottom:1px solid #ead5ad}.public-notice strong{font-weight:800}
 
@@ -52,7 +52,7 @@ select.search-input{appearance:auto}
 .draft-section .clinical-draft{padding:13px}
 .draft-section .draft-text{font-size:13px}
 @media(max-width:350px){.draft-filters{grid-template-columns:1fr}}
-@media(prefers-color-scheme:dark){.clinical-draft,.clinical-draft.draft-critical{background:#1c3b46;border-color:#456269;border-left-color:#c98c46}.clinical-draft .draft-head strong,.draft-text{color:#e0eff2}.review-ref{background:#284a56;color:#bbd0d6}.review-fields{border-top-color:#47656b}.review-fields select,.review-fields textarea{background:#203f4a;color:#e3f0f2;border-color:#4e6c75}}
+
 
 /* MediIdenta v0.7: authentifizierte redaktionelle Prüfbestätigung */
 .header-right{display:flex;align-items:center;gap:7px;flex-shrink:0}
@@ -76,4 +76,107 @@ select.search-input{appearance:auto}
 .clinical-draft:has(.reviewed-tag){border-left-color:#138375;background:#f2faf7}
 .tag.reviewed-tag{background:#daf3e9;color:#08684d}
 .reviewed-info{color:#146d54;font-weight:750}
-@media(prefers-color-scheme:dark){.clinical-draft:has(.reviewed-tag){background:#174d43;border-left-color:#3fd4a2}.tag.reviewed-tag{background:#245f4d;color:#dbfff0}.reviewed-info{color:#a7eacd}}
+
+
+
+/* MediIdenta Alpha v0.9 — clear, usable scroll boundaries */
+:root{--bottom-nav-size:76px;--canvas:#f7fafb}
+html{color-scheme:light}
+.app-shell{padding-bottom:0;min-height:100dvh}
+main{padding-bottom:calc(var(--bottom-nav-size) + 46px + env(safe-area-inset-bottom))}
+.bottom-nav{height:calc(var(--bottom-nav-size) + env(safe-area-inset-bottom))}
+@media (min-width:700px){
+ body{padding:20px 0}
+ .app-shell{display:flex;flex-direction:column;height:calc(100dvh - 40px);min-height:min(780px,calc(100dvh - 40px));max-height:none;overflow:hidden}
+ .app-header,.system-status,.public-notice{flex-shrink:0}
+ main{flex:1 1 auto;min-height:0;max-height:none;overflow-y:auto;overscroll-behavior:contain;padding-bottom:42px}
+ .bottom-nav{position:relative;bottom:auto;left:auto;transform:none;flex:0 0 var(--bottom-nav-size);height:var(--bottom-nav-size);width:100%;box-shadow:0 -5px 20px #0b3b4809}
+}
+@media(max-width:699px){main{min-height:0}.bottom-nav{position:fixed}}
+.theme-switch{width:35px;height:35px;display:grid;place-items:center;border:1px solid #d5e5e7;background:#eef8f8;color:#176a71;border-radius:11px;font-size:21px}
+.theme-switch:focus-visible{outline:3px solid #16b1a1;outline-offset:2px}
+.header-right{gap:6px}
+.public-notice{background:#e7f3f3;border-bottom:1px solid #d4e9e7;color:#215965;font-size:11px}
+.public-notice strong{display:inline-block;color:#0c7774;letter-spacing:.03em}
+.tag.soon{background:#e5edf4;color:#476a83;font-size:10px}
+.coming-soon{background:#f2f6f8;color:#4f6975;border:1px dashed #bdcfd4;border-radius:14px;padding:18px;margin:14px 0}
+.coming-soon h2{margin-bottom:7px;display:flex;gap:8px;align-items:center}
+.coming-soon p{font-size:12px;color:#657d87}
+.coming-soon button{width:100%}
+.clinical-draft{padding:16px 15px;margin:11px 0;border-left-width:3px;box-shadow:0 2px 8px #103f5007}
+.clinical-draft.draft-critical{background:#fff}
+.clinical-draft .draft-head{align-items:center}
+.clinical-draft .draft-head strong{font-size:14px}
+.clinical-draft .draft-head .tag{font-size:9px}
+.draft-text{margin:12px 0 10px}
+.review-ref{margin:8px 0 4px;padding:0;background:transparent}
+.reference-disclosure{padding:4px 0}
+.reference-disclosure summary{cursor:pointer;font-size:11px;color:#177e83;font-weight:750}
+.reference-disclosure .review-ref{padding:9px;background:#eef5f6;margin-top:6px}
+.editor-tools{margin-top:12px;border-top:1px solid #e0e9e9;padding-top:8px}
+.editor-tools>summary{cursor:pointer;font-size:12px;font-weight:800;color:#0c817c;list-style:none;display:flex;gap:7px;align-items:center}
+.editor-tools>summary::before{content:'✎';color:#31958c}
+.editor-tools[open]>summary{margin-bottom:9px}
+.editor-tools .editor-form{margin:10px 0}
+.editor-tools .editor-review-form{margin:9px 0}
+.collaboration-comments{padding:10px;border-radius:11px;background:#f2f7f7;margin:9px 0;font-size:12px}
+.collaboration-comment{padding:9px;border-bottom:1px solid #dce8e9}
+.collaboration-comment:last-child{border-bottom:0}
+.collaboration-comment time{display:block;font-size:10px;color:#69808a}
+.collaboration-comment .tag{margin-bottom:5px}
+.private-check-panel{background:#eef5fa;border:1px solid #d8e7f0;border-radius:12px;padding:12px;margin-top:9px}
+.public-fact-status{font-size:10px;padding:5px 7px;white-space:normal}
+.quality-timestamp{font-weight:750}
+.phase-checks{padding-left:17px;font-size:12px;color:#56717c;line-height:1.8}
+.review-fields{margin-top:9px}
+.account-role{padding:10px;background:#eef6f5;border-radius:12px}
+@media(max-width:390px){.header-right{gap:4px}.theme-switch{width:29px;height:29px;font-size:18px}.version{font-size:8px}}
+/* Explicit theme selection takes precedence over OS preference. */
+html[data-theme="dark"]{color-scheme:dark;--canvas:#173441}
+html[data-theme="dark"]{background:#102632;color:#dceef2}
+html[data-theme="dark"] body{background:#102632}
+html[data-theme="dark"] .app-shell{background:#16303d}
+html[data-theme="dark"] .app-header,html[data-theme="dark"] .bottom-nav,html[data-theme="dark"] .card,html[data-theme="dark"] .stat,html[data-theme="dark"] .tile{background:#1b3946;border-color:#35505c}
+html[data-theme="dark"] .hero{background:linear-gradient(132deg,#12485c,#0d706f)}
+html[data-theme="dark"] h1,html[data-theme="dark"] h2,html[data-theme="dark"] h3,html[data-theme="dark"] .med-title,html[data-theme="dark"] .detail-list strong,html[data-theme="dark"] .brand,html[data-theme="dark"] .stat strong,html[data-theme="dark"] .tile{color:#e5f3f6}
+html[data-theme="dark"] .muted,html[data-theme="dark"] .med-sub,html[data-theme="dark"] .detail-sub{color:#a7c0c8}
+html[data-theme="dark"] .search-input,html[data-theme="dark"] .filter{background:#1b3946;color:#e8f5f6;border-color:#44616e}
+html[data-theme="dark"] .card{box-shadow:none}
+html[data-theme="dark"] .fact{background:#254754;border-color:#41616b}
+html[data-theme="dark"] .system-status{background:#24444e;color:#b2d8dc}
+html[data-theme="dark"] .system-status.offline{background:#443921;color:#ffdda1}
+html[data-theme="dark"] .system-status.error{background:#522b30;color:#ffc5c5}
+html[data-theme="dark"] .notice{background:#23454f;color:#cce2e7}
+html[data-theme="dark"] .notice.warning{background:#54452a;color:#ffe4a9}
+html[data-theme="dark"] .notice.danger{background:#583431;color:#ffd4c4}
+html[data-theme="dark"] .photo-box{background:#244550;border-color:#51737c}
+html[data-theme="dark"] .empty{border-color:#43616a}
+html[data-theme="dark"] .brand-accent{color:#66cfca}
+html[data-theme="dark"] .compare-card,html[data-theme="dark"] .compare-tray{background:#1b3946;border-color:#355a62}
+html[data-theme="dark"] .compare-card dt{color:#aac1c9}
+html[data-theme="dark"] .compare-tray strong{color:#b8e9e4}
+html[data-theme="dark"] .clinical-draft,html[data-theme="dark"] .clinical-draft.draft-critical{background:#1c3b46;border-color:#456269;border-left-color:#c98c46}
+html[data-theme="dark"] .clinical-draft .draft-head strong,html[data-theme="dark"] .draft-text{color:#e0eff2}
+html[data-theme="dark"] .review-ref{background:#284a56;color:#bbd0d6}
+html[data-theme="dark"] .review-fields{border-top-color:#47656b}
+html[data-theme="dark"] .review-fields select,html[data-theme="dark"] .review-fields textarea{background:#203f4a;color:#e3f0f2;border-color:#4e6c75}
+html[data-theme="dark"] .clinical-draft:has(.reviewed-tag){background:#174d43;border-left-color:#3fd4a2}
+html[data-theme="dark"] .tag.reviewed-tag{background:#245f4d;color:#dbfff0}
+html[data-theme="dark"] .reviewed-info{color:#a7eacd}
+html[data-theme="dark"] .theme-switch{background:#275565;border-color:#416978;color:#fbecb0}
+html[data-theme="dark"] .public-notice{background:#1d4651;color:#c1dee2;border-color:#315b64}
+html[data-theme="dark"] .public-notice strong{color:#7fdbcc}
+html[data-theme="dark"] .coming-soon{background:#23434f;border-color:#54727c;color:#dceaf0}
+html[data-theme="dark"] .coming-soon p{color:#a8c1c8}
+html[data-theme="dark"] .clinical-draft.draft-critical{background:#1c3b46}
+html[data-theme="dark"] .reference-disclosure .review-ref{background:#284a56}
+html[data-theme="dark"] .editor-tools{border-top-color:#40626c}
+html[data-theme="dark"] .editor-tools>summary{color:#a2e4db}
+html[data-theme="dark"] .collaboration-comments{background:#25434d}
+html[data-theme="dark"] .collaboration-comment{border-bottom-color:#42626a}
+html[data-theme="dark"] .private-check-panel{background:#223f55;border-color:#46647b}
+html[data-theme="dark"] .account-role{background:#24484a}
+html[data-theme="dark"] .tag.soon{background:#334b5e;color:#d2e4ed}
+html[data-theme="dark"] .phase-checks{color:#aec7ce}
+html[data-theme="dark"] .clinical-draft .draft-head strong,
+html[data-theme="dark"] .draft-text{color:#e0eff2}

@@ -14,7 +14,7 @@ const https=x=>{try{const u=new URL(x);return u.protocol==='https:'&&u.hostname=
 function readMarks(){try{const x=JSON.parse(localStorage.getItem('medidenta_review_marks_06')||'{}');if(x&&typeof x==='object'&&!Array.isArray(x))R.marks=x;}catch{R.marks={};}}
 function saveMarks(){try{localStorage.setItem('medidenta_review_marks_06',JSON.stringify(R.marks));R.saveError=false;}catch{R.saveError=true;}}
 function mark(f){const m=R.marks[f.id];return m&&typeof m==='object'?m:{};}
-function notice(){return '<div class="notice danger"><strong>Fachtextstatus beachten.</strong> Nur ausdrücklich als „Fachlich freigegeben“ gekennzeichnete Einzeltexte wurden von einem autorisierten Prüfkonto bestätigt. Alle anderen Aussagen sind ungeprüfte Entwürfe. Die App ersetzt keine aktuelle Fachinformation und ist nicht zur eigenständigen Therapie- oder Dosierungsentscheidung freigegeben.</div>';}
+function notice(){return '<div class="notice warning"><strong>Wichtiger Hinweis zur Alpha:</strong> Nicht fachlich validierte Aussagen können veraltet, unvollständig oder fehlerhaft sein. Auch validierte Einzeltexte ersetzen weder Original-Fachinformation noch ärztliche Anordnung. Keine selbstständigen Therapie- oder Dosierungsentscheidungen auf Grundlage dieser Testanwendung.</div>';}
 function ref(f){
  const r=f.reference||{},u=https(r.document_url);
  return '<div class="review-ref">'+(u?'<a href="'+esc(u)+'" target="_blank" rel="noopener noreferrer">Originalquelle bei der EMA öffnen ↗</a>':'Originalquelle nicht verfügbar')+
@@ -23,28 +23,26 @@ function ref(f){
  (r.publication_date?'<div>Quellendatum: '+esc(r.publication_date)+'</div>':'')+
  (r.accessed_on?'<div>Abgerufen am: '+esc(r.accessed_on)+'</div>':'')+'</div>';
 }
-function card(f,editable){
- const m=mark(f),status=m.status&&Object.hasOwn(MARKS,m.status)?m.status:'open',risk=String(f.risk_level||'normal'),approved=f.editorial_status==='clinically_reviewed';
- return '<article class="clinical-draft '+(risk==='critical'?'draft-critical':risk==='high'?'draft-high':'')+'">'+
- '<div class="draft-head"><strong>'+esc(f.target_name)+' · '+esc(TYPES[f.fact_type]||f.fact_type)+'</strong><span class="tag '+(approved?'reviewed-tag':'amber')+'">'+(approved?'FACHLICH FREIGEGEBEN':'ENTWURF · ungeprüft')+'</span></div>'+
- '<div class="draft-meta"><span class="tag '+(risk==='critical'?'red':risk==='high'?'amber':'gray')+'">'+esc(RISKS[risk]||risk)+'</span> '+
- '<span class="tag gray">'+esc(f.assignment_status==='unmatched'?'Zuordnung ungeklärt':f.target_type==='substance'?'Wirkstoffbezug':'Produktbezug')+'</span></div>'+
- '<p class="draft-text">'+esc(f.content_text)+'</p>'+(approved?'<p class="tiny reviewed-info">Fachlich freigegeben nach dokumentierter Prüfung'+(f.reviewed_at?' am '+esc(new Date(f.reviewed_at).toLocaleDateString('de-DE')):'')+'. Gilt nur für diese konkrete Textfassung und Quelle.</p>':'')+
- (f.target_type==='substance'?'<p class="tiny muted">Wirkstoffbezogene Aussage: nicht automatisch für jede Präparatevariante übertragbar.</p>':'')+
- ref(f)+
- (editable?'<div class="review-fields"><label for="rm-'+esc(f.id)+'">Private Prüfmarkierung</label>'+
- '<select id="rm-'+esc(f.id)+'" data-review-mark="'+esc(f.id)+'">'+Object.entries(MARKS).map(([k,v])=>'<option value="'+k+'" '+(status===k?'selected':'')+'>'+esc(v)+'</option>').join('')+'</select>'+
- '<label for="rn-'+esc(f.id)+'">Eigene Prüfnotiz</label>'+
- '<textarea id="rn-'+esc(f.id)+'" data-review-note="'+esc(f.id)+'" rows="2" maxlength="3000" placeholder="Was muss an der Quelle nachgeprüft werden?">'+esc(m.note||'')+'</textarea></div>':'')+
- '<div class="tiny muted">Charge: '+esc(f.batch)+' · Datenbankstatus: draft · '+esc(f.id)+'</div>'+(global.MediIdentaReviewAuth?.reviewActionHtml(f)||'')+'</article>';
+function card(f){
+ const risk=String(f.risk_level||'normal'),approved=f.editorial_status==='clinically_reviewed';
+ const status=approved?'Fachlich validiert':'Nicht fachlich validiert';
+ const body='<article class="clinical-draft '+(risk==='critical'?'draft-critical':risk==='high'?'draft-high':'')+'">'+
+ '<div class="draft-head"><strong>'+esc(f.target_name)+' · '+esc(TYPES[f.fact_type]||f.fact_type)+'</strong>'+
+ '<span class="tag public-fact-status '+(approved?'reviewed-tag':'amber')+'">'+status+'</span></div>'+
+ (f.assignment_status==='unmatched'?'<p class="tiny muted">Produktzuordnung derzeit noch ungeklärt.</p>':'')+
+ '<p class="draft-text">'+esc(f.content_text)+'</p>'+
+ '<details class="reference-disclosure"><summary>EMA-Originalquelle & Fundstelle</summary>'+ref(f)+'</details>'+
+ (global.MediIdentaReviewAuth?.reviewActionHtml(f)||'')+'</article>';
+ return body;
 }
 function linked(D,p){return [...(D.approved||[]),...(D.drafts||[])].filter(f=>Array.isArray(f.linked_product_ids)&&f.linked_product_ids.includes(p.id)).sort((a,b)=>(a.editorial_status==='clinically_reviewed'?-1:0)-(b.editorial_status==='clinically_reviewed'?-1:0)||(riskRank[a.risk_level]??3)-(riskRank[b.risk_level]??3));}
 function details(D,p){
  const a=linked(D,p);
- return '<section class="card draft-section"><h2>Fachinformationen – Entwurfsansicht</h2>'+notice()+
- '<p class="small muted">'+a.length+' zugeordnete redaktionelle Aussagen, davon '+a.filter(x=>x.editorial_status==='clinically_reviewed').length+' fachlich freigegeben. Die Gesamtfunktion der App ist nicht klinisch freigegeben.</p>'+
- (a.length?a.map(f=>card(f,false)).join(''):'<p class="small muted">Hier sind noch keine Aussagen eindeutig zugeordnet.</p>')+
- '<button class="secondary full spaced" data-nav="knowledge">Alle Fachtexte prüfen</button></section>';
+ return '<section class="card draft-section"><h2>Fachinformationen</h2>'+
+ '<p class="small muted">'+a.length+' quellenbezogene Aussagen für diesen Eintrag. Individuell fachlich validierte Texte: '+
+ a.filter(x=>x.editorial_status==='clinically_reviewed').length+'.</p>'+notice()+
+ (a.length?a.map(card).join(''):'<p class="small muted">Noch keine Aussagen zugeordnet.</p>')+
+ '<button class="secondary full spaced" data-nav="knowledge">Weitere Fachinformationen entdecken</button></section>';
 }
 function filtered(D){
  const q=norm(R.query);
@@ -58,22 +56,31 @@ function option(k,v,current){return '<option value="'+k+'" '+(current===k?'selec
 function knowledge(D){
  const all=filtered(D),size=12,pages=Math.max(1,Math.ceil(all.length/size));R.page=Math.min(Math.max(0,R.page),pages-1);
  const list=all.slice(R.page*size,(R.page+1)*size);
- const unassigned=(D.drafts||[]).filter(f=>f.assignment_status==='unmatched').length,approved=(D.approved||[]).length;
- return '<div class="eyebrow">MediIdenta · Redaktionsansicht</div><h1>Fachinformationen prüfen</h1><button class="secondary" data-nav="account">♙ Prüfkonto / Anmeldung</button>'+notice()+
- '<div class="stats"><div class="stat"><strong>'+D.drafts.length+'</strong><span>Fachtextentwürfe (0 freigegeben)</span></div>'+
- '<div class="stat"><strong>'+unassigned+'</strong><span>Zuordnung noch offen</span></div><div class="stat"><strong>'+approved+'</strong><span>Fachlich freigegebene Einzeltexte</span></div></div>'+
- '<section class="card"><label class="search-label" for="clinical-search">Suche nach Präparat, Wirkstoff oder Text</label>'+
- '<input id="clinical-search" class="search-input" value="'+esc(R.query)+'" placeholder="z. B. Toujeo, Wechselwirkung …">'+
- '<div class="draft-filters"><label>Prüfpriorität<select id="clinical-risk" class="search-input">'+
- option('all','Alle Prioritäten',R.risk)+Object.entries(RISKS).map(([k,v])=>option(k,v,R.risk)).join('')+'</select></label>'+
- '<label>Freigabestatus<select id="clinical-review-state" class="search-input">'+option('all','Alle',R.reviewState)+option('approved','Fachlich freigegeben',R.reviewState)+option('draft','Nur ungeprüfte Entwürfe',R.reviewState)+'</select></label><label>Zuordnung<select id="clinical-assignment" class="search-input">'+
- option('all','Alle Einträge',R.assignment)+option('matched','Produktbezug vorhanden',R.assignment)+option('unmatched','Nicht zugeordnet ('+unassigned+')',R.assignment)+'</select></label></div>'+
- '<p class="small muted">'+all.length+' Treffer · Seite '+(R.page+1)+' von '+pages+'. Alle Angaben sind Entwürfe.</p>'+
- '<button class="secondary full" data-review-action="export">Prüfnotizen als JSON exportieren</button>'+
- '<p class="tiny muted">Markierungen bleiben nur auf diesem Gerät. Keine automatische Übertragung an GitHub und keine fachliche Freigabe.</p>'+
- (R.saveError?'<p class="notice warning">Notizen konnten nicht dauerhaft gespeichert werden. Bitte exportieren.</p>':'')+'</section>'+
- (D.draftLoadError?'<div class="notice danger">Fachtextdatei nicht geladen. Eine vollständige Prüfung ist derzeit nicht möglich.</div>':'')+
- (list.length?list.map(f=>card(f,true)).join(''):'<div class="empty">Keine passenden Entwürfe.</div>')+
+ const approved=(D.approved||[]).length;
+ const editor=global.MediIdentaReviewAuth?._debug?.role?.();
+ const privileged=editor==='admin'||editor==='moderator';
+ return '<div class="eyebrow">MediIdenta · Wissen</div><h1>Fachinformationen</h1>'+
+ '<p class="small muted">Unabhängig formulierte Informationen mit direktem Verweis auf die Originalquelle. Du kannst auch noch nicht fachlich validierte Aussagen lesen – mit entsprechendem Hinweis.</p>'+
+ notice()+
+ '<div class="stats"><div class="stat"><strong>'+approved+'</strong><span>Fachlich validierte Einzeltexte</span></div>'+
+ '<div class="stat"><strong>'+D.drafts.length+'</strong><span>Noch nicht fachlich validiert</span></div></div>'+
+ '<section class="card"><label class="search-label" for="clinical-search">Suche in Fachinformationen</label>'+
+ '<input id="clinical-search" class="search-input" value="'+esc(R.query)+'" placeholder="Wirkstoff, Präparat, Thema …">'+
+ '<div class="draft-filters"><label>Prüfstatus<select id="clinical-review-state" class="search-input">'+
+ option('all','Alle Informationen',R.reviewState)+option('approved','Fachlich validiert',R.reviewState)+
+ option('draft','Nicht fachlich validiert',R.reviewState)+'</select></label>'+
+ '<label>Zuordnung<select id="clinical-assignment" class="search-input">'+
+ option('all','Alle Einträge',R.assignment)+option('matched','Mit Produktbezug',R.assignment)+
+ option('unmatched','Zuordnung offen',R.assignment)+'</select></label>'+
+ '<label>Prüfpriorität<select id="clinical-risk" class="search-input">'+
+ option('all','Alle Prioritäten',R.risk)+Object.entries(RISKS).map(([k,v])=>option(k,v,R.risk)).join('')+'</select></label></div>'+
+ '<p class="small muted">'+all.length+' Treffer · Seite '+(R.page+1)+' von '+pages+'</p>'+
+ (privileged?'<details><summary class="small">Legacy: private lokale Prüfnotizen exportieren</summary>'+
+ '<p class="tiny muted">Ältere lokale Markierungen bleiben auf diesem Gerät; neue Moderatorprüfungen werden in der geschützten Datenbank dokumentiert.</p>'+
+ '<button class="secondary full" data-review-action="export">Lokale Notizen als JSON exportieren</button></details>':'')+
+ (R.saveError?'<p class="notice warning">Lokale Notizen konnten nicht gespeichert werden.</p>':'')+'</section>'+
+ (D.draftLoadError?'<div class="notice danger">Fachinformationen konnten nicht vollständig geladen werden.</div>':'')+
+ (list.length?list.map(card).join(''):'<div class="empty">Keine passenden Informationen gefunden.</div>')+
  '<div class="row draft-pager"><button class="secondary" data-review-action="prev" '+(R.page===0?'disabled':'')+'>← Zurück</button>'+
  '<span class="small muted">'+(R.page+1)+' / '+pages+'</span>'+
  '<button class="secondary" data-review-action="next" '+(R.page===pages-1?'disabled':'')+'>Weiter →</button></div>';
