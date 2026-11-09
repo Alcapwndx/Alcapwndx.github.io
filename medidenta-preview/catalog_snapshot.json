@@ -1,0 +1,145 @@
+{
+  "format": "medidenta-identity-only-v1",
+  "clinical_release_ready": false,
+  "source_catalog_schema_version": 6,
+  "notice": "Öffentliche Testversion mit ausgewählten Produktidentitäten aus der eigenen MediIdenta-Datenpipeline. Keine klinisch freigegebenen Inhalte, keine Packungsdaten.",
+  "source_attribution": {
+    "name": "European Commission – Union Register",
+    "url": "https://ec.europa.eu/health/documents/community-register/html/reg_last.htm",
+    "license": "CC-BY-4.0"
+  },
+  "products": [
+    {
+      "id": "184971e3-8e1b-55d9-ba68-91b820015cd4",
+      "name": "KEYTRUDA",
+      "country_code": "EU",
+      "marketing_status": "unknown",
+      "source_key": "EU_UR",
+      "source_name": "European Commission – Union Register",
+      "source_url": "https://ec.europa.eu/health/documents/community-register/html/reg_last.htm",
+      "license": "CC-BY-4.0",
+      "substances": "pembrolizumab"
+    },
+    {
+      "id": "1936f512-042c-5cd1-a301-1ab6c78957bf",
+      "name": "Pradaxa",
+      "country_code": "EU",
+      "marketing_status": "unknown",
+      "source_key": "EU_UR",
+      "source_name": "European Commission – Union Register",
+      "source_url": "https://ec.europa.eu/health/documents/community-register/html/reg_last.htm",
+      "license": "CC-BY-4.0",
+      "substances": "dabigatran etexilate mesilate"
+    },
+    {
+      "id": "ce77bdc9-d515-5d0b-ada2-ca93799a0770",
+      "name": "Glivec",
+      "country_code": "EU",
+      "marketing_status": "unknown",
+      "source_key": "EU_UR",
+      "source_name": "European Commission – Union Register",
+      "source_url": "https://ec.europa.eu/health/documents/community-register/html/reg_last.htm",
+      "license": "CC-BY-4.0",
+      "substances": "imatinib"
+    },
+    {
+      "id": "756f0347-3953-579a-a4b9-232d3452bef2",
+      "name": "Cosentyx",
+      "country_code": "EU",
+      "marketing_status": "unknown",
+      "source_key": "EU_UR",
+      "source_name": "European Commission – Union Register",
+      "source_url": "https://ec.europa.eu/health/documents/community-register/html/reg_last.htm",
+      "license": "CC-BY-4.0",
+      "substances": "secukinumab"
+    },
+    {
+      "id": "ef9b8713-c80b-5de5-8043-22c7636adf77",
+      "name": "Hyrimoz",
+      "country_code": "EU",
+      "marketing_status": "unknown",
+      "source_key": "EU_UR",
+      "source_name": "European Commission – Union Register",
+      "source_url": "https://ec.europa.eu/health/documents/community-register/html/reg_last.htm",
+      "license": "CC-BY-4.0",
+      "substances": "adalimumab"
+    },
+    {
+      "id": "b7b5485b-7000-5680-930f-fc576b2187d3",
+      "name": "YERVOY",
+      "country_code": "EU",
+      "marketing_status": "unknown",
+      "source_key": "EU_UR",
+      "source_name": "European Commission – Union Register",
+      "source_url": "https://ec.europa.eu/health/documents/community-register/html/reg_last.htm",
+      "license": "CC-BY-4.0",
+      "substances": "ipilimumab"
+    },
+    {
+      "id": "3238cd57-8f15-5b13-892f-3dadc47fa7d4",
+      "name": "Vaborem",
+      "country_code": "EU",
+      "marketing_status": "unknown",
+      "source_key": "EU_UR",
+      "source_name": "European Commission – Union Register",
+      "source_url": "https://ec.europa.eu/health/documents/community-register/html/reg_last.htm",
+      "license": "CC-BY-4.0",
+      "substances": "meropenem, vaborbactam"
+    },
+    {
+      "id": "0945d22d-9539-5881-b40c-cf175d1c59ce",
+      "name": "Juluca",
+      "country_code": "EU",
+      "marketing_status": "unknown",
+      "source_key": "EU_UR",
+      "source_name": "European Commission – Union Register",
+      "source_url": "https://ec.europa.eu/health/documents/community-register/html/reg_last.htm",
+      "license": "CC-BY-4.0",
+      "substances": "dolutegravir, rilpivirine"
+    },
+    {
+      "id": "0f7cdb9b-5a7e-558e-ab46-2e081ec036e4",
+      "name": "TECVAYLI",
+      "country_code": "EU",
+      "marketing_status": "unknown",
+      "source_key": "EU_UR",
+      "source_name": "European Commission – Union Register",
+      "source_url": "https://ec.europa.eu/health/documents/community-register/html/reg_last.htm",
+      "license": "CC-BY-4.0",
+      "substances": "teclistamab"
+    },
+    {
+      "id": "e1d46280-5f2e-5366-b29b-79909b834fd9",
+      "name": "Zypadhera",
+      "country_code": "EU",
+      "marketing_status": "unknown",
+      "source_key": "EU_UR",
+      "source_name": "European Commission – Union Register",
+      "source_url": "https://ec.europa.eu/health/documents/community-register/html/reg_last.htm",
+      "license": "CC-BY-4.0",
+      "substances": "olanzapine"
+    },
+    {
+      "id": "58812a95-5ab7-5e13-965f-b59701e3a68d",
+      "name": "Enhertu",
+      "country_code": "EU",
+      "marketing_status": "unknown",
+      "source_key": "EU_UR",
+      "source_name": "European Commission – Union Register",
+      "source_url": "https://ec.europa.eu/health/documents/community-register/html/reg_last.htm",
+      "license": "CC-BY-4.0",
+      "substances": "trastuzumab deruxtecan"
+    },
+    {
+      "id": "2ae38b85-e93d-50cf-8a20-2d8f533d7d92",
+      "name": "Krazati",
+      "country_code": "EU",
+      "marketing_status": "unknown",
+      "source_key": "EU_UR",
+      "source_name": "European Commission – Union Register",
+      "source_url": "https://ec.europa.eu/health/documents/community-register/html/reg_last.htm",
+      "license": "CC-BY-4.0",
+      "substances": "adagrasib"
+    }
+  ]
+}
