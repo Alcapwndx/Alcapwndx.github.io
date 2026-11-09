@@ -29,3 +29,27 @@ select.search-input{appearance:auto}
 @media(prefers-color-scheme:dark){.compare-card,.compare-tray{background:#1b3946;border-color:#355a62}.compare-card dt{color:#aac1c9}.compare-tray strong{color:#b8e9e4}}
 
 .public-notice{padding:10px 20px;background:#fff0d7;color:#684720;font-size:11px;line-height:1.5;border-bottom:1px solid #ead5ad}.public-notice strong{font-weight:800}
+
+/* MediIdenta 0.6: öffentliche, explizit UNGEPRÜFTE Fachtextansicht */
+.clinical-draft{background:#fff;border:1px solid #dfebec;border-left:4px solid #c88a36;border-radius:13px;padding:15px;margin:14px 0;overflow-wrap:anywhere}
+.clinical-draft.draft-critical{border-left-color:#b84245;background:#fff9f6}
+.clinical-draft.draft-high{border-left-color:#d19733}
+.clinical-draft .draft-head{display:flex;gap:7px;flex-wrap:wrap;justify-content:space-between;align-items:start}
+.clinical-draft .draft-head strong{font-size:14px;color:#133f50;flex:1;min-width:155px}
+.clinical-draft .draft-head .tag{font-size:9px}
+.draft-meta{display:flex;gap:5px;flex-wrap:wrap;margin:9px 0}
+.draft-text{font-size:13px;line-height:1.66;white-space:pre-wrap;margin:10px 0 16px;color:#223e4a}
+.review-ref{background:#eef5f6;padding:10px 12px;border-radius:10px;color:#5e7783;font-size:11px;line-height:1.65;margin:12px 0}
+.review-ref a{font-weight:750;display:inline-block;margin-bottom:3px}
+.review-fields{border-top:1px solid #e2eaeb;margin-top:13px;padding-top:12px;display:grid;gap:7px}
+.review-fields label{font-size:11px;font-weight:750;color:#375565}
+.review-fields select,.review-fields textarea{font:inherit;font-size:13px;padding:10px 11px;border:1px solid #c9dadd;border-radius:9px;width:100%;background:#fff;color:#193e4a}
+.review-fields textarea{resize:vertical;min-height:60px}
+.draft-filters{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:13px}
+.draft-filters label{font-size:11px;font-weight:750;color:#516975}
+.draft-filters select{font-size:12px;margin-top:5px;padding:9px}
+.draft-pager{margin:20px 0 10px;gap:9px;justify-content:space-between}
+.draft-section .clinical-draft{padding:13px}
+.draft-section .draft-text{font-size:13px}
+@media(max-width:350px){.draft-filters{grid-template-columns:1fr}}
+@media(prefers-color-scheme:dark){.clinical-draft,.clinical-draft.draft-critical{background:#1c3b46;border-color:#456269;border-left-color:#c98c46}.clinical-draft .draft-head strong,.draft-text{color:#e0eff2}.review-ref{background:#284a56;color:#bbd0d6}.review-fields{border-top-color:#47656b}.review-fields select,.review-fields textarea{background:#203f4a;color:#e3f0f2;border-color:#4e6c75}}
