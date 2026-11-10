@@ -360,7 +360,7 @@ async def get_product(product_id: str):
     if not p:
         raise HTTPException(404, "Produktidentität nicht gefunden")
     subs = [{ "name": s.strip() } for s in p.get("substances","").split(",") if s.strip()]
-    pms_sources = await _live_verified_pms_links(product_id) if IS_LIVE_CONFIGURED else []
+    pms_sources = await _live_pms_sources(product_id, p) if IS_LIVE_CONFIGURED else []
     return no_store({
         **p, "substances": subs, "facts": [], "pms_sources": pms_sources,
         "presentations": [], "photos": [], "identifiers": [],
@@ -394,43 +394,89 @@ async def _pms_read(table: str, params: dict) -> list[dict]:
             raise HTTPException(503, "PMS-Quelldatenbank derzeit nicht verfügbar") from None
 
 
-async def _live_verified_pms_links(product_id: str) -> list[dict]:
-    """Only explicit, current Admin-reviewed mappings pass Supabase RLS.
+def _same_pms_brand_name(catalog_name: str, candidate_name: str) -> bool:
+    """Discover related EMA Beta SOURCES, not asserted medicine identities.
 
-    No name matching. A link is a source-identity assertion, NEVER an approval
-    for therapy/dose equivalence or automatic release of individual FHIR claims.
+    An exact product name or one followed by strength/form wording may be shown
+    under the catalog's detail page. This match does not prove strength,
+    formulation, substance, route, market or package equivalence.
     """
+    import unicodedata
+    def clean(value: str) -> str:
+        return " ".join(unicodedata.normalize("NFKC", value).casefold().split())
+    name, candidate = clean(catalog_name), clean(candidate_name)
+    if len(name) < 4 or not name[0].isalnum():
+        return False
+    return (candidate == name or
+            any(candidate.startswith(name + delim) for delim in (" ", "-", " (", "/")))
+
+
+async def _live_pms_sources(product_id: str, product: dict) -> list[dict]:
+    """Unreviewed EMA PMS data are PUBLIC and visible inside medicine details.
+
+    Admin-confirmed identity links remain separately indicated, but are NOT a
+    prerequisite for showing clearly labelled, name-associated Beta metadata.
+    No clinical release status or product identity is inferred from a name.
+    """
+    catalog_name = product.get("name") or ""
+    sources = {}
     rows = await _pms_read("medidenta_pms_identity_links", {
         "select": "pms_id,verified_at,confirmed",
         "catalog_product_id": "eq." + product_id,
-        "order": "verified_at.desc", "limit": "5"})
-    out=[]
+        "order": "verified_at.desc", "limit": "12"})
     for link in rows:
-        pid=link.get("pms_id") if isinstance(link,dict) else None
-        if (not isinstance(pid,str) or not re.fullmatch(r"[A-Za-z0-9._-]{1,96}",pid)
-                or link.get("confirmed") is not True):
-            raise HTTPException(503,"PMS-Zuordnung enthält ungültige Identität")
+        pid = link.get("pms_id")
+        if (not isinstance(pid, str) or
+            not re.fullmatch(r"[A-Za-z0-9._-]{1,96}", pid) or
+            link.get("confirmed") is not True):
+            raise HTTPException(503, "PMS-Quellzuordnung enthält ungültige Daten")
+        sources[pid] = ("ADMIN_CONFIRMED_SOURCE_LINK_ONLY", link.get("verified_at"))
+
+    # Do not query the whole PMS table; use a bounded initial-name lookup.
+    # A very broad name match is never presented as a confirmed relation.
+    if (isinstance(catalog_name, str) and
+        re.fullmatch(r"[A-Za-z0-9ÄÖÜäöüßÀ-ž][A-Za-z0-9ÄÖÜäöüßÀ-ž ._/-]{3,78}", catalog_name)):
+        candidates = await _pms_read("medidenta_pms_products", {
+            "select": "pms_id,display_name,source_url,bundle_sha256,imported_at",
+            "display_name": "ilike." + catalog_name.strip() + "*",
+            "order": "pms_id.asc", "limit": "30"})
+        for entry in candidates:
+            pid = entry.get("pms_id")
+            if (isinstance(pid, str) and
+                re.fullmatch(r"[A-Za-z0-9._-]{1,96}", pid) and
+                _same_pms_brand_name(catalog_name, entry.get("display_name") or "")):
+                sources.setdefault(pid, ("NAME_SIMILARITY_UNCONFIRMED", None))
+    if len(sources) > 12:
+        # Never omit an admin-confirmed link in favor of name similarity.
+        confirmed = [k for k,v in sources.items() if v[0]=="ADMIN_CONFIRMED_SOURCE_LINK_ONLY"]
+        unconfirmed = [k for k,v in sources.items() if v[0]!="ADMIN_CONFIRMED_SOURCE_LINK_ONLY"]
+        chosen = confirmed + unconfirmed[:max(0,12-len(confirmed))]
+        sources = {k:sources[k] for k in chosen}
+    out = []
+    for pid,(kind,at) in sources.items():
         products = await _pms_read("medidenta_pms_products", {
             "select": "pms_id,display_name,source_url,bundle_sha256,imported_at",
             "pms_id": "eq." + pid, "limit": "1"})
-        if len(products)!=1 or products[0].get("pms_id")!=pid:
-            raise HTTPException(503,"Zugeordnete EMA-Quelle nicht verfügbar")
-        fields=await _pms_read("medidenta_pms_fields",{
+        if len(products) != 1 or products[0].get("pms_id") != pid:
+            raise HTTPException(503, "Referenzierter EMA PMS-Quelldatensatz fehlt")
+        fields = await _pms_read("medidenta_pms_fields", {
             "select": "id,pms_id,resource_type,resource_id,attribute_key,value_json,relation_status,source_url,statement_sha256,editorial_status,reviewed_at",
             "pms_id": "eq." + pid, "is_current": "eq.true",
             "order": "attribute_key.asc,id.asc", "limit": "500"})
-        if len(fields)>=500:
-            raise HTTPException(503,"Zu viele EMA-Quellfelder, unvollständiger Abruf")
-        if any(f.get("pms_id")!=pid for f in fields):
-            raise HTTPException(503,"EMA-Quellfeld gehört zu fremdem PMS-Produkt")
+        if len(fields) >= 500:
+            raise HTTPException(503, "PMS-Felddaten unvollständig, bitte Quelle einzeln prüfen")
+        if any(f.get("pms_id") != pid for f in fields):
+            raise HTTPException(503, "PMS-Felddaten weisen falsche Quelle aus")
         out.append({
-            "product":products[0], "fields":fields,
-            "link_verified_at":link.get("verified_at"),
-            "identity_association":"ADMIN_CONFIRMED_SOURCE_LINK_ONLY",
-            "clinical_release_ready":False
+            "product": products[0], "fields": fields,
+            "identity_association": kind, "link_verified_at": at,
+            "clinical_release_ready": False,
+            "display_notice": (
+                "Admin-bestätigte Quellverknüpfung, keine klinische Produktfreigabe."
+                if kind == "ADMIN_CONFIRMED_SOURCE_LINK_ONLY" else
+                "Ungeprüfte Namensähnlichkeit: Stärke, Form, Wirkstoff und Land können abweichen."),
         })
     return out
-
 
 class PmsIdentityLinkReviewInput(BaseModel):
     model_config=ConfigDict(extra="forbid")
