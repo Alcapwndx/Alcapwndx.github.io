@@ -21,6 +21,12 @@ assert.match(app,/Tablette fotografieren/);
 assert.match(app,/aria-disabled="true"/);
 assert.doesNotMatch(app,/function syncHtml/);
 assert.match(app,/Letzter überprüfter EMA-Quellenabgleich/);
+assert.match(app,/api\('\/pms\/demo-coverage'\)/);
+assert.match(app,/EMA-PMS-Abdeckung der Demo/);
+assert.match(app,/PMS-Beta-Quelle noch offen/);
+assert.match(app,/Identitäten mit PMS-Beta-Quellen/);
+assert.match(app,/data-action="detail"/);
+
 assert.match(app,/target.*70|mindestens <strong>70 %/);
 assert.match(app,/Keine.*automatische Beta|keine automatische Beta/i);
 assert.match(auth,/medidenta_post_comment|\/facts\/.*comments/);
