@@ -314,6 +314,36 @@ class AppTests(unittest.TestCase):
             self.assertEqual(res.json()["pms_sources"],[])
             self.assertTrue(res.json()["pms_unavailable"])
 
+    def test_public_pms_overview_is_aggregate_and_does_not_expose_cursor(self):
+        counts=[12,399,8]
+        async def count(table,filters):
+            if table=="medidenta_pms_products":
+                return counts[0]
+            return counts[2] if filters.get("editorial_status") else counts[1]
+        async def read(table,params):
+            self.assertEqual(table,"medidenta_pms_products")
+            self.assertEqual(params["limit"],"1")
+            return [{"imported_at":"2026-11-10T11:00:00Z"}]
+        with patch.object(main,"IS_LIVE_CONFIGURED",True),\
+             patch.object(main,"_pms_public_count",side_effect=count),\
+             patch.object(main,"_pms_read",side_effect=read):
+            result=client.get("/api/v1/pms/overview")
+            self.assertEqual(result.status_code,200)
+            data=result.json()
+            self.assertEqual(data["pms_products"],12)
+            self.assertEqual(data["pms_fields"],399)
+            self.assertEqual(data["not_reviewed_fields"],391)
+            self.assertEqual(data["individually_reviewed_fields"],8)
+            self.assertEqual(data["last_pms_source_import_at"],"2026-11-10T11:00:00Z")
+            self.assertNotIn("next_search_url",data)
+            self.assertNotIn("products_processed",data)
+            self.assertFalse(data["clinical_product_release_ready"])
+            self.assertEqual(result.headers["cache-control"],"no-store")
+
+    def test_pms_overview_fails_closed_without_live_database(self):
+        with patch.object(main,"IS_LIVE_CONFIGURED",False):
+            self.assertEqual(client.get("/api/v1/pms/overview").status_code,503)
+
     def test_pms_identity_link_admin_rpc_requires_current_sources_and_jwt(self):
         body={
             "catalog_product_id":"p1","pms_id":"600000000000",
