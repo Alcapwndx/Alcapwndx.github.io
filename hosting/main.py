@@ -534,6 +534,50 @@ async def review_pms_identity_link(payload: PmsIdentityLinkReviewInput, request:
     return no_store([result])
 
 
+async def _pms_public_count(table: str, filters: dict) -> int:
+    if table not in ("medidenta_pms_products", "medidenta_pms_fields"):
+        raise HTTPException(500, "Ungültige Statistik-Tabelle")
+    async with httpx.AsyncClient(timeout=10.0, follow_redirects=False) as client:
+        try:
+            response = await client.head(
+                f"{URL}/rest/v1/{table}",
+                params={"select": "pms_id" if table.endswith("products") else "id",
+                        **filters},
+                headers={"apikey": KEY, "Prefer": "count=exact"},
+            )
+            response.raise_for_status()
+            value=response.headers.get("content-range", "")
+            total=value.rsplit("/", 1)[-1]
+            if not re.fullmatch(r"[0-9]{1,10}", total):
+                raise ValueError("Missing PMS count")
+            return int(total)
+        except (httpx.HTTPError, ValueError):
+            raise HTTPException(503, "PMS-Statistik vorübergehend nicht verfügbar") from None
+
+
+@app.get("/api/v1/pms/overview")
+async def pms_overview():
+    """Only public aggregate information, no secret cursor or reviewer data."""
+    if not IS_LIVE_CONFIGURED:
+        raise HTTPException(503, "Keine Live-PMS-Verbindung")
+    total = await _pms_public_count("medidenta_pms_products", {})
+    fields = await _pms_public_count("medidenta_pms_fields", {"is_current": "eq.true"})
+    checked = await _pms_public_count("medidenta_pms_fields", {
+        "is_current": "eq.true", "editorial_status": "eq.clinically_reviewed"})
+    latest=await _pms_read("medidenta_pms_products", {
+        "select":"imported_at", "order":"imported_at.desc", "limit":"1"})
+    if fields<checked:
+        raise HTTPException(503, "Widersprüchliche PMS-Freigabezahlen")
+    return no_store({
+        "status":"EMA_PMS_BETA_PUBLIC_SOURCE_DATA",
+        "pms_products":total,"pms_fields":fields,"individually_reviewed_fields":checked,
+        "not_reviewed_fields":fields-checked,
+        "last_pms_source_import_at":latest[0].get("imported_at") if latest else None,
+        "clinical_product_release_ready":False,
+        "notice":"EMA-Beta-Quellfelder sind keine bestätigten deutschen Packungsidentitäten."
+    })
+
+
 @app.get("/api/v1/pms/products")
 async def pms_products(q: str = Query("", max_length=80),
                        limit: int = Query(25,ge=1,le=50),
