@@ -28,7 +28,7 @@ const PMS_LABELS={
 const TYPE_HINTS={warning:'Warnhinweis (nur FHIR-Kategorie)',indication:'Indikation (nur FHIR-Kategorie)',contraindication:'Kontraindikation (nur FHIR-Kategorie)',interaction:'Wechselwirkung (nur FHIR-Kategorie)',undesirableEffect:'Nebenwirkung (nur FHIR-Kategorie)',undesirable_effect:'Nebenwirkung (nur FHIR-Kategorie)'};
 
 function sourceCode(v,kind){
- const code=typeof v?.code==='string'&&v.code.trim()?v.code.trim():null;
+ const code=(typeof v?.code==='string'||typeof v?.code==='number')&&String(v.code).trim()?String(v.code).trim():null;
  const resolved=code?global.MediIdentaRmsCodes?.resolve?.(code,v.system,kind):null;
  if(resolved)return resolved.de||resolved.en;
  const label=typeof v?.display==='string'&&v.display.trim()?v.display.trim():
@@ -42,6 +42,10 @@ function readableConcept(v,kind){
  const named=Array.isArray(v.coding)?
    unique(v.coding.map(x=>sourceCode(x,kind))):
    [];
+ // If EMA provides human-readable CodeableConcept.text, prefer it over an
+ // unresolved code from a system not included in our versioned codebook.
+ if(named.length&&named.every(x=>x.startsWith('Nicht aufgelöster EMA-Code: '))&&
+     typeof v.text==='string'&&v.text.trim())return [v.text.trim()];
  if(named.length)return named;
  if(typeof v.text==='string'&&v.text.trim())return [v.text.trim()];
  const single=sourceCode(v,kind);return single?[single]:[];
@@ -119,7 +123,7 @@ function formatSingle(v,kind,depth=0){
  if(typeof v.description==='string'&&v.description.trim())return [v.description.trim()];
  if(typeof v.display==='string'&&v.display.trim())return [sourceCode(v,kind)||v.display.trim()];
  if(typeof v.reference==='string'&&v.reference.trim())return ['FHIR-Referenz: '+v.reference.trim()];
- if(typeof v.code==='string'&&v.code.trim())return [sourceCode(v,kind)];
+ if((typeof v.code==='string'&&v.code.trim())||typeof v.code==='number')return [sourceCode(v,kind)];
  if(v.concept||v.coding||v.text){
   const c=readableConcept(v,kind);if(c.length)return c;
  }
