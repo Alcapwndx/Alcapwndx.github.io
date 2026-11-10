@@ -105,6 +105,16 @@ assert.match(formatPms({attribute_key:'substance_identity_raw',
  value_json:{coding:[{system:'https://spor.ema.europa.eu/v1/lists/100000072050',
  code:'100000072072',display:'EMA display'}]}})[0],/Wirkstoff/);
 assert.equal(rms.version,'EMA PMS IG v1.2.1 / 2026-06-26');
+assert.equal(formatPms({attribute_key:'product_status_codes',
+ value_json:{coding:[{code:200000005004}]}})[0],'Aktueller Quelldatensatz');
+assert.equal(formatPms({attribute_key:'authorization_status_raw',value_json:'100000072099'})[0],
+ 'Regulatorische Berechtigung gültig laut Quelle');
+assert.equal(formatPms({attribute_key:'authorization_region_codes',value_json:{
+ coding:[{code:'999999999999',system:'http://spor.ema.europa.eu/v1/lists/100000000002'}],
+ text:'Deutschland (EMA Quelltext)'}})[0],'Deutschland (EMA Quelltext)');
+assert.equal(formatPms({attribute_key:'ingredient_role_codes',value_json:'100000072072'})[0],
+ 'Wirkstoff');
+
 
 // FHIR Quantity: translate the UNIT CODE, not the dose or reference amount.
 const rmsUnit=(num,code,system='http://spor.ema.europa.eu/v1/lists/100000110633')=>
