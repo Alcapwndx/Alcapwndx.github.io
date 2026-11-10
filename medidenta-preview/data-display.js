@@ -17,7 +17,7 @@ const PMS_LABELS={
  legal_status_of_supply:'Rechtlicher Abgabestatus laut EMA (nicht deutsche Verschreibungspflicht)',
  marketing_status_raw:'Vermarktungsstatus laut Quelle',regulatory_entitlement_type:'Art der regulatorischen Berechtigung',
  product_domain:'Anwendungsbereich (Human-/Tierarzneimittel)',
- authorization_status_raw:'Zulassungsstatus',administrable_dose_form:'Arzneiform zur Anwendung',
+ authorization_status_raw:'Status der regulatorischen Berechtigung',administrable_dose_form:'Arzneiform zur Anwendung',
  administration_routes:'Applikationswege',manufactured_dose_form:'Herstellungsarzneiform',
  ingredient_role_codes:'Stoffrolle',substance_identity_raw:'Stoffbezeichnungen laut Quelle',
  strength_raw_no_dose_conversion:'Wirkstärke laut Quelle (keine Dosisempfehlung)',
