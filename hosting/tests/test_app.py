@@ -100,4 +100,70 @@ class AppTests(unittest.TestCase):
             self.assertEqual(client.get("/medidenta-preview/catalog_snapshot.json").status_code,503)
 
 
+    def test_pms_endpoints_fail_closed_without_live_database(self):
+        with patch.object(main,"IS_LIVE_CONFIGURED",False):
+            self.assertEqual(client.get("/api/v1/pms/products").status_code,503)
+            self.assertEqual(client.get("/api/v1/pms/products/600000000000").status_code,503)
+            payload={"field_id":"pms_"+"a"*40,"statement_sha256":"b"*64,
+                     "decision":"verified","source_checked":True,"notes":""}
+            self.assertEqual(client.post("/api/v1/pms/reviews",json=payload).status_code,503)
+
+    def test_pms_public_data_kept_separate_and_source_bound(self):
+        async def fake_pms(table,params):
+            if table=="medidenta_pms_products":
+                return [{"pms_id":"600000000000","display_name":"Synthetic PMS sample",
+                         "source_url":"https://api.pms.ema.europa.eu/public/v1/MedicinalProductDefinition/600000000000/$everything",
+                         "bundle_sha256":"a"*64,"imported_at":"2026-11-10T01:00:00Z"}]
+            if table=="medidenta_pms_fields":
+                return [{"id":"pms_"+"a"*40,"pms_id":"600000000000",
+                         "attribute_key":"strength_raw_no_dose_conversion",
+                         "value_json":{"numerator":{"value":5,"unit":"mg"}},
+                         "resource_type":"Ingredient","resource_id":"i1",
+                         "relation_status":"BUNDLE_RELATED_REVIEW_REQUIRED",
+                         "statement_sha256":"b"*64,"editorial_status":"draft_unreviewed",
+                         "reviewed_at":None}]
+            raise AssertionError(table)
+        with patch.object(main,"IS_LIVE_CONFIGURED",True),patch.object(main,"_pms_read",side_effect=fake_pms):
+            lst=client.get("/api/v1/pms/products").json()
+            self.assertEqual(lst["results"][0]["product_identity_verified"],False)
+            self.assertIn("NOT_CLINICALLY_VALIDATED",lst["status"])
+            detail=client.get("/api/v1/pms/products/600000000000").json()
+            self.assertEqual(len(detail["fields"]),1)
+            self.assertEqual(detail["fields"][0]["editorial_status"],"draft_unreviewed")
+            self.assertEqual(detail["fields"][0]["value_json"]["numerator"]["unit"],"mg")
+            self.assertFalse(detail["clinical_release_ready"])
+            self.assertEqual(client.get("/api/v1/pms/products?q=*").status_code,400)
+
+    def test_pms_review_requires_admin_rpc_and_exact_current_hash(self):
+        payload={"field_id":"pms_"+"a"*40,"statement_sha256":"b"*64,
+                 "decision":"verified","source_checked":True,"notes":""}
+        with patch.object(main,"IS_LIVE_CONFIGURED",True):
+            self.assertEqual(client.post("/api/v1/pms/reviews",json=payload).status_code,401)
+            async def rpc(name,args,bearer):
+                self.assertEqual(name,"medidenta_submit_pms_review")
+                self.assertEqual(args["p_statement_sha256"],"b"*64)
+                self.assertTrue(bearer.startswith("Bearer "))
+                return {"id":"pms_"+"a"*40,"statement_sha256":"b"*64,
+                        "editorial_status":"clinically_reviewed"}
+            with patch.object(main,"_supabase_rpc",side_effect=rpc):
+                approved=client.post("/api/v1/pms/reviews",json=payload,
+                    headers={"Authorization":"Bearer "+"c"*80})
+                self.assertEqual(approved.status_code,200)
+                self.assertEqual(approved.json()[0]["editorial_status"],"clinically_reviewed")
+
+    def test_postgres_catalog_loading_is_paged_not_cut_at_1000(self):
+        import asyncio
+        async def fake_read(table,*,columns,limit=1000,offset=0):
+            self.assertEqual(limit,900)
+            if offset==0:
+                return [{"id":str(i)} for i in range(900)]
+            if offset==900:
+                return [{"id":"900"}]
+            raise AssertionError("unexpected pagination")
+        with patch.object(main,"_read_table",side_effect=fake_read):
+            result=asyncio.run(main._read_all_table("medidenta_catalog_products",columns="id"))
+            self.assertEqual(len(result),901)
+
+
+
 if __name__=="__main__":unittest.main()

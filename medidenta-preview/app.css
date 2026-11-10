@@ -180,3 +180,18 @@ html[data-theme="dark"] .tag.soon{background:#334b5e;color:#d2e4ed}
 html[data-theme="dark"] .phase-checks{color:#aec7ce}
 html[data-theme="dark"] .clinical-draft .draft-head strong,
 html[data-theme="dark"] .draft-text{color:#e0eff2}
+
+/* PMS public Alpha: structured FHIR fields are code-like source metadata. */
+.pms-json {
+  font-size: .78rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-height: 240px;
+  overflow-y: auto;
+  background: var(--surface-2, rgba(128,128,128,.09));
+  border-radius: 12px;
+  padding: 12px;
+  margin-block: 10px;
+}
+[data-pms-review-field] { display: grid; gap: 10px; margin-top: 12px; }
+[data-pms-review-field] textarea { width: 100%; }

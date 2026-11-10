@@ -59,10 +59,12 @@ def _current_mode():
     return "LIVE_SUPABASE" if IS_LIVE_CONFIGURED else "STATIC_DEVELOPMENT_PREVIEW"
 
 
-async def _read_table(table: str, *, columns: str, limit: int = MAX_LIST):
+async def _read_table(table: str, *, columns: str, limit: int = MAX_LIST, offset: int = 0):
     if not IS_LIVE_CONFIGURED:
         raise HTTPException(status_code=503, detail="Supabase not yet configured")
     params = {"select": columns, "order": "id.asc", "limit": str(limit)}
+    if offset:
+        params["offset"] = str(offset)
     if table == "medidenta_catalog_metadata":
         params = {"select": columns, "singleton": "eq.1", "limit": "1"}
     async with httpx.AsyncClient(timeout=12.0, follow_redirects=False) as client:
@@ -82,6 +84,25 @@ async def _read_table(table: str, *, columns: str, limit: int = MAX_LIST):
             raise HTTPException(status_code=503, detail="Zentrale Medikamentendatenbank derzeit nicht verfügbar") from None
 
 
+async def _read_all_table(table: str, *, columns: str, page_size: int = 900,
+                          max_rows: int = 27000):
+    """Exhaust validated PostgREST pages; never silently truncate at 1,000.
+
+    This keeps the current snapshot API compatible while large catalogs are
+    migrated to dedicated server-side searches. Limits are fail-closed.
+    """
+    records = await _read_table(table, columns=columns, limit=page_size)
+    while len(records) == page_size:
+        if len(records) + page_size > max_rows:
+            raise HTTPException(503, "Katalog zu groß für den aktuellen Snapshot-Endpunkt")
+        page = await _read_table(table, columns=columns, limit=page_size,
+                                 offset=len(records))
+        records.extend(page)
+        if len(page) < page_size:
+            break
+    return records
+
+
 async def _bundle():
     if not IS_LIVE_CONFIGURED:
         if PARTIAL_CONFIG:
@@ -96,9 +117,9 @@ async def _bundle():
     if len(rows) != 1:
         raise HTTPException(503, "Supabase-Katalog wurde noch nicht importiert")
     meta = rows[0]
-    products = await _read_table("medidenta_catalog_products", columns="id,payload")
-    facts = await _read_table("medidenta_catalog_facts",
-                              columns="id,payload,editorial_status,reviewed_at")
+    products = await _read_all_table("medidenta_catalog_products", columns="id,payload")
+    facts = await _read_all_table("medidenta_catalog_facts",
+                                  columns="id,payload,editorial_status,reviewed_at")
     if not products or not facts:
         raise HTTPException(503, "Medikamentendatenbank wurde noch nicht vollständig initialisiert")
     rev = meta["source_commit"]
@@ -289,6 +310,102 @@ async def get_product(product_id: str):
         "clinical_content_complete": False,
         "clinical_notice": "Nur individuell geprüfte Fakten dürfen als fachlich freigegeben gekennzeichnet werden.",
     })
+
+
+# Public PMS Beta metadata is a SEPARATE source catalog. Never conflate
+# these IDs with licensed German packs, reviewed SmPCs or existing product IDs.
+_PMS_TABLES = {"medidenta_pms_products", "medidenta_pms_fields"}
+
+
+async def _pms_read(table: str, params: dict) -> list[dict]:
+    if not IS_LIVE_CONFIGURED:
+        raise HTTPException(503, "PMS Live-Alpha benötigt die zentrale Supabase-Datenbank")
+    if table not in _PMS_TABLES:
+        raise HTTPException(500, "Unzulässige PMS-Tabelle")
+    async with httpx.AsyncClient(timeout=12.0, follow_redirects=False) as client:
+        try:
+            response = await client.get(f"{URL}/rest/v1/{table}",
+                headers={"apikey": KEY, "Accept": "application/json"}, params=params)
+            response.raise_for_status()
+            data = response.json()
+            if not isinstance(data, list):
+                raise ValueError("Unexpected PMS response")
+            return data
+        except (httpx.HTTPError, ValueError):
+            raise HTTPException(503, "PMS-Quelldatenbank derzeit nicht verfügbar") from None
+
+
+@app.get("/api/v1/pms/products")
+async def pms_products(q: str = Query("", max_length=80),
+                       limit: int = Query(25,ge=1,le=50),
+                       offset: int = Query(0,ge=0,le=100000)):
+    if any(x in q for x in ("%", "*", ",", "(", ")")):
+        raise HTTPException(400, "Ungültige Suchzeichen")
+    params = {"select":"pms_id,display_name,source_url,bundle_sha256,imported_at",
+              "order":"pms_id.asc","limit":str(limit),"offset":str(offset)}
+    if q.strip():
+        params["display_name"]="ilike.*"+q.strip()+"*"
+    rows=await _pms_read("medidenta_pms_products",params)
+    return no_store({
+        "status":"PUBLIC_ALPHA_SOURCE_DATA_NOT_CLINICALLY_VALIDATED",
+        "results":[{**item,"editorial_status":"draft_unreviewed_or_individually_reviewed",
+                    "product_identity_verified":False} for item in rows],
+        "returned":len(rows),"offset":offset,"limit":limit,
+        "has_more":len(rows)==limit,
+        "notice":"PMS-Produktidentität und Wirkstoffangaben noch nicht automatisch verifiziert."
+    })
+
+
+@app.get("/api/v1/pms/products/{pms_id}")
+async def pms_product_detail(pms_id: str):
+    if not re.fullmatch(r"[A-Za-z0-9._-]{1,96}",pms_id):
+        raise HTTPException(400,"Ungültige PMS-ID")
+    product=await _pms_read("medidenta_pms_products",{
+        "select":"pms_id,display_name,source_url,bundle_sha256,imported_at",
+        "pms_id":"eq."+pms_id,"limit":"1"})
+    if not product:
+        raise HTTPException(404,"PMS-Quelle nicht im Alpha-Katalog")
+    fields=await _pms_read("medidenta_pms_fields",{
+        "select":"id,pms_id,resource_type,resource_id,attribute_key,value_json,relation_status,source_url,statement_sha256,editorial_status,reviewed_at",
+        "pms_id":"eq."+pms_id,"is_current":"eq.true",
+        "order":"attribute_key.asc,id.asc","limit":"500"})
+    if len(fields)>=500:
+        raise HTTPException(503,"PMS-Quelldaten unvollständig: zu viele Attribute")
+    return no_store({
+        "product":product[0],"fields":fields,"clinical_release_ready":False,
+        "status":"PMS_BETA_SOURCE_REVIEW_ONLY",
+        "notice":"Jede einzelne Angabe ist bis zur Adminprüfung unverifiziert; keine Dosierungs- oder Austauschhinweise."
+    })
+
+
+class PmsReviewInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    field_id: str = Field(pattern=r"^pms_[0-9a-f]{40}$")
+    statement_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    decision: str
+    source_checked: bool
+    notes: str = Field(default="",max_length=3000)
+
+
+@app.post("/api/v1/pms/reviews")
+async def submit_pms_review(payload: PmsReviewInput, request: Request):
+    if not IS_LIVE_CONFIGURED:
+        raise HTTPException(503,"PMS-Quellenprüfung noch nicht konfiguriert")
+    bearer = _user_bearer(request)
+    if payload.decision not in ("verified","needs_revision","rejected") or not payload.source_checked:
+        raise HTTPException(422,"Ungültige PMS-Prüfentscheidung")
+    if payload.decision!="verified" and len(payload.notes.strip())<10:
+        raise HTTPException(422,"Für Ablehnung oder Überarbeitung ist eine Begründung erforderlich")
+    result=await _supabase_rpc("medidenta_submit_pms_review",{
+        "p_field_id":payload.field_id,
+        "p_statement_sha256":payload.statement_sha256,
+        "p_decision":payload.decision,
+        "p_source_checked":payload.source_checked,
+        "p_notes":payload.notes,
+    },bearer)
+    if result.get("id")!=payload.field_id or result.get("statement_sha256")!=payload.statement_sha256:
+        raise HTTPException(503,"PMS-Prüfbestätigung hat eine unerwartete Version")
+    return no_store([result])
 
 
 @app.get("/api/v1/identify/{system}/{value}")
