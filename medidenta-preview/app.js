@@ -8,7 +8,7 @@ const escapeHtml=value=>String(value==null?'':value).replace(/[&<>"']/g,c=>({'&'
 const trim=x=>String(x==null?'':x).trim();
 const normalize=x=>trim(x).normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 const safeUrl=x=>{try{const u=new URL(x);return u.protocol==='https:'?u.href:null}catch{return null}};
-const D={page:'home',connected:false,meta:null,offline:[],hits:[],search:'',detail:null,photo:null,photoName:'',scanMessage:'',scanMatches:[],loading:false,seq:0,identifierSystem:'PZN8',compare:[],compareDetails:{},attributions:[],drafts:[],approved:[],draftLoadError:false,syncMeta:null,syncBusy:false,syncMessage:'',catalogRevision:null,draftRevision:null,features:{collaboration_enabled:false},pmsHits:[],pmsQuery:'',pmsPage:0,pmsHasMore:false,pmsBusy:false,pmsError:'',pmsDetail:null,pmsMessage:'',searchPage:0,searchHasMore:false,pmsSearchHits:[],pmsSearchMore:false,pmsSearchError:false,detailKind:'catalog',pmsBack:'search',catalogSearchError:''};
+const D={page:'home',connected:false,meta:null,offline:[],hits:[],search:'',detail:null,photo:null,photoName:'',scanMessage:'',scanMatches:[],loading:false,seq:0,identifierSystem:'PZN8',compare:[],compareDetails:{},attributions:[],drafts:[],approved:[],draftLoadError:false,syncMeta:null,syncBusy:false,syncMessage:'',catalogRevision:null,draftRevision:null,features:{collaboration_enabled:false},pmsHits:[],pmsQuery:'',pmsPage:0,pmsHasMore:false,pmsBusy:false,pmsError:'',pmsDetail:null,pmsMessage:'',pmsOverview:null,pmsOverviewError:false,searchPage:0,searchHasMore:false,pmsSearchHits:[],pmsSearchMore:false,pmsSearchError:false,detailKind:'catalog',pmsBack:'search',catalogSearchError:''};
 try{D.favorites=JSON.parse(localStorage.getItem('medidenta_favs_v04')||'[]');if(!Array.isArray(D.favorites))D.favorites=[];}catch{D.favorites=[]}
 const api=async path=>{const c=new AbortController(),t=setTimeout(()=>c.abort(),path.startsWith('/products/')?18000:8000);try{const r=await fetch('/api/v1'+path,{signal:c.signal,cache:'no-store',headers:{Accept:'application/json'}});const data=await r.json();if(!r.ok)throw Error(data.error||'HTTP '+r.status);return data;}finally{clearTimeout(t)}};
 function clinicalNotice(){return '<div class="notice warning"><strong>Entwicklungsstand – keine klinische Einsatzfreigabe der App.</strong> Einzelne Fachtextaussagen können nach persönlicher Kontrolle fachlich freigegeben sein, nicht jedoch automatisch ganze Präparate oder Dosierungen. Aktuelle Originalquellen und Anordnungen bleiben maßgeblich.</div>'}
@@ -259,6 +259,15 @@ function qualityHtml(){
  '<p class="small"><strong>Letzter Datenbankimport:</strong> <span class="quality-timestamp">'+escapeHtml(showDate(lastImport||(!D.connected?D.syncMeta?.source_date:null)))+'</span></p>'+
  '<p class="small"><strong>Letzter überprüfter EMA-Quellenabgleich:</strong> <span class="quality-timestamp">'+escapeHtml(showDate(lastEma))+'</span></p>'+
  '<p class="tiny muted">Datenbankimport und EMA-Quellenabgleich sind unterschiedliche Vorgänge. Ein erfolgreicher Import belegt keine erneute Prüfung der aktuellen EMA-Originalquelle. Solange ein Quellenabgleich nicht gesondert protokolliert wird, zeigen wir dafür kein erfundenes Datum.</p></section>'+
+ '<section class="card"><h2>EMA-PMS-Beta-Datenbestand</h2>'+
+ (D.pmsOverview?
+  '<div class="stats"><div class="stat"><strong>'+escapeHtml(D.pmsOverview.pms_products)+'</strong><span>PMS-Quellprodukte</span></div>'+
+  '<div class="stat"><strong>'+escapeHtml(D.pmsOverview.pms_fields)+'</strong><span>Öffentliche Quellfelder</span></div>'+
+  '<div class="stat"><strong>'+escapeHtml(D.pmsOverview.individually_reviewed_fields)+'</strong><span>Einzeln fachlich geprüft</span></div></div>'+
+  '<p class="small"><strong>Letzter PMS-Quellenimport:</strong> '+escapeHtml(showDate(D.pmsOverview.last_pms_source_import_at))+'</p>':
+  '<p class="small muted">'+(D.pmsOverviewError?'PMS-Beta-Statistik derzeit nicht abrufbar.':
+   'PMS-Beta-Statistik wird geladen …')+'</p>')+
+ '<p class="tiny muted">EMA PMS ist eine externe Beta-Quellendatenbank. Ein Import ist keine inhaltliche EMA-Neuvalidierung oder klinische Freigabe. Diese Zahlen zählen Quellen, nicht deutsche Arzneimittelpackungen.</p></section>'+
  '<section class="card"><h2>Weg von Alpha zu Beta</h2>'+
  '<p class="small">Eine Beta-Phase ist erst nach expliziter Freigabe vorgesehen, wenn die folgenden Bedingungen erfüllt sind:</p>'+
  '<ol class="phase-checks"><li>Ein ausreichend breiter, fachlich bewerteter Medikamentenkatalog ist verfügbar.</li>'+
@@ -315,8 +324,18 @@ async function identify(){
  }catch{D.scanMessage='Packungsabfrage fehlgeschlagen. Keine Identifizierung möglich.';D.scanMatches=[];}
  draw();
 }
-function go(where){window.MediIdentaIdentifiers?.stopCamera?.();D.page=where;D.scanMessage='';D.scanMatches=[];draw();document.documentElement.scrollTop=0;}
-async function connect(){if(IS_PUBLIC_PREVIEW){D.connected=false;D.meta=null;D.features={collaboration_enabled:false};D.attributions=[{source_key:'EU_UR',name:'European Commission – Union Register',license_code:'CC-BY-4.0',attribution_text:'Quellgebundene Produktidentitäten aus dem EU-Register.'},{source_key:'EMA_EPAR',name:'European Medicines Agency – EPAR',license_code:'EMA-REUSE-ATTRIBUTION',attribution_text:'Produktidentitäten und unabhängig formulierte Entwürfe mit EMA-Quellenverweisen.'}];draw();return;}try{D.meta=await api('/meta');D.connected=true;try{const f=await api('/features');D.features={collaboration_enabled:f.collaboration_enabled===true};}catch{D.features={collaboration_enabled:false};}try{const x=await api('/attributions');D.attributions=Array.isArray(x.sources)?x.sources:[];}catch{D.attributions=[];}}catch{D.meta=null;D.connected=false;D.attributions=[];D.features={collaboration_enabled:false};}if(D.page==='search')find(D.search);else draw();}
+async function loadPmsOverview(){
+ if(!D.connected)return;
+ try{
+  const x=await api('/pms/overview');
+  D.pmsOverview=x;D.pmsOverviewError=false;
+ }catch{
+  D.pmsOverview=null;D.pmsOverviewError=true;
+ }
+ if(D.page==='quality')draw(true);
+}
+function go(where){window.MediIdentaIdentifiers?.stopCamera?.();D.page=where;D.scanMessage='';D.scanMatches=[];draw();if(where==='quality')loadPmsOverview();document.documentElement.scrollTop=0;}
+async function connect(){if(IS_PUBLIC_PREVIEW){D.connected=false;D.meta=null;D.features={collaboration_enabled:false};D.attributions=[{source_key:'EU_UR',name:'European Commission – Union Register',license_code:'CC-BY-4.0',attribution_text:'Quellgebundene Produktidentitäten aus dem EU-Register.'},{source_key:'EMA_EPAR',name:'European Medicines Agency – EPAR',license_code:'EMA-REUSE-ATTRIBUTION',attribution_text:'Produktidentitäten und unabhängig formulierte Entwürfe mit EMA-Quellenverweisen.'}];draw();return;}try{D.meta=await api('/meta');D.connected=true;try{const f=await api('/features');D.features={collaboration_enabled:f.collaboration_enabled===true};}catch{D.features={collaboration_enabled:false};}try{const x=await api('/attributions');D.attributions=Array.isArray(x.sources)?x.sources:[];}catch{D.attributions=[];}}catch{D.meta=null;D.connected=false;D.attributions=[];D.features={collaboration_enabled:false};}if(D.page==='search')find(D.search);else if(D.page==='quality')loadPmsOverview();else draw();}
 let debounce;
 document.addEventListener('click',e=>{const b=e.target.closest('[data-nav],[data-action],[data-filter]');if(!b)return;if(b.dataset.nav){go(b.dataset.nav);return;}if(b.dataset.filter){D.hits=b.dataset.filter==='fav'?D.offline.filter(x=>D.favorites.includes(x.id)):localSearch(D.search);draw();return;}const a=b.dataset.action;if(a==='detail')openProduct(b.dataset.id);else if(a==='pms-inline')openPms(b.dataset.id,'search');else if(a==='search-next'){D.searchPage++;find(D.search);}else if(a==='search-prev'){D.searchPage=Math.max(0,D.searchPage-1);find(D.search);}else if(a==='fav'){const id=b.dataset.id;D.favorites=D.favorites.includes(id)?D.favorites.filter(x=>x!==id):[id,...D.favorites];try{localStorage.setItem('medidenta_favs_v04',JSON.stringify(D.favorites))}catch{}draw();}else if(a==='compare'){const id=b.dataset.id;D.compare=D.compare.includes(id)?D.compare.filter(x=>x!==id):[...D.compare,id].slice(-2);draw();}else if(a==='compare-clear'){D.compare=[];D.compareDetails={};draw();}else if(a==='compare-view')showCompare();else if(a==='pzn')identify();else if(a==='photo')picker.click();else if(a==='reconnect')connect();else if(a==='sync-check')checkForCatalogUpdates(true);});
 document.addEventListener('input',e=>{if(e.target.id!=='search')return;D.search=e.target.value;D.searchPage=0;D.searchHasMore=false;D.pmsSearchHits=[];clearTimeout(debounce);debounce=setTimeout(()=>find(D.search),220)});
