@@ -109,6 +109,7 @@ function formatSingle(v,kind,depth=0){
  if(typeof v.description==='string'&&v.description.trim())return [v.description.trim()];
  if(typeof v.display==='string'&&v.display.trim())return [sourceCode(v,kind)||v.display.trim()];
  if(typeof v.reference==='string'&&v.reference.trim())return ['FHIR-Referenz: '+v.reference.trim()];
+ if(typeof v.code==='string'&&v.code.trim())return [sourceCode(v,kind)];
  if(v.concept||v.coding||v.text){
   const c=readableConcept(v,kind);if(c.length)return c;
  }
