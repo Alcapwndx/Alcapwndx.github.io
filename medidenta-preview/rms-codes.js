@@ -131,8 +131,8 @@
   '100000072049':[
    '100000072097|Application received|Antrag eingegangen',
    '100000072098|Application withdrawn|Antrag zurückgezogen',
-   '100000072099|Valid|Zulassung gültig laut Quelle',
-   '100000072100|Expired|Zulassung abgelaufen laut Quelle',
+   '100000072099|Valid|Regulatorische Berechtigung gültig laut Quelle',
+   '100000072100|Expired|Regulatorische Berechtigung abgelaufen laut Quelle',
    '100000072110|Application not accepted|Antrag nicht angenommen',
    '100000072111|Application rejected|Antrag abgelehnt',
    '100000072112|Not renewed|Nicht verlängert',
