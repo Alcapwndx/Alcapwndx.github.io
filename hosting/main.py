@@ -417,7 +417,7 @@ def _same_pms_brand_name(catalog_name: str, candidate_name: str) -> bool:
     if len(name) < 4 or not name[0].isalnum():
         return False
     return (candidate == name or
-            any(candidate.startswith(name + delim) for delim in (" ", "-", " (", "/")))
+            any(candidate.startswith(name + delim) for delim in (" ", " (")))
 
 
 async def _live_pms_sources(product_id: str, product: dict) -> list[dict]:
