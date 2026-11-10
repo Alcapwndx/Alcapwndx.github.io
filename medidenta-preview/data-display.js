@@ -179,5 +179,44 @@ function groupPmsFields(fields){
   records:g.records,source_count:g.records.length})).sort((a,b)=>
   a.label.localeCompare(b.label,'de'));
 }
-global.MediIdentaDisplay={groupFacts,groupPmsFields,formatPms,norm,TYPES,PMS_LABELS};
+// A broader visual topic combines related PMS keys in ONE card.
+// Each field keeps its own key, source IDs and individual admin review action.
+const PMS_TOPICS={
+ product_names:'Produktidentität und Kennungen',
+ product_identifiers:'Produktidentität und Kennungen',
+ product_status_codes:'Produktidentität und Kennungen',
+ classification:'Produktidentität und Kennungen',
+ combined_dose_form:'Arzneiform und Anwendung',
+ authorised_dose_forms:'Arzneiform und Anwendung',
+ administrable_dose_form:'Arzneiform und Anwendung',
+ manufactured_dose_form:'Arzneiform und Anwendung',
+ administration_routes:'Arzneiform und Anwendung',
+ substance_identity_raw:'Wirkstoffe und Wirkstärken',
+ ingredient_role_codes:'Wirkstoffe und Wirkstärken',
+ strength_raw_no_dose_conversion:'Wirkstoffe und Wirkstärken',
+ package_identifiers_not_pzn:'Packung und Inhalt',
+ package_descriptions:'Packung und Inhalt',
+ package_size_raw:'Packung und Inhalt',
+ authorization_identifiers:'Zulassung und Status',
+ authorization_region_codes:'Zulassung und Status',
+ authorization_status_raw:'Zulassung und Status',
+ clinical_use_type_unverified:'Klinische Quellkategorien (keine Fachtexte)',
+ clinical_use_subjects_unverified:'Klinische Quellkategorien (keine Fachtexte)',
+ clinical_use_status_unverified:'Klinische Quellkategorien (keine Fachtexte)'
+};
+function groupPmsSections(fields){
+ const buckets=new Map();
+ for(const group of groupPmsFields(fields)){
+  const title=PMS_TOPICS[group.key]||'Weitere Quellenangaben';
+  if(!buckets.has(title))buckets.set(title,{
+   title,groups:[],records:[],unique_items:0
+  });
+  const section=buckets.get(title);
+  section.groups.push(group);
+  section.records.push(...group.records);
+  section.unique_items+=group.items.length;
+ }
+ return [...buckets.values()];
+}
+global.MediIdentaDisplay={groupFacts,groupPmsFields,groupPmsSections,formatPms,norm,TYPES,PMS_LABELS};
 })(window);

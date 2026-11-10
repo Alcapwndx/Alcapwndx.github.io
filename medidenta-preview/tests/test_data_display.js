@@ -45,7 +45,7 @@ assert.equal(packageGroup.items[0].text,'14 Tabletten');
 
 // Real UI contract: no user-facing mandatory JSON blocks as the primary display.
 const app=fs.readFileSync(path.join(dir,'app.js'),'utf8');
-assert.match(app,/groupPmsFields/);
+assert.match(app,/groupPmsSections/);
 assert.match(app,/pms-readable-values/);
 assert.match(app,/pms-raw-disclosure/);
 assert.match(app,/pmsInlineSearch/);

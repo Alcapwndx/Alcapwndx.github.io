@@ -83,21 +83,24 @@ function pmsDetailHtml(){
  const p=entry.product,fields=Array.isArray(entry.fields)?entry.fields:[];
  const admin=window.MediIdentaReviewAuth?._debug?.role?.()==='admin';
  const src=safeUrl(p.source_url);
- const groups=window.MediIdentaDisplay?.groupPmsFields?.(fields)||[];
- const merged=groups.reduce((n,g)=>n+g.items.length,0);
- const cards=groups.map(g=>'<section class="card pms-topic" data-pms-topic="'+escapeHtml(g.key)+'">'+
-  '<h2>'+escapeHtml(g.label)+'</h2>'+
-  '<p class="tiny muted">'+g.items.length+' '+(g.items.length===1?'inhaltliche Angabe':'inhaltlich verschiedene Angaben')+
-  (g.records.length>1?' · '+g.records.length+' Originalquellfelder':'')+'</p>'+
-  '<ul class="pms-readable-values">'+g.items.map(item=>{
-   const count=item.records.length,reviewed=item.records.filter(f=>f.editorial_status==='clinically_reviewed').length;
-   const state=reviewed===count?'Individuell geprüft':reviewed?'Teilweise geprüft':'Nicht klinisch validiert';
-   return '<li><span class="pms-readable-text">'+escapeHtml(item.text)+'</span> '+
-    badge(state,reviewed===count?'':'amber')+
-    (count>1?'<span class="tiny muted">Aus '+count+' Quellressourcen; einzeln prüfen</span>':'')+'</li>';
-  }).join('')+'</ul>'+
-  '<details class="pms-source-audit"><summary>Originalquellen und Einzelvalidierung ('+g.records.length+')</summary>'+
-  g.records.map(f=>pmsSourceRecord(f,admin)).join('')+'</details></section>').join('');
+ const sections=window.MediIdentaDisplay?.groupPmsSections?.(fields)||[];
+ const merged=sections.reduce((total,section)=>total+section.unique_items,0);
+ // One visual card per broad source topic. Every original attribute category
+ // stays separately labeled, with its own exact-SHA admin review forms.
+ const cards=sections.map(section=>'<section class="card pms-topic" data-pms-section="'+escapeHtml(section.title)+'">'+
+  '<h2>'+escapeHtml(section.title)+'</h2>'+
+  '<p class="tiny muted">'+section.unique_items+' unterschiedliche Angaben · '+section.records.length+' Originalquellfelder</p>'+
+  section.groups.map(g=>'<div class="pms-subtopic" data-pms-topic="'+escapeHtml(g.key)+'">'+
+   '<h3>'+escapeHtml(g.label)+'</h3>'+
+   '<ul class="pms-readable-values">'+g.items.map(item=>{
+    const count=item.records.length,reviewed=item.records.filter(f=>f.editorial_status==='clinically_reviewed').length;
+    const state=reviewed===count?'Individuell geprüft':reviewed?'Teilweise geprüft':'Nicht klinisch validiert';
+    return '<li><span class="pms-readable-text">'+escapeHtml(item.text)+'</span> '+
+      badge(state,reviewed===count?'':'amber')+
+      (count>1?'<span class="tiny muted">Aus '+count+' Originalquellen; Einzelprüfung bleibt erhalten.</span>':'')+'</li>';
+   }).join('')+'</ul>'+
+   '<details class="pms-source-audit"><summary>Originalquellen und Einzelvalidierung ('+g.records.length+')</summary>'+
+   g.records.map(f=>pmsSourceRecord(f,admin)).join('')+'</details></div>').join('')+'</section>').join('');
  return '<button class="back" data-nav="'+escapeHtml(back)+'">← Zurück</button>'+title(p.display_name)+
   '<div class="notice warning"><strong>EMA PMS Beta · keine bestätigte deutsche Arzneimittelidentität.</strong> '+
   'Die Werte stammen aus EMA-Produktdefinitionen und sind keine Dosierungs- oder Austauschanweisung. '+
@@ -109,7 +112,7 @@ function pmsDetailHtml(){
   '<p class="small muted">'+fields.length+' Originalfelder · '+merged+' eindeutig angezeigte Inhalte · '+
   (fields.length-merged>0?(fields.length-merged)+' zusammengefasste Wiederholungen':'keine Daten entfernt')+
   '. Alle ursprünglichen Quell-IDs und Admin-Prüfaktionen bleiben erhalten.</p></section>'+
-  (groups.length?cards:'<p class="notice warning">Keine strukturierten Quellfelder verfügbar.</p>');
+  (sections.length?cards:'<p class="notice warning">Keine strukturierten Quellfelder verfügbar.</p>');
 }
 async function loadPms(){
  if(!D.connected){D.pmsError='Der PMS-Livebereich ist nur über die Render-Live-Datenbank erreichbar.';D.pmsHits=[];draw(true);return;}
