@@ -27,7 +27,7 @@ assert.match(auth,/medidenta_post_comment|\/facts\/.*comments/);
 assert.match(auth,/A\.role!=='admin'/);
 assert.match(auth,/Private Quellenprüfung/);
 assert.match(auth,/data-role-form/);
-assert.match(sw,/medidenta-pages-v0\.9\.1/);
+assert.match(sw,/medidenta-pages-v0\.12\.0/);
 assert.match(sw,/theme\.js/);
 
 // The OS preference is only the DEFAULT; manual selection persists.

@@ -444,6 +444,21 @@ function init(getState,draw){
   if(element?.matches?.('details[data-collab-id]')&&element.open){loadComments(element);loadNotes(element);}
  },true);
 }
-global.MediIdentaReviewAuth={init,accountHtml,reviewActionHtml,
+async function submitPmsReview(payload){
+ if(!A.configured||!A.reviewApiBase||!A.user||A.role!=='admin')
+  throw Error('Nur Administratoren können PMS-Angaben validieren.');
+ if(!payload||!/^pms_[0-9a-f]{40}$/.test(String(payload.field_id||''))||
+    !/^[0-9a-f]{64}$/.test(String(payload.statement_sha256||''))||
+    !['verified','needs_revision','rejected'].includes(payload.decision)||
+    payload.source_checked!==true)
+  throw Error('Unvollständige PMS-Quellenprüfung.');
+ const result=await liveRequest('/pms/reviews','POST',payload);
+ if(!Array.isArray(result)||result.length!==1||result[0].id!==payload.field_id||
+    result[0].statement_sha256!==payload.statement_sha256)
+  throw Error('PMS-Review-Bestätigung der Datenbank passt nicht zur Quelle.');
+ return result[0];
+}
+
+global.MediIdentaReviewAuth={init,accountHtml,reviewActionHtml,submitPmsReview,
  _debug:{isActiveRevision,digestFact,configured:()=>A.configured,role:()=>A.role,events:()=>A.events.length}};
 })(window);
