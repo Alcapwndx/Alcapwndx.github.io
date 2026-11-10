@@ -87,6 +87,7 @@ function pmsSourceRecord(f,admin){
 }
 function pmsCardsHtml(entry){
  const p=entry.product||{},fields=Array.isArray(entry.fields)?entry.fields:[];
+ const report=window.MediIdentaDisplay?.terminologyReport?.(fields);
  const admin=window.MediIdentaReviewAuth?._debug?.role?.()==='admin';
  const src=safeUrl(p.source_url);
  const sections=window.MediIdentaDisplay?.groupPmsSections?.(fields)||[];
@@ -106,8 +107,8 @@ function pmsCardsHtml(entry){
    '<ul class="pms-readable-values">'+g.items.map(item=>{
     const count=item.records.length,reviewed=item.records.filter(f=>f.editorial_status==='clinically_reviewed').length;
     const state=reviewed===count?'Einzelwert fachlich geprüft':reviewed?'Einzelne Quellwerte geprüft':'Nicht fachlich validiert';
-    return '<li><span class="pms-readable-text">'+escapeHtml(item.text)+'</span> '+
-      badge(state,reviewed===count?'':'amber')+
+    return '<li><span class="pms-readable-text">'+escapeHtml(item.text)+'</span>'+
+      (reviewed?(' '+badge(state,reviewed===count?'':'amber')):'')+
       (count>1?'<span class="tiny muted"> Aus '+count+' Originaldatensätzen; Status je Quelle bleibt getrennt.</span>':'')+'</li>';
    }).join('')+'</ul>'+
    '<details class="pms-source-audit"><summary>Quellen, Originalcodes und optionale Adminprüfung ('+g.records.length+')</summary>'+
@@ -120,16 +121,24 @@ function pmsCardsHtml(entry){
   (src?'<a href="'+escapeHtml(src)+'" target="_blank" rel="noopener noreferrer">Originaldaten der EMA öffnen ↗</a>':'')+
   '<p class="tiny muted">Quellimport: '+escapeHtml(p.imported_at||'Nicht hinterlegt')+
   ' · '+fields.length+' FHIR-Originalfelder, '+merged+' unterschiedliche Anzeigen. '+
-  'Die numerischen EMA-Referenzcodes stehen weiterhin in den Originaldetails.</p></div>'+
+  'Die Originalcodes und Einzelprüfungen bleiben im Quellprotokoll abrufbar.</p>'+
+  (report?.fields_with_unknown_codes?
+   '<details class="pms-source-audit"><summary>Unbekannte EMA-Codes ('+report.fields_with_unknown_codes+
+   ' Quellfelder · '+report.code_types_unknown+' Codes)</summary>'+
+   '<p class="tiny muted">Diese Codes werden ausdrücklich nicht erraten. Originalcodes können anhand der zugehörigen offiziellen RMS-/SMS-/OMS-Referenz geprüft werden.</p>'+
+   '<ul>'+report.examples.map(x=>'<li><code>'+escapeHtml(x.code)+'</code> · '+x.count+' Feld(er)</li>').join('')+'</ul></details>':
+   '<p class="tiny muted">In den aktuell angezeigten Texten wurden keine ungelösten numerischen EMA-Codes erkannt.</p>')+
+  '</div>'+
   (sections.length?cards:'<div class="notice warning">Keine strukturierten PMS-Quellfelder für dieses Produkt verfügbar.</div>');
 }
 function embeddedPmsHtml(sources,unavailable=false){
  const list=Array.isArray(sources)?sources:[];
  if(!list.length&&!unavailable)return '';
  return '<section class="pms-integrated"><h2>EMA PMS Beta · Strukturierte Quelldaten</h2>'+
-  '<p class="small muted">Zusätzliche offizielle Quelldaten werden ohne vorherige Adminfreigabe angezeigt. '+
+  '<p class="small muted">Zusätzliche EMA-Beta-Quelldaten werden ohne vorherige Adminfreigabe angezeigt. '+
   'Sie sind keine geprüften Fachinformationen und beweisen keine Austauschbarkeit. '+
   'Die Bezeichnung „Beta“ bezieht sich auf die EMA-Datenquelle, nicht auf die MediIdenta-App.</p>'+
+  (D.pmsMessage?'<div class="notice" role="status">'+escapeHtml(D.pmsMessage)+'</div>':'')+
   (unavailable?'<div class="notice warning">EMA-PMS-Quelldaten können derzeit nicht geladen werden.</div>':'')+
   list.map(pmsCardsHtml).join('')+'</section>';
 }
@@ -164,7 +173,12 @@ async function openPms(id,back='search'){
 }
 async function submitPmsField(form){
  const fieldId=form.dataset.pmsReviewField,hash=form.dataset.pmsSha;
- if(!D.pmsDetail||!D.pmsDetail.fields?.some(f=>f.id===fieldId&&f.statement_sha256===hash))return;
+ if(window.MediIdentaReviewAuth?._debug?.role?.()!=='admin')return;
+ // The same editorial action must also work when PMS fields are EMBEDDED
+ // inside a standard MediIdenta medication record.
+ const entries=D.detailKind==='pms'?[D.pmsDetail]:(D.detail?.pms_sources||[]);
+ const entry=entries.find(e=>e?.fields?.some(f=>f.id===fieldId&&f.statement_sha256===hash));
+ if(!entry)return;
  const checked=!!form.querySelector('[name="source_checked"]')?.checked;
  const decision=form.querySelector('[name="decision"]')?.value;
  const notes=trim(form.querySelector('[name="notes"]')?.value);
@@ -176,9 +190,12 @@ async function submitPmsField(form){
   await window.MediIdentaReviewAuth.submitPmsReview({
    field_id:fieldId,statement_sha256:hash,decision,source_checked:true,notes
   });
-  const pid=D.pmsDetail.product.pms_id;
-  const x=await api('/pms/products/'+encodeURIComponent(pid));
-  D.pmsDetail=x;D.pmsMessage='Entscheidung revisionsgebunden gespeichert. Der Einzelfeld-Status wurde aktualisiert.';
+  if(D.detailKind==='pms'){
+   D.pmsDetail=await api('/pms/products/'+encodeURIComponent(entry.product.pms_id));
+  }else{
+   D.detail=await api('/products/'+encodeURIComponent(D.detail.id));
+  }
+  D.pmsMessage='Entscheidung revisionsgebunden gespeichert. Der PMS-Einzelwert wurde aktualisiert.';
  }catch(e){D.pmsMessage='Entscheidung nicht gespeichert: '+String(e.message||'');}
  draw();
 }
