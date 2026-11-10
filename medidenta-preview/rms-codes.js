@@ -307,6 +307,10 @@
   authorization_status_raw:'100000072049',
   authorization_region_codes:'100000000002',
   ingredient_role_codes:'100000072050',
+  legal_status_of_supply:'100000072051',
+  marketing_status_raw:'100000072052',
+  regulatory_entitlement_type:'220000000060',
+  product_domain:'100000000004',
   // NO default for ambiguous FHIR classification, product identifiers,
   // substance names or combined dose forms. The exact system is required.
  });
