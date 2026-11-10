@@ -21,18 +21,24 @@ assert.match(app,/Tablette fotografieren/);
 assert.match(app,/aria-disabled="true"/);
 assert.doesNotMatch(app,/function syncHtml/);
 assert.match(app,/Letzter überprüfter EMA-Quellenabgleich/);
+assert.match(app,/api\('\/pms\/demo-coverage'\)/);
+assert.match(app,/EMA-PMS-Abdeckung der Demo/);
+assert.match(app,/PMS-Beta-Quelle noch offen/);
+assert.match(app,/Identitäten mit PMS-Beta-Quellen/);
+assert.match(app,/data-action="detail"/);
+
 assert.match(app,/target.*70|mindestens <strong>70 %/);
 assert.match(app,/Keine.*automatische Beta|keine automatische Beta/i);
 assert.match(auth,/medidenta_post_comment|\/facts\/.*comments/);
 assert.match(auth,/A\.role!=='admin'/);
 assert.match(auth,/Private Quellenprüfung/);
 assert.match(auth,/data-role-form/);
-assert.match(sw,/medidenta-pages-v0\.17/);
+assert.match(sw,/medidenta-pages-v0\.18/);
 assert.match(sw,/rms-codes\.js/);
 assert.match(sw,/data-display\.js/);
 assert.match(html,/data-display\.js\?v=0\.17/);
 assert.match(html,/rms-codes\.js\?v=0\.16/);
-assert.match(html,/app\.js\?v=0\.17/);
+assert.match(html,/app\.js\?v=0\.18/);
 assert.match(sw,/theme\.js/);
 
 // The OS preference is only the DEFAULT; manual selection persists.

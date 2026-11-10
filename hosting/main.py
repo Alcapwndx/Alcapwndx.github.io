@@ -8,6 +8,7 @@
 - Deployment is for DEVELOPMENT, not a validated medical decision system.
 """
 from __future__ import annotations
+import asyncio
 
 import json
 import logging
@@ -553,6 +554,77 @@ async def _pms_public_count(table: str, filters: dict) -> int:
             return int(total)
         except (httpx.HTTPError, ValueError):
             raise HTTPException(503, "PMS-Statistik vorübergehend nicht verfügbar") from None
+
+
+async def _pms_coverage_sources() -> tuple[list[dict], list[dict]]:
+    """Fetch bounded read-only public catalog/PMS names for demo coverage.
+
+    Never expose the OAuth token, private continuation cursor, or review data.
+    A saturated response is NOT silently treated as exhaustive.
+    """
+    if not IS_LIVE_CONFIGURED:
+        raise HTTPException(503, "Keine Live-Datenbank")
+    async with httpx.AsyncClient(timeout=15.0, follow_redirects=False) as client:
+        try:
+            cat, pms = await asyncio.gather(
+                client.get(f"{URL}/rest/v1/medidenta_catalog_products",
+                           headers={"apikey":KEY,"Accept":"application/json"},
+                           params={"select":"id,payload","order":"id.asc","limit":"200"}),
+                client.get(f"{URL}/rest/v1/medidenta_pms_products",
+                           headers={"apikey":KEY,"Accept":"application/json"},
+                           params={"select":"pms_id,display_name","order":"pms_id.asc",
+                                   "limit":"1000"}),
+            )
+            cat.raise_for_status()
+            pms.raise_for_status()
+            products, sources=cat.json(),pms.json()
+            if not isinstance(products,list) or not isinstance(sources,list):
+                raise ValueError("Unexpected source response")
+            if len(products)>=200 or len(sources)>=1000:
+                raise ValueError("PMS coverage pagination required")
+            if any(not isinstance(p,dict) or not isinstance(p.get("payload"),dict)
+                   or not isinstance(p.get("id"),str) for p in products):
+                raise ValueError("Invalid catalog identity")
+            if any(not isinstance(p,dict) or not isinstance(p.get("pms_id"),str)
+                   or not isinstance(p.get("display_name"),str) for p in sources):
+                raise ValueError("Invalid PMS identity")
+            return products,sources
+        except (httpx.HTTPError,ValueError):
+            raise HTTPException(503, "PMS-Abdeckung kann nicht vollständig ermittelt werden") from None
+
+
+def _pms_demo_coverage_items(products: list[dict], sources: list[dict]) -> dict:
+    rows=[]
+    for product in products:
+        identity=product["payload"]
+        name=identity.get("name")
+        pid=product["id"]
+        if not isinstance(name,str) or not name.strip():
+            raise HTTPException(503,"Produktidentität ohne Namen")
+        associated=[s for s in sources if _same_pms_brand_name(name,s["display_name"])]
+        rows.append({"id":pid,"name":name,"pms_source_count":len(associated),
+                     "status":("EMA_PMS_BETA_SOURCE_AVAILABLE" if associated
+                               else "NO_IMPORTED_PMS_SOURCE")})
+    rows.sort(key=lambda x:(x["name"].casefold(),x["id"]))
+    covered=sum(x["pms_source_count"]>0 for x in rows)
+    return {
+        "demo_phase":"36_IDENTITIES_FIRST",
+        "identity_total":len(rows),
+        "with_pms_source":covered,
+        "without_pms_source":len(rows)-covered,
+        "coverage_percent":round(100*covered/len(rows),1) if rows else 0,
+        "items":rows,
+        "product_identity_confirmed":False,
+        "notice":("Coverage means a name-associated imported EMA PMS Beta source, "
+                  "not verified strength, form, pack or clinical equivalence. "
+                  "A missing source may mean pending import or no public EMA match."),
+    }
+
+
+@app.get("/api/v1/pms/demo-coverage")
+async def pms_demo_coverage():
+    products,sources=await _pms_coverage_sources()
+    return no_store(_pms_demo_coverage_items(products,sources))
 
 
 @app.get("/api/v1/pms/overview")

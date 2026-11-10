@@ -314,6 +314,41 @@ class AppTests(unittest.TestCase):
             self.assertEqual(res.json()["pms_sources"],[])
             self.assertTrue(res.json()["pms_unavailable"])
 
+    def test_public_pms_demo_coverage_of_source_associations(self):
+        products=[
+            {"id":"ema_toujeo","payload":{"id":"ema_toujeo","name":"Toujeo"}},
+            {"id":"ema_lantus","payload":{"id":"ema_lantus","name":"Lantus"}},
+            {"id":"ema_ozempic","payload":{"id":"ema_ozempic","name":"Ozempic"}},
+        ]
+        sources=[
+            {"pms_id":"PMS123","display_name":"Toujeo 300 units/ml"},
+            {"pms_id":"PMS456","display_name":"Toujeo-like other product"},
+            {"pms_id":"PMS789","display_name":"Ozempic"},
+        ]
+        result=main._pms_demo_coverage_items(products,sources)
+        self.assertEqual(result["identity_total"],3)
+        self.assertEqual(result["with_pms_source"],2)
+        self.assertEqual(result["without_pms_source"],1)
+        self.assertEqual(result["coverage_percent"],66.7)
+        self.assertFalse(result["product_identity_confirmed"])
+        self.assertEqual(
+           next(x for x in result["items"] if x["name"]=="Lantus")["status"],
+           "NO_IMPORTED_PMS_SOURCE")
+        self.assertEqual(
+           next(x for x in result["items"] if x["name"]=="Toujeo")["pms_source_count"],1)
+        self.assertNotIn("PMS456",str(result))
+        async def sources_mock():
+            return products,sources
+        with patch.object(main,"_pms_coverage_sources",side_effect=sources_mock):
+            response=client.get("/api/v1/pms/demo-coverage")
+            self.assertEqual(response.status_code,200)
+            self.assertEqual(response.headers.get("cache-control"),"no-store")
+            self.assertEqual(response.json()["with_pms_source"],2)
+
+    def test_pms_demo_coverage_requires_live_source(self):
+        with patch.object(main,"IS_LIVE_CONFIGURED",False):
+            self.assertEqual(client.get("/api/v1/pms/demo-coverage").status_code,503)
+
     def test_public_pms_overview_is_aggregate_and_does_not_expose_cursor(self):
         counts=[12,399,8]
         async def count(table,filters):
