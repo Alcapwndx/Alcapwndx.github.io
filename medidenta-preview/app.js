@@ -85,43 +85,66 @@ function pmsSourceRecord(f,admin){
   '<pre class="pms-json">'+escapeHtml(raw)+'</pre></details>'+
   (admin?pmsReviewForm(f):'')+'</div>';
 }
-function pmsDetailHtml(){
- const entry=D.pmsDetail,back=D.pmsBack||'search';
- if(!entry)return '<button class="back" data-nav="'+escapeHtml(back)+'">← Zurück</button>'+title('PMS-Quelldaten laden')+
-  (D.pmsError?'<div class="notice warning">'+escapeHtml(D.pmsError)+'</div>':'');
- const p=entry.product,fields=Array.isArray(entry.fields)?entry.fields:[];
+function pmsCardsHtml(entry){
+ const p=entry.product||{},fields=Array.isArray(entry.fields)?entry.fields:[];
  const admin=window.MediIdentaReviewAuth?._debug?.role?.()==='admin';
  const src=safeUrl(p.source_url);
  const sections=window.MediIdentaDisplay?.groupPmsSections?.(fields)||[];
  const merged=sections.reduce((total,section)=>total+section.unique_items,0);
- // One visual card per broad source topic. Every original attribute category
- // stays separately labeled, with its own exact-SHA admin review forms.
+ const association=entry.identity_association||'PMS_SOURCE_ONLY_UNCONFIRMED';
+ const isConfirmed=association==='ADMIN_CONFIRMED_SOURCE_LINK_ONLY';
+ const warning=isConfirmed?
+  'PMS-Quelle ist dieser MediIdenta-Produktidentität ausdrücklich zugeordnet. Die Angaben bleiben einzelne EMA-Beta-Quellwerte, keine klinische Freigabe.':
+  association==='NAME_SIMILARITY_UNCONFIRMED'?
+  'PMS-Quelldatensatz wurde wegen eines ähnlichen Produktnamens angezeigt. Keine Identitätsprüfung: Wirkstärke, Arzneiform, Wirkstoff und Zulassungsgebiet können abweichen.':
+  'Eigenständiger PMS-Beta-Quelldatensatz. Keine bestätigte Zuordnung zu einem anderen MediIdenta-Präparat.';
  const cards=sections.map(section=>'<section class="card pms-topic" data-pms-section="'+escapeHtml(section.title)+'">'+
   '<h2>'+escapeHtml(section.title)+'</h2>'+
-  '<p class="tiny muted">'+section.unique_items+' unterschiedliche Angaben · '+section.records.length+' Originalquellfelder</p>'+
+  '<p class="tiny muted">'+section.unique_items+' verschiedene Angaben · '+section.records.length+' Originalfelder</p>'+
   section.groups.map(g=>'<div class="pms-subtopic" data-pms-topic="'+escapeHtml(g.key)+'">'+
    '<h3>'+escapeHtml(g.label)+'</h3>'+
    '<ul class="pms-readable-values">'+g.items.map(item=>{
     const count=item.records.length,reviewed=item.records.filter(f=>f.editorial_status==='clinically_reviewed').length;
-    const state=reviewed===count?'Individuell geprüft':reviewed?'Teilweise geprüft':'Nicht klinisch validiert';
+    const state=reviewed===count?'Einzelwert fachlich geprüft':reviewed?'Einzelne Quellwerte geprüft':'Nicht fachlich validiert';
     return '<li><span class="pms-readable-text">'+escapeHtml(item.text)+'</span> '+
       badge(state,reviewed===count?'':'amber')+
-      (count>1?'<span class="tiny muted">Aus '+count+' Originalquellen; Einzelprüfung bleibt erhalten.</span>':'')+'</li>';
+      (count>1?'<span class="tiny muted"> Aus '+count+' Originaldatensätzen; Status je Quelle bleibt getrennt.</span>':'')+'</li>';
    }).join('')+'</ul>'+
-   '<details class="pms-source-audit"><summary>Originalquellen und Einzelvalidierung ('+g.records.length+')</summary>'+
+   '<details class="pms-source-audit"><summary>Quellen, Originalcodes und optionale Adminprüfung ('+g.records.length+')</summary>'+
    g.records.map(f=>pmsSourceRecord(f,admin)).join('')+'</details></div>').join('')+'</section>').join('');
- return '<button class="back" data-nav="'+escapeHtml(back)+'">← Zurück</button>'+title(p.display_name)+
-  '<div class="notice warning"><strong>EMA PMS Beta · keine bestätigte deutsche Arzneimittelidentität.</strong> '+
-  'Die Werte stammen aus EMA-Produktdefinitionen und sind keine Dosierungs- oder Austauschanweisung. '+
-  'Nur exakt geprüfte Einzelwerte dürfen als geprüft gekennzeichnet werden.</div>'+
-  (D.pmsMessage?'<p class="notice">'+escapeHtml(D.pmsMessage)+'</p>':'')+
-  '<section class="card"><h2>Produkt & Quelle</h2><p>EMA-PMS-ID: <strong>'+escapeHtml(p.pms_id)+'</strong></p>'+
-  (src?'<p><a href="'+escapeHtml(src)+'" target="_blank" rel="noopener noreferrer">EMA-Originaldaten ansehen</a></p>':'')+
-  '<p class="tiny muted">Datenimport: '+escapeHtml(p.imported_at||'Nicht hinterlegt')+'</p>'+
-  '<p class="small muted">'+fields.length+' Originalfelder · '+merged+' eindeutig angezeigte Inhalte · '+
-  (fields.length-merged>0?(fields.length-merged)+' zusammengefasste Wiederholungen':'keine Daten entfernt')+
-  '. Alle ursprünglichen Quell-IDs und Admin-Prüfaktionen bleiben erhalten.</p></section>'+
-  (sections.length?cards:'<p class="notice warning">Keine strukturierten Quellfelder verfügbar.</p>');
+ return '<div class="pms-beta-intro">'+badge('EMA PMS Beta','amber')+' '+
+  badge('Quelleninformation · keine klinische Freigabe','gray')+
+  '<p class="small muted">'+escapeHtml(warning)+'</p>'+
+  '<p class="tiny muted"><strong>EMA-PMS-Produkt:</strong> '+escapeHtml(p.display_name||'Ohne Namen')+
+  ' · ID '+escapeHtml(p.pms_id||'–')+'</p>'+
+  (src?'<a href="'+escapeHtml(src)+'" target="_blank" rel="noopener noreferrer">Originaldaten der EMA öffnen ↗</a>':'')+
+  '<p class="tiny muted">Quellimport: '+escapeHtml(p.imported_at||'Nicht hinterlegt')+
+  ' · '+fields.length+' FHIR-Originalfelder, '+merged+' unterschiedliche Anzeigen. '+
+  'Die numerischen EMA-Referenzcodes stehen weiterhin in den Originaldetails.</p></div>'+
+  (sections.length?cards:'<div class="notice warning">Keine strukturierten PMS-Quellfelder für dieses Produkt verfügbar.</div>');
+}
+function embeddedPmsHtml(sources,unavailable=false){
+ const list=Array.isArray(sources)?sources:[];
+ if(!list.length&&!unavailable)return '';
+ return '<section class="pms-integrated"><h2>EMA PMS Beta · Strukturierte Quelldaten</h2>'+
+  '<p class="small muted">Zusätzliche offizielle Quelldaten werden ohne vorherige Adminfreigabe angezeigt. '+
+  'Sie sind keine geprüften Fachinformationen und beweisen keine Austauschbarkeit. '+
+  'Die Bezeichnung „Beta“ bezieht sich auf die EMA-Datenquelle, nicht auf die MediIdenta-App.</p>'+
+  (unavailable?'<div class="notice warning">EMA-PMS-Quelldaten können derzeit nicht geladen werden.</div>':'')+
+  list.map(pmsCardsHtml).join('')+'</section>';
+}
+function pmsDetailHtml(){
+ const entry=D.pmsDetail;
+ if(!entry)return '<button class="back" data-nav="search">← Zur Suche</button>'+title('Medikamentendaten laden')+
+  (D.pmsError?'<div class="notice warning">'+escapeHtml(D.pmsError)+'</div>':'');
+ const p=entry.product||{};
+ return '<button class="back" data-nav="search">← Zur Suche</button>'+
+  title(p.display_name||'Medikament')+'<p class="detail-sub">EMA PMS Beta · Produkt- und Quelldaten</p>'+
+  badge('EMA PMS Beta · nicht fachlich validiert','amber')+
+  '<section class="card"><h2>Medikamentendetails</h2>'+
+  '<p class="small muted">Dieser Eintrag ist bislang nur in der EMA-PMS-Quelle vorhanden. '+
+  'Es liegt keine bestätigte Verknüpfung mit einem MediIdenta-Katalogprodukt vor.</p></section>'+
+  pmsCardsHtml({...entry,identity_association:'PMS_SOURCE_ONLY_UNCONFIRMED'})+clinicalNotice();
 }
 async function loadPms(){
  if(!D.connected){D.pmsError='Der PMS-Livebereich ist nur über die Render-Live-Datenbank erreichbar.';D.pmsHits=[];draw(true);return;}
