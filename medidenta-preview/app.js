@@ -47,7 +47,7 @@ function row(p){
 function isPmsNamedCandidate(catalogName,pmsName){
  const name=normalize(catalogName).replace(/\s+/g,' ').trim();
  const candidate=normalize(pmsName).replace(/\s+/g,' ').trim();
- return name.length>=4&&(candidate===name||[' ','-',' (','/'].some(d=>candidate.startsWith(name+d)));
+ return name.length>=4&&(candidate===name||[' ',' ('].some(d=>candidate.startsWith(name+d)));
 }
 function combineSearchHits(catalog,pms){
  const named=Array.isArray(catalog)?catalog:[];
