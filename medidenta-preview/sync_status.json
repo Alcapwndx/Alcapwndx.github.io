@@ -5,8 +5,8 @@
   "medical_release_ready": false,
   "mode": "STATIC_PUBLIC_PREVIEW",
   "reviewed_count": 9,
-  "source_commit": "dd40b8c6b5276adf3f22828dd1c31ff795cfe440",
-  "source_date": "2026-11-10T06:27:27+01:00",
+  "source_commit": "5a85bfbd5d170c7a419ceeb45be1113ab853f177",
+  "source_date": "2026-11-10T06:35:05+01:00",
   "source_of_truth": "Alcapwndx/MediIdenta",
   "unmatched_count": 4
 }
