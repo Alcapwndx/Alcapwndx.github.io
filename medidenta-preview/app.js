@@ -8,7 +8,7 @@ const escapeHtml=value=>String(value==null?'':value).replace(/[&<>"']/g,c=>({'&'
 const trim=x=>String(x==null?'':x).trim();
 const normalize=x=>trim(x).normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 const safeUrl=x=>{try{const u=new URL(x);return u.protocol==='https:'?u.href:null}catch{return null}};
-const D={page:'home',connected:false,meta:null,offline:[],hits:[],search:'',detail:null,detailError:'',photo:null,photoName:'',scanMessage:'',scanMatches:[],loading:false,seq:0,identifierSystem:'PZN8',compare:[],compareDetails:{},attributions:[],drafts:[],approved:[],draftLoadError:false,syncMeta:null,syncBusy:false,syncMessage:'',catalogRevision:null,draftRevision:null,features:{collaboration_enabled:false},pmsHits:[],pmsQuery:'',pmsPage:0,pmsHasMore:false,pmsBusy:false,pmsError:'',pmsDetail:null,pmsMessage:'',pmsOverview:null,pmsOverviewError:false,searchPage:0,searchHasMore:false,pmsSearchHits:[],pmsSearchMore:false,pmsSearchError:false,detailKind:'catalog',pmsBack:'search',catalogSearchError:''};
+const D={page:'home',connected:false,meta:null,offline:[],hits:[],search:'',detail:null,detailError:'',photo:null,photoName:'',scanMessage:'',scanMatches:[],loading:false,seq:0,identifierSystem:'PZN8',compare:[],compareDetails:{},attributions:[],drafts:[],approved:[],draftLoadError:false,syncMeta:null,syncBusy:false,syncMessage:'',catalogRevision:null,draftRevision:null,features:{collaboration_enabled:false},pmsHits:[],pmsQuery:'',pmsPage:0,pmsHasMore:false,pmsBusy:false,pmsError:'',pmsDetail:null,pmsMessage:'',pmsOverview:null,pmsOverviewError:false,pmsCoverage:null,pmsCoverageError:false,searchPage:0,searchHasMore:false,pmsSearchHits:[],pmsSearchMore:false,pmsSearchError:false,detailKind:'catalog',pmsBack:'search',catalogSearchError:''};
 try{D.favorites=JSON.parse(localStorage.getItem('medidenta_favs_v04')||'[]');if(!Array.isArray(D.favorites))D.favorites=[];}catch{D.favorites=[]}
 const api=async path=>{const c=new AbortController(),t=setTimeout(()=>c.abort(),path.startsWith('/products/')?18000:8000);try{const r=await fetch('/api/v1'+path,{signal:c.signal,cache:'no-store',headers:{Accept:'application/json'}});const data=await r.json();if(!r.ok)throw Error(data.error||'HTTP '+r.status);return data;}finally{clearTimeout(t)}};
 function clinicalNotice(){return '<div class="notice warning"><strong>Entwicklungsstand – keine klinische Einsatzfreigabe der App.</strong> Einzelne Fachtextaussagen können nach persönlicher Kontrolle fachlich freigegeben sein, nicht jedoch automatisch ganze Präparate oder Dosierungen. Aktuelle Originalquellen und Anordnungen bleiben maßgeblich.</div>'}
@@ -133,7 +133,14 @@ function pmsCardsHtml(entry){
 }
 function embeddedPmsHtml(sources,unavailable=false){
  const list=Array.isArray(sources)?sources:[];
- if(!list.length&&!unavailable)return '';
+ if(!list.length&&!unavailable){
+  return '<section class="card pms-integrated"><h2>EMA PMS Beta · Datenstand</h2>'+
+   '<p class="small muted">'+(D.connected?
+    'Für diese Identität ist noch keine passende EMA-PMS-Beta-Quelle importiert. '+
+    'Die gezielte Ergänzung der 36 Demo-Medikamente läuft; fehlende Quellen werden nicht erfunden.':
+    'EMA-PMS-Beta-Quelldaten benötigen die Live-Verbindung. Im Offline-Snapshot liegen dazu keine Daten vor.')+
+   '</p>'+badge('PMS-Beta-Quelle noch offen','amber')+'</section>';
+ }
  return '<section class="pms-integrated"><h2>EMA PMS Beta · Strukturierte Quelldaten</h2>'+
   '<p class="small muted">Zusätzliche EMA-Beta-Quelldaten werden ohne vorherige Adminfreigabe angezeigt. '+
   'Sie sind keine geprüften Fachinformationen und beweisen keine Austauschbarkeit. '+
@@ -259,6 +266,24 @@ function qualityHtml(){
  '<p class="small"><strong>Letzter Datenbankimport:</strong> <span class="quality-timestamp">'+escapeHtml(showDate(lastImport||(!D.connected?D.syncMeta?.source_date:null)))+'</span></p>'+
  '<p class="small"><strong>Letzter überprüfter EMA-Quellenabgleich:</strong> <span class="quality-timestamp">'+escapeHtml(showDate(lastEma))+'</span></p>'+
  '<p class="tiny muted">Datenbankimport und EMA-Quellenabgleich sind unterschiedliche Vorgänge. Ein erfolgreicher Import belegt keine erneute Prüfung der aktuellen EMA-Originalquelle. Solange ein Quellenabgleich nicht gesondert protokolliert wird, zeigen wir dafür kein erfundenes Datum.</p></section>'+
+ '<section class="card"><h2>EMA-PMS-Abdeckung der Demo</h2>'+
+ (D.pmsCoverage?'<div class="stats"><div class="stat"><strong>'+
+  escapeHtml(D.pmsCoverage.with_pms_source)+' / '+escapeHtml(D.pmsCoverage.identity_total)+
+  '</strong><span>Identitäten mit PMS-Beta-Quellen</span></div>'+
+  '<div class="stat"><strong>'+escapeHtml(String(D.pmsCoverage.coverage_percent).replace('.',','))+
+  '%</strong><span>Abdeckung des Demo-Katalogs</span></div></div>'+
+  '<p class="tiny muted">Eine PMS-Beta-Quelle ist eine unverifizierte Zuordnung über den Produktnamen. Die Abdeckung beweist keine identischen Wirkstärken, Packungen oder klinische Freigabe.</p>'+
+  '<details><summary>Alle '+escapeHtml(D.pmsCoverage.identity_total)+
+   ' Medikamentenidentitäten und ihre PMS-Daten</summary>'+
+   D.pmsCoverage.items.map(p=>'<div class="fact"><div class="row">'+
+    '<button class="med-button grow" data-action="detail" data-id="'+escapeHtml(p.id)+'">'+
+    '<strong>'+escapeHtml(p.name)+'</strong></button>'+
+    badge(p.pms_source_count?'PMS Beta verfügbar':'Quelle noch offen',p.pms_source_count?'gray':'amber')+
+    '</div></div>').join('')+'</details>':
+  '<p class="small muted">'+(D.pmsCoverageError?
+   'Die PMS-Abdeckung konnte derzeit nicht vollständig ermittelt werden.':
+   'Die Abdeckung der vorhandenen 36 Identitäten wird geprüft …')+'</p>')+
+ '</section>'+
  '<section class="card"><h2>EMA-PMS-Beta-Datenbestand</h2>'+
  (D.pmsOverview?
   '<div class="stats"><div class="stat"><strong>'+escapeHtml(D.pmsOverview.pms_products)+'</strong><span>PMS-Quellprodukte</span></div>'+
@@ -339,12 +364,13 @@ async function identify(){
 }
 async function loadPmsOverview(){
  if(!D.connected)return;
- try{
-  const x=await api('/pms/overview');
-  D.pmsOverview=x;D.pmsOverviewError=false;
- }catch{
-  D.pmsOverview=null;D.pmsOverviewError=true;
- }
+ const [overview,coverage]=await Promise.allSettled([
+  api('/pms/overview'),api('/pms/demo-coverage')
+ ]);
+ D.pmsOverview=overview.status==='fulfilled'?overview.value:null;
+ D.pmsOverviewError=overview.status!=='fulfilled';
+ D.pmsCoverage=coverage.status==='fulfilled'?coverage.value:null;
+ D.pmsCoverageError=coverage.status!=='fulfilled';
  if(D.page==='quality')draw(true);
 }
 function go(where){window.MediIdentaIdentifiers?.stopCamera?.();D.page=where;D.scanMessage='';D.scanMatches=[];draw();if(where==='quality')loadPmsOverview();document.documentElement.scrollTop=0;}
