@@ -115,28 +115,239 @@
  const forms=Object.freeze(Object.fromEntries(doseForms.map(row=>{
   const [code,en,de]=row.split('|');return [code,{de,en}];
  })));
- const misc=Object.freeze({
-   '100000073498':{de:'Schachtel',en:'Box'},
-   '200000002152':{de:'Tablette',en:'Tablet'}
- });
- function resolve(code, system, kind){
-  const c=String(code??'').trim(),sys=String(system??'').trim();
-  if(!/^[0-9]{8,15}$/.test(c))return null;
-  const isRoute=kind==='administration_routes'||sys.includes('/lists/100000073345');
-  if(isRoute&&(!sys||sys.includes('/lists/100000073345'))&&routes[c]){
-   return {...routes[c],system:'http://spor.ema.europa.eu/v1/lists/100000073345',code:c};
+
+ // Controlled terms: each group is tied to exactly ONE official reference
+ // system. A numeric term in an unrelated system MUST NOT be translated.
+ // Source snapshots: EMA PMS FHIR IG 1.2.1 (2026-06-26), FHIR R5 ingredient-role.
+ const TERMINOLOGY={
+  // Product record status != authorization status.
+  '200000005003':[
+   '200000005004|Current|Aktueller Quelldatensatz',
+   '200000005005|Provisional|Vorläufiger Quelldatensatz',
+   '200000005006|Non-current|Nicht mehr aktueller Quelldatensatz',
+   '200000005007|Nullified|Annullierter Quelldatensatz'
+  ],
+  // Regulatory entitlement: do not conflate "valid" with market availability.
+  '100000072049':[
+   '100000072097|Application received|Antrag eingegangen',
+   '100000072098|Application withdrawn|Antrag zurückgezogen',
+   '100000072099|Valid|Zulassung gültig laut Quelle',
+   '100000072100|Expired|Zulassung abgelaufen laut Quelle',
+   '100000072110|Application not accepted|Antrag nicht angenommen',
+   '100000072111|Application rejected|Antrag abgelehnt',
+   '100000072112|Not renewed|Nicht verlängert',
+   '100000072113|Withdrawn|Zurückgezogen',
+   '100000072114|Withdrawn, unspecified|Zurückgezogen (nicht näher angegeben)',
+   '100000072121|Revoked|Widerrufen',
+   '100000072122|Suspended|Ruhend',
+   '100000072123|Expired due to Sunset Clause|Durch Sunset-Klausel erloschen',
+   '200000010409|Surrendered|Verzichtet',
+   '200000017707|Valid - Transferred marketing authorisation|Gültig – Zulassung übertragen',
+   '200000017708|Valid - Renewed/Varied|Gültig – verlängert oder geändert',
+   '200000026056|Presubmission|Vor Einreichung',
+   '200000029967|Harmonised|Harmonisiert',
+   '200000032262|Not valid - Superseded by marketing authorisation renewal/variation|Nicht gültig – durch Zulassungsverlängerung/-änderung ersetzt',
+   '200000032263|Not valid - Superseded by marketing authorisation transfer|Nicht gültig – durch Zulassungsübertragung ersetzt',
+   '200000032495|Pending national phase|Nationale Phase ausstehend',
+   '220000000066|Pending|Ausstehend',
+   '220000000067|Rejected|Abgelehnt'
+  ],
+  // Marketing status is not the same as regulatory entitlement status.
+  '100000072052':[
+   '100000072074|Not marketed|Nicht im Handel laut Quelle',
+   '100000072075|No data provided|Keine Angaben zum Marktstatus',
+   '100000072083|Marketed|Im Handel laut Quelle',
+   '200000026055|Never marketed|Bisher nicht vermarktet',
+   '230000000000|Temporarily unavailable|Vorübergehend nicht verfügbar'
+  ],
+  '100000072050':[
+   '100000072072|Active|Wirkstoff',
+   '100000072073|Adjuvant|Adjuvans',
+   '100000072082|Excipient|Hilfsstoff',
+   '100000136065|Starting material for excipient|Ausgangsmaterial für Hilfsstoff',
+   '100000136066|Solvent / Diluent|Lösungsmittel / Verdünnungsmittel',
+   '100000136178|Raw materials used in the manufacture of the product|Rohmaterial zur Herstellung',
+   '100000136179|Starting material for active substance|Ausgangsmaterial für Wirkstoff',
+   '100000136561|Overage|Herstellungszuschlag',
+   '200000003427|bioenhancer|Bioenhancer'
+  ],
+  '100000072051':[
+   '100000072076|Medicinal product not subject to medical prescription|Nicht verschreibungspflichtig laut Quelle',
+   '100000072077|Medicinal product on medical prescription for renewable or non-renewable delivery|Verschreibungspflichtig – wiederholbar oder einmalig',
+   '100000072078|Medicinal product subject to restricted medical prescription|Eingeschränkte Verschreibungspflicht',
+   '100000072079|Medicinal product on medical prescription for non-renewable delivery|Verschreibungspflichtig – einmalige Abgabe',
+   '100000072084|Medicinal product subject to medical prescription|Verschreibungspflichtig laut Quelle',
+   '100000072085|Medicinal product subject to special medical prescription|Besondere Verschreibungspflicht',
+   '100000072086|Medicinal product on medical prescription for renewable delivery|Verschreibungspflichtig – wiederholbare Abgabe',
+   '100000157313|Medicinal product subject to special and restricted medical prescription|Besondere und eingeschränkte Verschreibungspflicht',
+   '200000002239|Medicinal product subject to medical prescription exempt for some pack sizes|Verschreibungspflicht mit Ausnahmen für einzelne Packungsgrößen'
+  ],
+  // EMA geographic terms, not evidence of German market availability.
+  '100000000002':[
+   '100000000330|Austria|Österreich',
+   '100000000337|Belgium|Belgien',
+   '100000000349|Bulgaria|Bulgarien',
+   '100000000373|Croatia|Kroatien',
+   '100000000375|Cyprus|Zypern',
+   '100000000376|Czechia|Tschechien',
+   '100000000377|Denmark|Dänemark',
+   '100000000388|Estonia|Estland',
+   '100000000390|European Union|Europäische Union',
+   '100000000394|Finland|Finnland',
+   '100000000395|France|Frankreich',
+   '100000000403|Germany|Deutschland',
+   '100000000406|Greece|Griechenland',
+   '100000000421|Hungary|Ungarn',
+   '100000000422|Iceland|Island',
+   '100000000427|Ireland|Irland',
+   '100000000430|Italy|Italien',
+   '100000000443|Latvia|Lettland',
+   '100000000449|Liechtenstein|Liechtenstein',
+   '100000000450|Lithuania|Litauen',
+   '100000000451|Luxembourg|Luxemburg',
+   '100000000459|Malta|Malta',
+   '100000000478|Netherlands|Niederlande',
+   '100000000489|Norway|Norwegen',
+   '100000000500|Poland|Polen',
+   '100000000501|Portugal|Portugal',
+   '100000000505|Romania|Rumänien',
+   '100000000523|Slovakia|Slowakei',
+   '100000000524|Slovenia|Slowenien',
+   '100000000529|Spain|Spanien',
+   '100000000535|Sweden|Schweden',
+   '100000000536|Switzerland|Schweiz',
+   '100000000556|United Kingdom|Vereinigtes Königreich',
+   '100000000557|United States|Vereinigte Staaten',
+   '240000000000|United Kingdom (Northern Ireland)|Vereinigtes Königreich (Nordirland)'
+  ],
+  '100000000004':[
+   '100000000012|Human use|Humanarzneimittel',
+   '100000000013|Veterinary use|Tierarzneimittel',
+   '100000000014|Human and Veterinary use|Human- und Tierarzneimittel'
+  ],
+  // Official EMA RMS units, as written by the source; NO dose conversion.
+  '100000110633':[
+   '100000110653|kilogram(s)|kg',
+   '100000110654|gram(s)|g',
+   '100000110655|milligram(s)|mg',
+   '100000110656|microgram(s)|µg',
+   '100000110657|milligram(s)/kilogram|mg/kg',
+   '100000110658|microgram(s)/kilogram|µg/kg',
+   '100000110659|milligram(s)/square metre|mg/m²',
+   '100000110660|microgram(s)/square metre|µg/m²',
+   '100000110661|litre(s)|l',
+   '100000110662|millilitre(s)|ml',
+   '100000110663|microlitre(s)|µl',
+   '100000110664|becquerel(s)|Bq',
+   '100000110665|megabecquerel(s)|MBq',
+   '100000110666|kilobecquerel(s)|kBq',
+   '100000110670|mole(s)|mol',
+   '100000110671|international unit(s)|I.E.',
+   '100000110672|international unit(s)/kilogram|I.E./kg',
+   '100000110673|milliequivalent(s)|mEq',
+   '100000110674|percent|%',
+   '100000110675|drop(s)|Tropfen',
+   '100000110879|second|s',
+   '100000110883|square metre|m²',
+   '100000110897|unit(s)/millilitre|Einheiten/ml',
+   '100000110901|milligram(s)/hour|mg/h',
+   '100000110908|milligram(s)/kilogram/hour|mg/kg/h',
+   '100000110911|microgram(s)/24 hours|µg/24 h',
+   '100000110912|milligram(s)/24 hours|mg/24 h',
+   '100000110920|microgram(s)/dose|µg/Dosis',
+   '100000110921|milligram(s)/dose|mg/Dosis',
+   '100000110925|cells/microlitre|Zellen/µl',
+   '100000155670|millilitre(s)/gram|ml/g',
+   '100000155671|millilitre(s)/kilogram|ml/kg',
+   '100000156970|milligram(s)/unit(s)|mg/Einheit',
+   '100000166092|microgram(s)/hour|µg/h'
+  ],
+  // Types of regulatory entitlement (do not conflate with legal status).
+  '220000000060':[
+   '200000015756|Homeopathic Registration|Homöopathische Registrierung',
+   '200000051585|Manufacturing Authorisation|Herstellungserlaubnis',
+   '220000000061|Marketing Authorisation|Arzneimittelzulassung',
+   '220000000062|Orphan Designation|Orphan-Drug-Ausweisung',
+   '220000000063|Parallel Trade Authorisation|Parallelhandelsgenehmigung',
+   '220000000077|Market Protection|Vermarktungsschutz'
+  ],
+  '220000000000':[
+   '220000000001|Full name|Vollständiger Produktname',
+   '220000000002|Invented name part|Erfundener Namensbestandteil',
+   '220000000003|Scientific name part|Wissenschaftlicher Namensbestandteil',
+   '220000000004|Strength part|Stärkenangabe im Produktnamen',
+   '220000000005|Pharmaceutical dose form part|Arzneiform im Produktnamen',
+   '220000000006|Formulation part|Formulierungsangabe im Produktnamen',
+   '220000000009|Container or pack part|Packungsbestandteil im Produktnamen'
+  ]
+ };
+ const terms=Object.create(null);
+ const SOURCES=Object.freeze(Object.fromEntries(Object.keys(TERMINOLOGY).map(k=>[
+  k,'https://pms.ema.europa.eu/fhir/ig/CodeSystem-'+k+'.html'
+ ])));
+ for(const [id,rows] of Object.entries(TERMINOLOGY)){
+  const result=Object.create(null);
+  for(const row of rows){
+   const parts=row.split('|');
+   if(parts.length!==3||!(/^[0-9]{9,15}$/).test(parts[0])||result[parts[0]])
+    throw Error('Invalid EMA RMS vocabulary entry in '+id);
+   result[parts[0]]=Object.freeze({code:parts[0],system:'http://spor.ema.europa.eu/v1/lists/'+id,
+     source:SOURCES[id],en:parts[1],de:parts[2]});
   }
-  if((kind==='combined_dose_form'||kind==='authorised_dose_forms'||
-      kind==='administrable_dose_form'||kind==='manufactured_dose_form'||
-      sys.includes('/lists/200000000004'))&&
-      (!sys||sys.includes('/lists/200000000004'))&&forms[c]){
-    return {...forms[c],system:'http://spor.ema.europa.eu/v1/lists/200000000004',code:c};
-  }
-  if((!sys||sys.includes('spor.ema.europa.eu'))&&misc[c]){
-    return {...misc[c],system:sys||'EMA RMS',code:c};
-  }
-  return null;
+  terms[id]=Object.freeze(result);
  }
- root.MediIdentaRmsCodes={resolve,
-   source:'https://pms.ema.europa.eu/fhir/ig/CodeSystem-100000073345.html'};
+ Object.freeze(terms);
+ const routeId='100000073345',formId='200000000004';
+ const defaultByKind=Object.freeze({
+  administration_routes:routeId,
+  authorised_dose_forms:formId,
+  administrable_dose_form:formId,
+  manufactured_dose_form:formId,
+  product_status_codes:'200000005003',
+  authorization_status_raw:'100000072049',
+  authorization_region_codes:'100000000002',
+  ingredient_role_codes:'100000072050',
+  // NO default for ambiguous FHIR classification, product identifiers,
+  // substance names or combined dose forms. The exact system is required.
+ });
+ const validSystem=raw=>{
+  const x=String(raw??'').trim();
+  if(!x)return null;
+  const m=/^https?:\/\/spor\.ema\.europa\.eu\/v1\/lists\/([0-9]{12})(?:\/terms\/[0-9]{9,15})?\/?$/.exec(x);
+  return m?m[1]:null;
+ };
+ function resolve(code, system, kind){
+  const c=String(code??'').trim(),raw=String(system??'').trim();
+  if(!/^[0-9]{9,15}$/.test(c))return null;
+  let listId;
+  if(raw){
+   listId=validSystem(raw);
+   if(!listId&&raw==='http://hl7.org/fhir/ingredient-role')
+    listId='100000072050';
+   // NEVER fall back from an unfamiliar system to a kind-based guess.
+   if(!listId)return null;
+  }else listId=defaultByKind[kind]||null;
+  if(!listId)return null;
+  const codebook=listId===routeId?routes:listId===formId?forms:terms[listId];
+  const item=codebook?.[c];
+  return item?{
+   code:c,system:'http://spor.ema.europa.eu/v1/lists/'+listId,
+   source:SOURCES[listId]||'https://pms.ema.europa.eu/fhir/ig/CodeSystem-'+listId+'.html',
+   en:item.en,de:item.de
+  }:null;
+ }
+ function resolveUnit(code,system){
+  // Unit codes in a FHIR Quantity require the RMS units system. UCUM is
+  // a DIFFERENT system and is never rewritten with these referentials.
+  const list=validSystem(system);
+  return list==='100000110633'?resolve(code,system,''):null;
+ }
+ root.MediIdentaRmsCodes=Object.freeze({
+  resolve,resolveUnit,
+  sources:Object.freeze({...SOURCES,[routeId]:'https://pms.ema.europa.eu/fhir/ig/CodeSystem-'+routeId+'.html',
+    [formId]:'https://pms.ema.europa.eu/fhir/ig/CodeSystem-'+formId+'.html'}),
+  version:'EMA PMS IG v1.2.1 / 2026-06-26',
+  source:'https://pms.ema.europa.eu/fhir/ig/'
+ });
+
 })(window);
