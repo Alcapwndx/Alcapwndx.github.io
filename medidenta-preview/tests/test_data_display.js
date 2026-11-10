@@ -139,6 +139,52 @@ assert.doesNotMatch(coding('authorization_status_raw','100000072049','1000000720
 assert.doesNotMatch(coding('product_status_codes','200000005003','200000005004')[0],
  /zugelassen/i);
 
+// Complete displayed public PMS metadata, without inventing regulatory claims.
+const market=formatPms({attribute_key:'marketing_status_raw',value_json:[{
+ status:{coding:[{system:'http://spor.ema.europa.eu/v1/lists/100000072052',
+ code:'100000072083'}]},
+ country:{coding:[{system:'http://spor.ema.europa.eu/v1/lists/100000000002',
+ code:'100000000403'}]},
+ dateRange:{start:'2026-01-01',end:'2026-12-31'}
+}]});
+assert.match(market[0],/Vermarktungsstatus: Im Handel laut Quelle/);
+assert.match(market[0],/Gebiet: Deutschland/);
+assert.match(market[0],/2026-01-01 bis 2026-12-31/);
+assert.equal(formatPms({attribute_key:'authorization_validity_raw',
+ value_json:{start:'2026-01-01',end:'2026-12-31'}})[0],
+ 'Zeitraum: 2026-01-01 bis 2026-12-31');
+assert.match(formatPms({attribute_key:'authorization_holder_raw',
+ value_json:{reference:'Organization/OMS123',display:'Beispiel GmbH'}})[0],
+ /Beispiel GmbH.*Organization\/OMS123.*nicht unabhängig bestätigt/);
+assert.equal(formatPms({attribute_key:'package_quantity_raw',value_json:2})[0],'2');
+assert.equal(formatPms({attribute_key:'package_type_raw',
+ value_json:{text:'Schachtel'}})[0],'Schachtel');
+assert.equal(formatPms({attribute_key:'product_domain',value_json:{
+ coding:[{system:'http://spor.ema.europa.eu/v1/lists/100000000004',
+ code:'100000000012'}]}})[0],'Humanarzneimittel');
+const pending=window.MediIdentaDisplay.terminologyReport([
+ {attribute_key:'administration_routes',value_json:'01700009536'},
+ {attribute_key:'administration_routes',value_json:'01700009536'},
+ {attribute_key:'administration_routes',value_json:'100000073615'},
+ {attribute_key:'strength_raw_no_dose_conversion',
+  value_json:{concentrationQuantity:{value:5,system:'http://example.org/invalid',
+   code:'100000110655'}}}
+]);
+assert.equal(pending.total_fields,4);
+assert.equal(pending.fields_with_unknown_codes,3);
+assert.equal(pending.code_types_unknown,2);
+assert.equal(pending.examples[0].code,'01700009536');
+assert.equal(pending.examples[0].count,2);
+// The exact source id and SHA must still be in each unmerged record.
+assert.ok(window.MediIdentaDisplay.PMS_LABELS.authorization_holder_raw);
+const extraSections=window.MediIdentaDisplay.groupPmsSections([
+ {id:'pack',attribute_key:'package_material_raw',value_json:{text:'Glas'}},
+ {id:'holder',attribute_key:'authorization_holder_raw',
+  value_json:{reference:'Organization/OMS1'}}
+]);
+assert.ok(extraSections.some(x=>x.title==='Packung und Inhalt'));
+assert.ok(extraSections.some(x=>x.title==='Zulassung und Status'));
+
 const p1={id:'pms_a',attribute_key:'package_size_raw',value_json:[{value:14,unit:'Tabletten'}],
  resource_id:'box1',editorial_status:'draft_unreviewed'};
 const p2={...p1,id:'pms_b',resource_id:'box2',editorial_status:'clinically_reviewed'};

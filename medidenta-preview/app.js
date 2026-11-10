@@ -8,7 +8,7 @@ const escapeHtml=value=>String(value==null?'':value).replace(/[&<>"']/g,c=>({'&'
 const trim=x=>String(x==null?'':x).trim();
 const normalize=x=>trim(x).normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 const safeUrl=x=>{try{const u=new URL(x);return u.protocol==='https:'?u.href:null}catch{return null}};
-const D={page:'home',connected:false,meta:null,offline:[],hits:[],search:'',detail:null,photo:null,photoName:'',scanMessage:'',scanMatches:[],loading:false,seq:0,identifierSystem:'PZN8',compare:[],compareDetails:{},attributions:[],drafts:[],approved:[],draftLoadError:false,syncMeta:null,syncBusy:false,syncMessage:'',catalogRevision:null,draftRevision:null,features:{collaboration_enabled:false},pmsHits:[],pmsQuery:'',pmsPage:0,pmsHasMore:false,pmsBusy:false,pmsError:'',pmsDetail:null,pmsMessage:'',searchPage:0,searchHasMore:false,pmsSearchHits:[],pmsSearchMore:false,pmsSearchError:false,detailKind:'catalog',pmsBack:'search',catalogSearchError:''};
+const D={page:'home',connected:false,meta:null,offline:[],hits:[],search:'',detail:null,detailError:'',photo:null,photoName:'',scanMessage:'',scanMatches:[],loading:false,seq:0,identifierSystem:'PZN8',compare:[],compareDetails:{},attributions:[],drafts:[],approved:[],draftLoadError:false,syncMeta:null,syncBusy:false,syncMessage:'',catalogRevision:null,draftRevision:null,features:{collaboration_enabled:false},pmsHits:[],pmsQuery:'',pmsPage:0,pmsHasMore:false,pmsBusy:false,pmsError:'',pmsDetail:null,pmsMessage:'',pmsOverview:null,pmsOverviewError:false,searchPage:0,searchHasMore:false,pmsSearchHits:[],pmsSearchMore:false,pmsSearchError:false,detailKind:'catalog',pmsBack:'search',catalogSearchError:''};
 try{D.favorites=JSON.parse(localStorage.getItem('medidenta_favs_v04')||'[]');if(!Array.isArray(D.favorites))D.favorites=[];}catch{D.favorites=[]}
 const api=async path=>{const c=new AbortController(),t=setTimeout(()=>c.abort(),path.startsWith('/products/')?18000:8000);try{const r=await fetch('/api/v1'+path,{signal:c.signal,cache:'no-store',headers:{Accept:'application/json'}});const data=await r.json();if(!r.ok)throw Error(data.error||'HTTP '+r.status);return data;}finally{clearTimeout(t)}};
 function clinicalNotice(){return '<div class="notice warning"><strong>Entwicklungsstand – keine klinische Einsatzfreigabe der App.</strong> Einzelne Fachtextaussagen können nach persönlicher Kontrolle fachlich freigegeben sein, nicht jedoch automatisch ganze Präparate oder Dosierungen. Aktuelle Originalquellen und Anordnungen bleiben maßgeblich.</div>'}
@@ -64,7 +64,7 @@ function combineSearchHits(catalog,pms){
 function home(){return '<div class="hero"><div class="eyebrow">FÜR PFLEGE · MEDIZIN · APOTHEKE</div><h1>Arzneimittel schneller finden.</h1><p>Die eigene MediIdenta-Datenbank. Quellenbezogen. Transparent.</p><button class="hero-search" data-nav="search">⌕ &nbsp; Handelsname oder Wirkstoff suchen …</button></div><div class="grid2 spaced"><button class="tile" data-nav="scan"><span class="symbol">▣</span><strong>Identifikation</strong><small>Packungscode prüfen · Kamera bald verfügbar</small></button><button class="tile" data-nav="knowledge"><span class="symbol">◈</span><strong>Fachinformationen</strong><small>Quellenbasierte Informationen entdecken</small></button></div><div class="section-title"><h2>Aus dem Katalog</h2><button data-nav="search">Alle suchen →</button></div><p class="small muted">'+D.offline.length+' Produktidentitäten im aktuellen Katalog</p>'+D.offline.slice(0,3).map(row).join('')+clinicalNotice();}
 function searchHtml(){const xs=D.hits;return title('Medikamente suchen')+'<label for="search" class="search-label">Wirkstoff oder Handelsname</label><input id="search" class="search-input" type="search" value="'+escapeHtml(D.search)+'" placeholder="z. B. Toujeo, Ozempic, Apixaban"><div class="filters"><button class="filter" data-filter="all">Alle Treffer</button><button class="filter" data-filter="fav">★ Favoriten</button></div><div class="small muted">'+(D.loading?'Suche läuft …':xs.length+' Treffer · '+(D.connected?'Live-API':'Offline-Snapshot'))+'</div><div id="hits">'+xs.map(row).join('')+'</div>'+(D.connected&&trim(D.search).length>=2?'<div class="row draft-pager"><button class="secondary" data-action="search-prev" '+(D.searchPage===0?'disabled':'')+'>← Zurück</button><span class="small muted">Seite '+(D.searchPage+1)+'</span><button class="secondary" data-action="search-next" '+(!D.searchHasMore?'disabled':'')+'>Weiter →</button></div>':'')+(D.compare.length?'<div class="compare-tray"><strong>⇄ '+D.compare.length+'/2 ausgewählt</strong><div class="row"><button class="secondary" data-action="compare-clear">Löschen</button><button class="primary" data-action="compare-view" '+(D.compare.length!==2?'disabled':'')+'>Vergleichen</button></div></div>':'')+(!xs.length&&!D.pmsSearchHits.length?'<div class="empty">Keine passenden Medikamenten- oder EMA-PMS-Quelldatensätze gefunden.</div>':'')+clinicalNotice();}
 function factsHtml(facts){return facts.length?facts.map(f=>'<div class="fact"><strong>'+escapeHtml(f.fact_type||'Fachinformation')+'</strong><p>'+escapeHtml(f.content_text||'')+'</p>'+((f.references||[]).map(r=>{const u=safeUrl(r.document_url);return u?'<a target="_blank" rel="noopener noreferrer" href="'+escapeHtml(u)+'">'+escapeHtml(r.document_title||'Originalquelle')+'</a>':''}).join(''))+'</div>').join(''):'<div class="notice warning">Noch keine medizinisch freigegebenen Fachtexte verfügbar. Die noch ungeprüften redaktionellen Entwürfe stehen darunter separat gekennzeichnet.</div>'}
-function detailHtml(){if(D.detailKind==='pms')return pmsDetailHtml();const p=D.detail;if(!p)return title('Lade Produkt …');const subst=Array.isArray(p.substances)?p.substances.map(x=>x.name).join(', '):p.substances||'–';const src=p.source||{};const sourceLink=safeUrl(src.url);const facts=Array.isArray(p.facts)?p.facts:[],photos=Array.isArray(p.photos)?p.photos:[],presentations=Array.isArray(p.presentations)?p.presentations:[];return '<button class="back" data-nav="search">← Zur Suche</button>'+title(p.name)+'<p class="detail-sub">'+escapeHtml(subst)+'</p>'+badge('Produktidentität hinterlegt')+' '+badge('Alpha · Testbestand','amber')+'<section class="card"><h2>Produktdetails</h2><div class="detail-list"><div><span>Marktgebiet</span><strong>'+escapeHtml(p.country_code||'–')+'</strong></div><div><span>Zulassung laut Quelle</span><strong>'+escapeHtml(p.marketing_status||'unknown')+'</strong></div><div><span>Zulassungsinhaber</span><strong>'+escapeHtml(p.marketing_holder||'Nicht hinterlegt')+'</strong></div><div><span>Letzte Datenänderung</span><strong>'+escapeHtml(p.updated_at||'Nicht hinterlegt')+'</strong></div></div><div class="notice warning">EU-Zulassung belegt weder aktuelle deutsche Marktverfügbarkeit noch Stärke oder Packungsgröße.</div></section><section class="card"><h2>Originalbilder</h2>'+(photos.length?photos.map(photo=>{const u=safeUrl(photo.media_url);return u?'<img alt="Freigegebenes Präparatebild" loading="lazy" style="width:100%;border-radius:12px" src="'+escapeHtml(u)+'">':'<p>Bilddatei nicht abrufbar.</p>'}).join(''):'<div class="photo-box">▧<br>Kein freigegebenes Originalbild vorhanden</div>')+'</section><section class="card"><h2>Darreichungsformen und Stärken</h2>'+(presentations.length?presentations.map(x=>'<p>'+escapeHtml([x.dosage_form,x.strength_label,x.administration_route].filter(Boolean).join(' · '))+'</p>').join(''):'<p class="muted small">Noch keine präparatespezifisch geprüften Angaben.</p>')+'</section>'+embeddedPmsHtml(p.pms_sources||[],p.pms_unavailable===true)+(window.MediIdentaReviewUI?.details(D,p)||'<section class="card"><h2>Fachinformationen & Good-to-Know</h2><div class="facts">'+factsHtml(facts)+'</div></section>')+'<section class="card"><h2>Datenquelle</h2><p class="small">'+escapeHtml(src.name||p.source_name||'Nicht hinterlegt')+'</p><p class="tiny muted">'+escapeHtml(src.license||p.license||'')+'</p>'+(sourceLink?'<p><a target="_blank" rel="noopener noreferrer" href="'+escapeHtml(sourceLink)+'">Offizielle Quelle ansehen ↗</a></p>':'')+'</section>'+clinicalNotice();}
+function detailHtml(){if(D.detailKind==='pms')return pmsDetailHtml();const p=D.detail;if(!p)return '<button class="back" data-nav="search">← Zur Suche</button>'+title('Medikamentendetails')+(D.detailError?'<div class="notice warning">'+escapeHtml(D.detailError)+'</div>':'<p class="small muted">Produktdaten werden geladen …</p>');const subst=Array.isArray(p.substances)?p.substances.map(x=>x.name).join(', '):p.substances||'–';const src=p.source||{};const sourceLink=safeUrl(src.url);const facts=Array.isArray(p.facts)?p.facts:[],photos=Array.isArray(p.photos)?p.photos:[],presentations=Array.isArray(p.presentations)?p.presentations:[];return '<button class="back" data-nav="search">← Zur Suche</button>'+title(p.name)+'<p class="detail-sub">'+escapeHtml(subst)+'</p>'+badge('Produktidentität hinterlegt')+' '+badge('Alpha · Testbestand','amber')+'<section class="card"><h2>Produktdetails</h2><div class="detail-list"><div><span>Marktgebiet</span><strong>'+escapeHtml(p.country_code||'–')+'</strong></div><div><span>Zulassung laut Quelle</span><strong>'+escapeHtml(p.marketing_status||'unknown')+'</strong></div><div><span>Zulassungsinhaber</span><strong>'+escapeHtml(p.marketing_holder||'Nicht hinterlegt')+'</strong></div><div><span>Letzte Datenänderung</span><strong>'+escapeHtml(p.updated_at||'Nicht hinterlegt')+'</strong></div></div><div class="notice warning">EU-Zulassung belegt weder aktuelle deutsche Marktverfügbarkeit noch Stärke oder Packungsgröße.</div></section><section class="card"><h2>Originalbilder</h2>'+(photos.length?photos.map(photo=>{const u=safeUrl(photo.media_url);return u?'<img alt="Freigegebenes Präparatebild" loading="lazy" style="width:100%;border-radius:12px" src="'+escapeHtml(u)+'">':'<p>Bilddatei nicht abrufbar.</p>'}).join(''):'<div class="photo-box">▧<br>Kein freigegebenes Originalbild vorhanden</div>')+'</section><section class="card"><h2>Darreichungsformen und Stärken</h2>'+(presentations.length?presentations.map(x=>'<p>'+escapeHtml([x.dosage_form,x.strength_label,x.administration_route].filter(Boolean).join(' · '))+'</p>').join(''):'<p class="muted small">Noch keine präparatespezifisch geprüften Angaben.</p>')+'</section>'+embeddedPmsHtml(p.pms_sources||[],p.pms_unavailable===true)+(window.MediIdentaReviewUI?.details(D,p)||'<section class="card"><h2>Fachinformationen & Good-to-Know</h2><div class="facts">'+factsHtml(facts)+'</div></section>')+'<section class="card"><h2>Datenquelle</h2><p class="small">'+escapeHtml(src.name||p.source_name||'Nicht hinterlegt')+'</p><p class="tiny muted">'+escapeHtml(src.license||p.license||'')+'</p>'+(sourceLink?'<p><a target="_blank" rel="noopener noreferrer" href="'+escapeHtml(sourceLink)+'">Offizielle Quelle ansehen ↗</a></p>':'')+'</section>'+clinicalNotice();}
 // PMS Beta metadata remains SEPARATE from the known/verified product catalog.
 // Every field is an explicit, source-versioned unverified candidate until admin review.
 function pmsReviewForm(f){
@@ -87,6 +87,7 @@ function pmsSourceRecord(f,admin){
 }
 function pmsCardsHtml(entry){
  const p=entry.product||{},fields=Array.isArray(entry.fields)?entry.fields:[];
+ const report=window.MediIdentaDisplay?.terminologyReport?.(fields);
  const admin=window.MediIdentaReviewAuth?._debug?.role?.()==='admin';
  const src=safeUrl(p.source_url);
  const sections=window.MediIdentaDisplay?.groupPmsSections?.(fields)||[];
@@ -106,8 +107,8 @@ function pmsCardsHtml(entry){
    '<ul class="pms-readable-values">'+g.items.map(item=>{
     const count=item.records.length,reviewed=item.records.filter(f=>f.editorial_status==='clinically_reviewed').length;
     const state=reviewed===count?'Einzelwert fachlich geprüft':reviewed?'Einzelne Quellwerte geprüft':'Nicht fachlich validiert';
-    return '<li><span class="pms-readable-text">'+escapeHtml(item.text)+'</span> '+
-      badge(state,reviewed===count?'':'amber')+
+    return '<li><span class="pms-readable-text">'+escapeHtml(item.text)+'</span>'+
+      (reviewed?(' '+badge(state,reviewed===count?'':'amber')):'')+
       (count>1?'<span class="tiny muted"> Aus '+count+' Originaldatensätzen; Status je Quelle bleibt getrennt.</span>':'')+'</li>';
    }).join('')+'</ul>'+
    '<details class="pms-source-audit"><summary>Quellen, Originalcodes und optionale Adminprüfung ('+g.records.length+')</summary>'+
@@ -120,16 +121,24 @@ function pmsCardsHtml(entry){
   (src?'<a href="'+escapeHtml(src)+'" target="_blank" rel="noopener noreferrer">Originaldaten der EMA öffnen ↗</a>':'')+
   '<p class="tiny muted">Quellimport: '+escapeHtml(p.imported_at||'Nicht hinterlegt')+
   ' · '+fields.length+' FHIR-Originalfelder, '+merged+' unterschiedliche Anzeigen. '+
-  'Die numerischen EMA-Referenzcodes stehen weiterhin in den Originaldetails.</p></div>'+
+  'Die Originalcodes und Einzelprüfungen bleiben im Quellprotokoll abrufbar.</p>'+
+  (report?.fields_with_unknown_codes?
+   '<details class="pms-source-audit"><summary>Unbekannte EMA-Codes ('+report.fields_with_unknown_codes+
+   ' Quellfelder · '+report.code_types_unknown+' Codes)</summary>'+
+   '<p class="tiny muted">Diese Codes werden ausdrücklich nicht erraten. Originalcodes können anhand der zugehörigen offiziellen RMS-/SMS-/OMS-Referenz geprüft werden.</p>'+
+   '<ul>'+report.examples.map(x=>'<li><code>'+escapeHtml(x.code)+'</code> · '+x.count+' Feld(er)</li>').join('')+'</ul></details>':
+   '<p class="tiny muted">In den aktuell angezeigten Texten wurden keine ungelösten numerischen EMA-Codes erkannt.</p>')+
+  '</div>'+
   (sections.length?cards:'<div class="notice warning">Keine strukturierten PMS-Quellfelder für dieses Produkt verfügbar.</div>');
 }
 function embeddedPmsHtml(sources,unavailable=false){
  const list=Array.isArray(sources)?sources:[];
  if(!list.length&&!unavailable)return '';
  return '<section class="pms-integrated"><h2>EMA PMS Beta · Strukturierte Quelldaten</h2>'+
-  '<p class="small muted">Zusätzliche offizielle Quelldaten werden ohne vorherige Adminfreigabe angezeigt. '+
+  '<p class="small muted">Zusätzliche EMA-Beta-Quelldaten werden ohne vorherige Adminfreigabe angezeigt. '+
   'Sie sind keine geprüften Fachinformationen und beweisen keine Austauschbarkeit. '+
   'Die Bezeichnung „Beta“ bezieht sich auf die EMA-Datenquelle, nicht auf die MediIdenta-App.</p>'+
+  (D.pmsMessage?'<div class="notice" role="status">'+escapeHtml(D.pmsMessage)+'</div>':'')+
   (unavailable?'<div class="notice warning">EMA-PMS-Quelldaten können derzeit nicht geladen werden.</div>':'')+
   list.map(pmsCardsHtml).join('')+'</section>';
 }
@@ -164,7 +173,12 @@ async function openPms(id,back='search'){
 }
 async function submitPmsField(form){
  const fieldId=form.dataset.pmsReviewField,hash=form.dataset.pmsSha;
- if(!D.pmsDetail||!D.pmsDetail.fields?.some(f=>f.id===fieldId&&f.statement_sha256===hash))return;
+ if(window.MediIdentaReviewAuth?._debug?.role?.()!=='admin')return;
+ // The same editorial action must also work when PMS fields are EMBEDDED
+ // inside a standard MediIdenta medication record.
+ const entries=D.detailKind==='pms'?[D.pmsDetail]:(D.detail?.pms_sources||[]);
+ const entry=entries.find(e=>e?.fields?.some(f=>f.id===fieldId&&f.statement_sha256===hash));
+ if(!entry)return;
  const checked=!!form.querySelector('[name="source_checked"]')?.checked;
  const decision=form.querySelector('[name="decision"]')?.value;
  const notes=trim(form.querySelector('[name="notes"]')?.value);
@@ -176,9 +190,12 @@ async function submitPmsField(form){
   await window.MediIdentaReviewAuth.submitPmsReview({
    field_id:fieldId,statement_sha256:hash,decision,source_checked:true,notes
   });
-  const pid=D.pmsDetail.product.pms_id;
-  const x=await api('/pms/products/'+encodeURIComponent(pid));
-  D.pmsDetail=x;D.pmsMessage='Entscheidung revisionsgebunden gespeichert. Der Einzelfeld-Status wurde aktualisiert.';
+  if(D.detailKind==='pms'){
+   D.pmsDetail=await api('/pms/products/'+encodeURIComponent(entry.product.pms_id));
+  }else{
+   D.detail=await api('/products/'+encodeURIComponent(D.detail.id));
+  }
+  D.pmsMessage='Entscheidung revisionsgebunden gespeichert. Der PMS-Einzelwert wurde aktualisiert.';
  }catch(e){D.pmsMessage='Entscheidung nicht gespeichert: '+String(e.message||'');}
  draw();
 }
@@ -242,6 +259,15 @@ function qualityHtml(){
  '<p class="small"><strong>Letzter Datenbankimport:</strong> <span class="quality-timestamp">'+escapeHtml(showDate(lastImport||(!D.connected?D.syncMeta?.source_date:null)))+'</span></p>'+
  '<p class="small"><strong>Letzter überprüfter EMA-Quellenabgleich:</strong> <span class="quality-timestamp">'+escapeHtml(showDate(lastEma))+'</span></p>'+
  '<p class="tiny muted">Datenbankimport und EMA-Quellenabgleich sind unterschiedliche Vorgänge. Ein erfolgreicher Import belegt keine erneute Prüfung der aktuellen EMA-Originalquelle. Solange ein Quellenabgleich nicht gesondert protokolliert wird, zeigen wir dafür kein erfundenes Datum.</p></section>'+
+ '<section class="card"><h2>EMA-PMS-Beta-Datenbestand</h2>'+
+ (D.pmsOverview?
+  '<div class="stats"><div class="stat"><strong>'+escapeHtml(D.pmsOverview.pms_products)+'</strong><span>PMS-Quellprodukte</span></div>'+
+  '<div class="stat"><strong>'+escapeHtml(D.pmsOverview.pms_fields)+'</strong><span>Öffentliche Quellfelder</span></div>'+
+  '<div class="stat"><strong>'+escapeHtml(D.pmsOverview.individually_reviewed_fields)+'</strong><span>Einzeln fachlich geprüft</span></div></div>'+
+  '<p class="small"><strong>Letzter PMS-Quellenimport:</strong> '+escapeHtml(showDate(D.pmsOverview.last_pms_source_import_at))+'</p>':
+  '<p class="small muted">'+(D.pmsOverviewError?'PMS-Beta-Statistik derzeit nicht abrufbar.':
+   'PMS-Beta-Statistik wird geladen …')+'</p>')+
+ '<p class="tiny muted">EMA PMS ist eine externe Beta-Quellendatenbank. Ein Import ist keine inhaltliche EMA-Neuvalidierung oder klinische Freigabe. Diese Zahlen zählen Quellen, nicht deutsche Arzneimittelpackungen.</p></section>'+
  '<section class="card"><h2>Weg von Alpha zu Beta</h2>'+
  '<p class="small">Eine Beta-Phase ist erst nach expliziter Freigabe vorgesehen, wenn die folgenden Bedingungen erfüllt sind:</p>'+
  '<ol class="phase-checks"><li>Ein ausreichend breiter, fachlich bewerteter Medikamentenkatalog ist verfügbar.</li>'+
@@ -280,7 +306,20 @@ async function find(q){
  }
  if(n===D.seq){D.loading=false;draw(true);}
 }
-async function openProduct(id){D.detailKind='catalog';D.page='detail';D.detail=null;draw();const p=D.offline.find(x=>x.id===id);try{if(D.connected)D.detail=await api('/products/'+encodeURIComponent(id));else if(p)D.detail={...p,substances:trim(p.substances).split(', ').map(name=>({name})),facts:[],photos:[],presentations:[],source:{name:p.source_name,url:p.source_url,license:p.license}};else throw Error('Kein freigegebener Produktdatensatz');}catch{D.detail=p?{...p,substances:trim(p.substances).split(', ').map(name=>({name})),facts:[],photos:[],presentations:[],source:{name:p.source_name,url:p.source_url,license:p.license}}:null;}draw();}
+async function openProduct(id){
+ D.detailKind='catalog';D.page='detail';D.detail=null;D.detailError='';D.pmsMessage='';draw();
+ const p=D.offline.find(x=>x.id===id);
+ try{
+  if(D.connected)D.detail=await api('/products/'+encodeURIComponent(id));
+  else if(p)D.detail={...p,substances:trim(p.substances).split(', ').map(name=>({name})),
+   facts:[],photos:[],presentations:[],source:{name:p.source_name,url:p.source_url,license:p.license}};
+  else throw Error('Produktidentität nicht im lokalen Testbestand');
+ }catch{
+  // A failed LIVE lookup is never replaced with a stale offline identity.
+  D.detailError='Medikamentendaten sind derzeit nicht vollständig erreichbar. Bitte erneut versuchen.';
+ }
+ draw();
+}
 function validPzn(x){return !!window.MediIdentaIdentifiers?.pzn8(x);}
 async function identify(){
  window.MediIdentaIdentifiers?.stopCamera?.();
@@ -298,8 +337,18 @@ async function identify(){
  }catch{D.scanMessage='Packungsabfrage fehlgeschlagen. Keine Identifizierung möglich.';D.scanMatches=[];}
  draw();
 }
-function go(where){window.MediIdentaIdentifiers?.stopCamera?.();D.page=where;D.scanMessage='';D.scanMatches=[];draw();document.documentElement.scrollTop=0;}
-async function connect(){if(IS_PUBLIC_PREVIEW){D.connected=false;D.meta=null;D.features={collaboration_enabled:false};D.attributions=[{source_key:'EU_UR',name:'European Commission – Union Register',license_code:'CC-BY-4.0',attribution_text:'Quellgebundene Produktidentitäten aus dem EU-Register.'},{source_key:'EMA_EPAR',name:'European Medicines Agency – EPAR',license_code:'EMA-REUSE-ATTRIBUTION',attribution_text:'Produktidentitäten und unabhängig formulierte Entwürfe mit EMA-Quellenverweisen.'}];draw();return;}try{D.meta=await api('/meta');D.connected=true;try{const f=await api('/features');D.features={collaboration_enabled:f.collaboration_enabled===true};}catch{D.features={collaboration_enabled:false};}try{const x=await api('/attributions');D.attributions=Array.isArray(x.sources)?x.sources:[];}catch{D.attributions=[];}}catch{D.meta=null;D.connected=false;D.attributions=[];D.features={collaboration_enabled:false};}if(D.page==='search')find(D.search);else draw();}
+async function loadPmsOverview(){
+ if(!D.connected)return;
+ try{
+  const x=await api('/pms/overview');
+  D.pmsOverview=x;D.pmsOverviewError=false;
+ }catch{
+  D.pmsOverview=null;D.pmsOverviewError=true;
+ }
+ if(D.page==='quality')draw(true);
+}
+function go(where){window.MediIdentaIdentifiers?.stopCamera?.();D.page=where;D.scanMessage='';D.scanMatches=[];draw();if(where==='quality')loadPmsOverview();document.documentElement.scrollTop=0;}
+async function connect(){if(IS_PUBLIC_PREVIEW){D.connected=false;D.meta=null;D.features={collaboration_enabled:false};D.attributions=[{source_key:'EU_UR',name:'European Commission – Union Register',license_code:'CC-BY-4.0',attribution_text:'Quellgebundene Produktidentitäten aus dem EU-Register.'},{source_key:'EMA_EPAR',name:'European Medicines Agency – EPAR',license_code:'EMA-REUSE-ATTRIBUTION',attribution_text:'Produktidentitäten und unabhängig formulierte Entwürfe mit EMA-Quellenverweisen.'}];draw();return;}try{D.meta=await api('/meta');D.connected=true;try{const f=await api('/features');D.features={collaboration_enabled:f.collaboration_enabled===true};}catch{D.features={collaboration_enabled:false};}try{const x=await api('/attributions');D.attributions=Array.isArray(x.sources)?x.sources:[];}catch{D.attributions=[];}}catch{D.meta=null;D.connected=false;D.attributions=[];D.features={collaboration_enabled:false};}if(D.page==='search')find(D.search);else if(D.page==='quality')loadPmsOverview();else draw();}
 let debounce;
 document.addEventListener('click',e=>{const b=e.target.closest('[data-nav],[data-action],[data-filter]');if(!b)return;if(b.dataset.nav){go(b.dataset.nav);return;}if(b.dataset.filter){D.hits=b.dataset.filter==='fav'?D.offline.filter(x=>D.favorites.includes(x.id)):localSearch(D.search);draw();return;}const a=b.dataset.action;if(a==='detail')openProduct(b.dataset.id);else if(a==='pms-inline')openPms(b.dataset.id,'search');else if(a==='search-next'){D.searchPage++;find(D.search);}else if(a==='search-prev'){D.searchPage=Math.max(0,D.searchPage-1);find(D.search);}else if(a==='fav'){const id=b.dataset.id;D.favorites=D.favorites.includes(id)?D.favorites.filter(x=>x!==id):[id,...D.favorites];try{localStorage.setItem('medidenta_favs_v04',JSON.stringify(D.favorites))}catch{}draw();}else if(a==='compare'){const id=b.dataset.id;D.compare=D.compare.includes(id)?D.compare.filter(x=>x!==id):[...D.compare,id].slice(-2);draw();}else if(a==='compare-clear'){D.compare=[];D.compareDetails={};draw();}else if(a==='compare-view')showCompare();else if(a==='pzn')identify();else if(a==='photo')picker.click();else if(a==='reconnect')connect();else if(a==='sync-check')checkForCatalogUpdates(true);});
 document.addEventListener('input',e=>{if(e.target.id!=='search')return;D.search=e.target.value;D.searchPage=0;D.searchHasMore=false;D.pmsSearchHits=[];clearTimeout(debounce);debounce=setTimeout(()=>find(D.search),220)});

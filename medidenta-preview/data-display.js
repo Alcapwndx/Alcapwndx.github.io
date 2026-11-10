@@ -9,6 +9,15 @@ const TYPES={summary:'Kurzbeschreibung',indication:'Indikation',mechanism:'Wirkm
 const riskOrder={critical:0,high:1,normal:2};
 const PMS_LABELS={
  product_names:'Produktnamen laut EMA',product_identifiers:'Produktkennungen',
+ product_domain:'Verwendung als Human- oder Tierarzneimittel laut EMA',
+ product_type_codes:'Arzneimitteltyp laut EMA',
+ legal_status_of_supply:'Rechtlicher Abgabestatus laut EMA (nationale Regeln beachten)',
+ marketing_status_raw:'Vermarktungsstatus und Gebiet laut Quelle',
+ package_type_raw:'Packmittel laut Quelle',package_material_raw:'Packungsmaterial laut Quelle',
+ package_quantity_raw:'Anzahl der Packungseinheiten laut Quelle',
+ regulatory_entitlement_type:'Art der regulatorischen Berechtigung',
+ authorization_holder_raw:'Zulassungsinhaber-Referenz (nicht extern bestätigt)',
+ authorization_validity_raw:'Gültigkeitszeitraum der Berechtigung laut Quelle',
  product_status_codes:'EMA-Datensatzstatus (nicht Zulassungsstatus)',classification:'Klassifizierung',
  combined_dose_form:'Arzneiform',authorised_dose_forms:'Zugelassene Arzneiformen',
  package_identifiers_not_pzn:'Packungskennungen – keine bestätigte PZN',
@@ -87,6 +96,47 @@ function strength(v){
  }
  return out;
 }
+function formatPeriod(p){
+ if(!p||typeof p!=='object')return null;
+ const date=s=>typeof s==='string'&&/^\d{4}-\d\d-\d\d(?:T[\d:.+-]+Z?)?$/.test(s)?s:null;
+ const from=date(p.start),to=date(p.end);
+ return from&&to?'Zeitraum: '+from+' bis '+to:
+  from?'Beginn: '+from:to?'Ende: '+to:null;
+}
+function marketingStatus(v,depth){
+ if(!v||typeof v!=='object'||Array.isArray(v))return [];
+ const state=formatSingle(v.status||v.code,'marketing_status_raw',depth+1);
+ const country=formatSingle(v.country||v.jurisdiction,'authorization_region_codes',depth+1);
+ const period=formatPeriod(v.dateRange||v.period||v.validityPeriod);
+ const text=[
+  state.length?'Vermarktungsstatus: '+state.join(', '):null,
+  country.length?'Gebiet: '+country.join(', '):null,
+  period
+ ].filter(Boolean);
+ return text.length?[text.join(' · ')]:[];
+}
+function terminologyReport(fields){
+ // The report is derived from rendered field strings, so the same exact
+ // code/meaning appears in the audit and the public display.
+ const pending=new Map();
+ let fieldsWithPending=0,totalFields=0;
+ for(const field of Array.isArray(fields)?fields:[]){
+  totalFields++;
+  const unknown=new Set();
+  for(const text of formatPms(field)){
+   for(const match of String(text).matchAll(/Nicht aufgelöster EMA-Code:\s*([0-9]{9,15})/g))
+    unknown.add(match[1]);
+   for(const match of String(text).matchAll(/Einheit nicht aufgelöst:\s*([0-9]{9,15})/g))
+    unknown.add(match[1]);
+  }
+  if(unknown.size)fieldsWithPending++;
+  for(const code of unknown)pending.set(code,(pending.get(code)||0)+1);
+ }
+ return Object.freeze({total_fields:totalFields,fields_with_unknown_codes:fieldsWithPending,
+   code_types_unknown:pending.size,
+   examples:[...pending].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0]))
+     .slice(0,15).map(([code,count])=>({code,count}))});
+}
 function formatSingle(v,kind,depth=0){
  if(v===null||v===undefined||depth>6)return [];
  if(Array.isArray(v))return unique(v.flatMap(x=>formatSingle(x,kind,depth+1)));
@@ -117,6 +167,16 @@ function formatSingle(v,kind,depth=0){
  }
  if(kind==='package_size_raw'){
   const q=quantity(v);if(q)return [q];
+ }
+ if(kind==='marketing_status_raw'){
+  const out=marketingStatus(v,depth);if(out.length)return out;
+ }
+ if(kind==='authorization_validity_raw'){
+  const time=formatPeriod(v);if(time)return [time];
+ }
+ if(kind==='authorization_holder_raw'&&typeof v.reference==='string'){
+  return [(typeof v.display==='string'&&v.display.trim()?v.display.trim()+' · ':'')+
+    'Referenz: '+v.reference.trim()+' (Name/Identität nicht unabhängig bestätigt)'];
  }
  if(kind==='clinical_use_subjects_unverified'&&typeof v.reference==='string')
   return ['FHIR-Referenz: '+v.reference+' (Zuordnung nicht bestätigt)'];
@@ -207,6 +267,8 @@ function groupPmsFields(fields){
 const PMS_TOPICS={
  product_names:'Produktidentität und Kennungen',
  product_identifiers:'Produktidentität und Kennungen',
+ product_domain:'Produktidentität und Kennungen',
+ product_type_codes:'Produktidentität und Kennungen',
  product_status_codes:'Produktidentität und Kennungen',
  classification:'Produktidentität und Kennungen',
  combined_dose_form:'Arzneiform und Anwendung',
@@ -220,9 +282,17 @@ const PMS_TOPICS={
  package_identifiers_not_pzn:'Packung und Inhalt',
  package_descriptions:'Packung und Inhalt',
  package_size_raw:'Packung und Inhalt',
+ package_type_raw:'Packung und Inhalt',
+ package_material_raw:'Packung und Inhalt',
+ package_quantity_raw:'Packung und Inhalt',
  authorization_identifiers:'Zulassung und Status',
  authorization_region_codes:'Zulassung und Status',
  authorization_status_raw:'Zulassung und Status',
+ legal_status_of_supply:'Zulassung und Status',
+ marketing_status_raw:'Zulassung und Status',
+ regulatory_entitlement_type:'Zulassung und Status',
+ authorization_holder_raw:'Zulassung und Status',
+ authorization_validity_raw:'Zulassung und Status',
  clinical_use_type_unverified:'Klinische Quellkategorien (keine Fachtexte)',
  clinical_use_subjects_unverified:'Klinische Quellkategorien (keine Fachtexte)',
  clinical_use_status_unverified:'Klinische Quellkategorien (keine Fachtexte)'
@@ -241,5 +311,5 @@ function groupPmsSections(fields){
  }
  return [...buckets.values()];
 }
-global.MediIdentaDisplay={groupFacts,groupPmsFields,groupPmsSections,formatPms,norm,TYPES,PMS_LABELS};
+global.MediIdentaDisplay={groupFacts,groupPmsFields,groupPmsSections,formatPms,terminologyReport,norm,TYPES,PMS_LABELS};
 })(window);
