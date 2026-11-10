@@ -270,6 +270,29 @@ class AppTests(unittest.TestCase):
             self.assertFalse(item["pms_unavailable"])
             self.assertTrue(any(name=="medidenta_pms_products" for name,_ in calls))
 
+    def test_missing_admin_link_table_does_not_block_public_pms_beta(self):
+        async def product(pid):
+            return {"id":pid,"name":"Toujeo","substances":"insulin glargin"}
+        async def read(table,params):
+            if table=="medidenta_pms_identity_links":
+                raise main.HTTPException(503,"Optional link table absent")
+            if table=="medidenta_pms_products":
+                return [{"pms_id":"600000000000","display_name":"Toujeo 300 units/mL",
+                         "source_url":"https://api.pms.ema.europa.eu/public/v1/MedicinalProductDefinition/600000000000/$everything",
+                         "bundle_sha256":"a"*64,"imported_at":"2026-11-10T01:00:00Z"}]
+            if table=="medidenta_pms_fields":
+                return [{"id":"pms_"+"a"*40,"pms_id":"600000000000",
+                         "value_json":{"code":"100000073615"},
+                         "attribute_key":"administration_routes","editorial_status":"draft_unreviewed"}]
+            raise AssertionError(table)
+        with patch.object(main,"IS_LIVE_CONFIGURED",True),\
+             patch.object(main,"_live_product",side_effect=product),\
+             patch.object(main,"_pms_read",side_effect=read):
+            data=client.get("/api/v1/products/p1").json()
+            self.assertEqual(len(data["pms_sources"]),1)
+            self.assertEqual(data["pms_sources"][0]["identity_association"],"NAME_SIMILARITY_UNCONFIRMED")
+            self.assertFalse(data["pms_unavailable"])
+
     def test_different_brand_name_is_not_assumed_same_medicine(self):
         self.assertTrue(main._same_pms_brand_name("Toujeo","Toujeo 300 units/mL"))
         self.assertFalse(main._same_pms_brand_name("Toujeo","Toujeo-like competitor"))
