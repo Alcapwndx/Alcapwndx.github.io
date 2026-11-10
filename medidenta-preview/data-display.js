@@ -9,12 +9,15 @@ const TYPES={summary:'Kurzbeschreibung',indication:'Indikation',mechanism:'Wirkm
 const riskOrder={critical:0,high:1,normal:2};
 const PMS_LABELS={
  product_names:'Produktnamen laut EMA',product_identifiers:'Produktkennungen',
- product_status_codes:'Produktstatus laut Quelle',classification:'Klassifizierung',
+ product_status_codes:'EMA-Datensatzstatus (nicht Zulassungsstatus)',classification:'Klassifizierung',
  combined_dose_form:'Arzneiform',authorised_dose_forms:'Zugelassene Arzneiformen',
  package_identifiers_not_pzn:'Packungskennungen – keine bestätigte PZN',
  package_descriptions:'Packungsangaben',package_size_raw:'Packungsmenge',
  authorization_identifiers:'Zulassungskennungen',authorization_region_codes:'Zulassungsgebiet',
- authorization_status_raw:'Zulassungsstatus',administrable_dose_form:'Arzneiform zur Anwendung',
+ legal_status_of_supply:'Rechtlicher Abgabestatus laut EMA (nicht deutsche Verschreibungspflicht)',
+ marketing_status_raw:'Vermarktungsstatus laut Quelle',regulatory_entitlement_type:'Art der regulatorischen Berechtigung',
+ product_domain:'Anwendungsbereich (Human-/Tierarzneimittel)',
+ authorization_status_raw:'Status der regulatorischen Berechtigung',administrable_dose_form:'Arzneiform zur Anwendung',
  administration_routes:'Applikationswege',manufactured_dose_form:'Herstellungsarzneiform',
  ingredient_role_codes:'Stoffrolle',substance_identity_raw:'Stoffbezeichnungen laut Quelle',
  strength_raw_no_dose_conversion:'Wirkstärke laut Quelle (keine Dosisempfehlung)',
@@ -25,7 +28,7 @@ const PMS_LABELS={
 const TYPE_HINTS={warning:'Warnhinweis (nur FHIR-Kategorie)',indication:'Indikation (nur FHIR-Kategorie)',contraindication:'Kontraindikation (nur FHIR-Kategorie)',interaction:'Wechselwirkung (nur FHIR-Kategorie)',undesirableEffect:'Nebenwirkung (nur FHIR-Kategorie)',undesirable_effect:'Nebenwirkung (nur FHIR-Kategorie)'};
 
 function sourceCode(v,kind){
- const code=typeof v?.code==='string'&&v.code.trim()?v.code.trim():null;
+ const code=(typeof v?.code==='string'||typeof v?.code==='number')&&String(v.code).trim()?String(v.code).trim():null;
  const resolved=code?global.MediIdentaRmsCodes?.resolve?.(code,v.system,kind):null;
  if(resolved)return resolved.de||resolved.en;
  const label=typeof v?.display==='string'&&v.display.trim()?v.display.trim():
@@ -39,6 +42,10 @@ function readableConcept(v,kind){
  const named=Array.isArray(v.coding)?
    unique(v.coding.map(x=>sourceCode(x,kind))):
    [];
+ // If EMA provides human-readable CodeableConcept.text, prefer it over an
+ // unresolved code from a system not included in our versioned codebook.
+ if(named.length&&named.every(x=>x.startsWith('Nicht aufgelöster EMA-Code: '))&&
+     typeof v.text==='string'&&v.text.trim())return [v.text.trim()];
  if(named.length)return named;
  if(typeof v.text==='string'&&v.text.trim())return [v.text.trim()];
  const single=sourceCode(v,kind);return single?[single]:[];
@@ -48,9 +55,16 @@ function quantity(v){
  const number=typeof v.value==='number'&&Number.isFinite(v.value)?String(v.value):
   typeof v.value==='string'&&v.value.trim()?v.value.trim():null;
  if(!number)return null;
- const unit=typeof v.unit==='string'&&v.unit.trim()?v.unit.trim():
-  typeof v.code==='string'&&v.code.trim()?v.code.trim():'';
- return number+(unit?' '+unit:'');
+ const rawCode=typeof v.code==='string'?v.code.trim():'';
+ const originalUnit=typeof v.unit==='string'?v.unit.trim():'';
+ const rms=rawCode?global.MediIdentaRmsCodes?.resolveUnit?.(rawCode,v.system):null;
+ // Keep the original quantity and denominator exactly. Never calculate or
+ // convert any dose, and never infer that an unknown numeric code means mg.
+ const unit=rms?.de||rms?.en||
+  (originalUnit&&!/^[0-9]{9,15}$/.test(originalUnit)?originalUnit:'')||
+  (rawCode&&!/^[0-9]{9,15}$/.test(rawCode)?rawCode:'');
+ return number+(unit?' '+unit:
+  (rawCode||originalUnit?' [Einheit nicht aufgelöst: '+(rawCode||originalUnit)+']':''));
 }
 function ratio(v){
  if(!v||typeof v!=='object')return null;
@@ -109,7 +123,7 @@ function formatSingle(v,kind,depth=0){
  if(typeof v.description==='string'&&v.description.trim())return [v.description.trim()];
  if(typeof v.display==='string'&&v.display.trim())return [sourceCode(v,kind)||v.display.trim()];
  if(typeof v.reference==='string'&&v.reference.trim())return ['FHIR-Referenz: '+v.reference.trim()];
- if(typeof v.code==='string'&&v.code.trim())return [sourceCode(v,kind)];
+ if((typeof v.code==='string'&&v.code.trim())||typeof v.code==='number')return [sourceCode(v,kind)];
  if(v.concept||v.coding||v.text){
   const c=readableConcept(v,kind);if(c.length)return c;
  }

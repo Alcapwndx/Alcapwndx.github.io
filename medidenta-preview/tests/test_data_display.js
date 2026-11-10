@@ -53,6 +53,92 @@ assert.equal(formatPms({attribute_key:'administrable_dose_form',
 assert.equal(formatPms({attribute_key:'authorised_dose_forms',
  value_json:'100000073664'})[0],'Tablette');
 
+// EMA/SPOR controlled terminology v1.2.1. All maps are system-scoped.
+const rms=window.MediIdentaRmsCodes;
+const coding=(kind,list,code)=>formatPms({attribute_key:kind,value_json:{
+ coding:[{system:'https://spor.ema.europa.eu/v1/lists/'+list,code}]}});
+assert.equal(coding('product_status_codes','200000005003','200000005004')[0],
+ 'Aktueller Quelldatensatz');
+assert.equal(coding('product_status_codes','200000005003','200000005005')[0],
+ 'Vorläufiger Quelldatensatz');
+assert.equal(coding('authorization_status_raw','100000072049','100000072099')[0],
+ 'Regulatorische Berechtigung gültig laut Quelle');
+assert.equal(coding('authorization_status_raw','100000072049','100000072122')[0],
+ 'Ruhend');
+assert.equal(coding('authorization_region_codes','100000000002','100000000403')[0],
+ 'Deutschland');
+assert.equal(coding('authorization_region_codes','100000000002','100000000390')[0],
+ 'Europäische Union');
+assert.equal(coding('ingredient_role_codes','100000072050','100000072072')[0],
+ 'Wirkstoff');
+assert.equal(coding('ingredient_role_codes','100000072050','100000072082')[0],
+ 'Hilfsstoff');
+assert.equal(coding('legal_status_of_supply','100000072051','100000072084')[0],
+ 'Verschreibungspflichtig laut Quelle');
+assert.equal(coding('marketing_status_raw','100000072052','100000072083')[0],
+ 'Im Handel laut Quelle');
+assert.equal(coding('product_domain','100000000004','100000000012')[0],
+ 'Humanarzneimittel');
+assert.equal(coding('regulatory_entitlement_type','220000000060','220000000061')[0],
+ 'Arzneimittelzulassung');
+assert.equal(coding('ingredient_role_codes','220000000000','220000000004')[0],
+ 'Stärkenangabe im Produktnamen'); // Interpret the SOURCE system, not the field label.
+assert.equal(formatPms({attribute_key:'ingredient_role_codes',
+ value_json:{coding:[{system:'http://hl7.org/fhir/ingredient-role',
+ code:'100000072073'}]}})[0],'Adjuvans');
+
+// WRONG system, unknown code, and ambiguous kind are NEVER guessed.
+assert.equal(rms.resolve('100000072072','http://example.org/wrong','ingredient_role_codes'),null);
+assert.equal(rms.resolve('200000005004','http://spor.ema.europa.eu/v1/lists/100000072049',
+ 'product_status_codes'),null);
+assert.equal(rms.resolve('200000005004',null,'authorization_status_raw'),null);
+assert.equal(rms.resolve('100000072099',null,'product_status_codes'),null);
+assert.equal(rms.resolve('100000000403',null,'classification'),null);
+assert.equal(rms.resolve('100000110655',null,'strength_raw_no_dose_conversion'),null);
+assert.equal(rms.resolve('100000110655','http://unitsofmeasure.org',
+ 'strength_raw_no_dose_conversion'),null);
+assert.match(coding('product_status_codes','100000072049','200000005004')[0],
+ /Nicht aufgelöster EMA-Code: 200000005004/);
+assert.match(coding('authorization_region_codes','100000000002','100000000999')[0],
+ /Nicht aufgelöster EMA-Code/);
+assert.match(formatPms({attribute_key:'substance_identity_raw',
+ value_json:{coding:[{system:'https://spor.ema.europa.eu/v1/lists/100000072050',
+ code:'100000072072',display:'EMA display'}]}})[0],/Wirkstoff/);
+assert.equal(rms.version,'EMA PMS IG v1.2.1 / 2026-06-26');
+assert.equal(formatPms({attribute_key:'product_status_codes',
+ value_json:{coding:[{code:200000005004}]}})[0],'Aktueller Quelldatensatz');
+assert.equal(formatPms({attribute_key:'authorization_status_raw',value_json:'100000072099'})[0],
+ 'Regulatorische Berechtigung gültig laut Quelle');
+assert.equal(formatPms({attribute_key:'authorization_region_codes',value_json:{
+ coding:[{code:'999999999999',system:'http://spor.ema.europa.eu/v1/lists/100000000002'}],
+ text:'Deutschland (EMA Quelltext)'}})[0],'Deutschland (EMA Quelltext)');
+assert.equal(formatPms({attribute_key:'ingredient_role_codes',value_json:'100000072072'})[0],
+ 'Wirkstoff');
+
+
+// FHIR Quantity: translate the UNIT CODE, not the dose or reference amount.
+const rmsUnit=(num,code,system='http://spor.ema.europa.eu/v1/lists/100000110633')=>
+ formatPms({attribute_key:'package_size_raw',
+ value_json:{value:num,code,system}})[0];
+assert.equal(rmsUnit(5,'100000110655'),'5 mg');
+assert.equal(rmsUnit(0.5,'100000110656'),'0.5 µg');
+assert.equal(rmsUnit(2,'100000110662'),'2 ml');
+assert.equal(rmsUnit(100,'100000110671'),'100 I.E.');
+assert.match(rmsUnit(5,'100000110655','https://example.org/other'),
+ /5 \[Einheit nicht aufgelöst: 100000110655\]/);
+assert.match(rmsUnit(5,'100000110999'),/Einheit nicht aufgelöst/);
+assert.equal(rmsUnit(5,'mg','http://unitsofmeasure.org'),'5 mg');
+assert.equal(formatPms({attribute_key:'strength_raw_no_dose_conversion',value_json:{
+ presentationRatio:{numerator:{value:5,code:'100000110655',
+ system:'http://spor.ema.europa.eu/v1/lists/100000110633'},
+ denominator:{value:1,unit:'Tablette'}}}})[0],'Wirkstärke: 5 mg je 1 Tablette');
+
+// No implicit therapeutic equivalence or German regulatory assertion.
+assert.doesNotMatch(coding('authorization_status_raw','100000072049','100000072099')[0],
+ /Deutschland|lieferbar|verschreibungspflichtig/i);
+assert.doesNotMatch(coding('product_status_codes','200000005003','200000005004')[0],
+ /zugelassen/i);
+
 const p1={id:'pms_a',attribute_key:'package_size_raw',value_json:[{value:14,unit:'Tabletten'}],
  resource_id:'box1',editorial_status:'draft_unreviewed'};
 const p2={...p1,id:'pms_b',resource_id:'box2',editorial_status:'clinically_reviewed'};

@@ -27,11 +27,11 @@ assert.match(auth,/medidenta_post_comment|\/facts\/.*comments/);
 assert.match(auth,/A\.role!=='admin'/);
 assert.match(auth,/Private Quellenprüfung/);
 assert.match(auth,/data-role-form/);
-assert.match(sw,/medidenta-pages-v0\.15/);
+assert.match(sw,/medidenta-pages-v0\.16/);
 assert.match(sw,/rms-codes\.js/);
 assert.match(sw,/data-display\.js/);
-assert.match(html,/data-display\.js\?v=0\.15/);
-assert.match(html,/rms-codes\.js\?v=0\.15/);
+assert.match(html,/data-display\.js\?v=0\.16/);
+assert.match(html,/rms-codes\.js\?v=0\.16/);
 assert.match(html,/app\.js\?v=0\.15/);
 assert.match(sw,/theme\.js/);
 
