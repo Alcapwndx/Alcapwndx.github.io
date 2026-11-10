@@ -459,6 +459,28 @@ async function submitPmsReview(payload){
  return result[0];
 }
 
-global.MediIdentaReviewAuth={init,accountHtml,reviewActionHtml,submitPmsReview,
+async function submitPmsIdentityLink(payload){
+ if(!A.configured||!A.reviewApiBase||!A.user||A.role!=='admin')
+  throw Error('Nur Administratoren dürfen geprüfte Produktquellen verknüpfen.');
+ if(!payload||!/^[-_A-Za-z0-9]{1,100}$/.test(String(payload.catalog_product_id||''))||
+    !/^[A-Za-z0-9._-]{1,96}$/.test(String(payload.pms_id||''))||
+    !/^[0-9a-f]{40}$/.test(String(payload.catalog_source_commit||''))||
+    !/^[0-9a-f]{64}$/.test(String(payload.pms_bundle_sha256||''))||
+    !['confirm','revoke'].includes(payload.decision)||
+    String(payload.evidence_note||'').trim().length<40)
+  throw Error('Die Quellenidentität oder Begründung ist unvollständig.');
+ if(payload.decision==='confirm'&&!(payload.identifiers_checked&&
+      payload.form_strength_checked&&payload.region_checked))
+  throw Error('Identifikatoren, Arzneiform/Stärke und Marktgebiet müssen getrennt geprüft sein.');
+ const result=await liveRequest('/pms/identity-links','POST',payload);
+ if(!Array.isArray(result)||result.length!==1||
+    result[0].catalog_product_id!==payload.catalog_product_id||
+    result[0].pms_id!==payload.pms_id||
+    result[0].confirmed!==(payload.decision==='confirm'))
+  throw Error('Die Datenbank hat die erwartete PMS-Verknüpfung nicht bestätigt.');
+ return result[0];
+}
+
+global.MediIdentaReviewAuth={init,accountHtml,reviewActionHtml,submitPmsReview,submitPmsIdentityLink,
  _debug:{isActiveRevision,digestFact,configured:()=>A.configured,role:()=>A.role,events:()=>A.events.length}};
 })(window);

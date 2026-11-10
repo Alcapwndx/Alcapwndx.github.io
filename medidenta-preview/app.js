@@ -178,6 +178,59 @@ async function openPms(id,back='search'){
  catch(e){D.pmsError='PMS-Datensatz konnte nicht geladen werden: '+String(e.message||'');}
  draw();
 }
+async function previewPmsIdentity(){
+ const id=trim(D.pmsLinkInput),productId=D.detail?.id;
+ if(D.detailKind!=='catalog'||!D.connected||!productId)return;
+ if(!/^[A-Za-z0-9._-]{1,96}$/.test(id)){
+  D.pmsLinkCandidate=null;D.pmsLinkMessage='Gültige EMA-PMS-ID eingeben.';draw();return;
+ }
+ D.pmsLinkCandidate=null;D.pmsLinkMessage='EMA-Produktquelle wird geladen …';draw();
+ try{
+  const entry=await api('/pms/products/'+encodeURIComponent(id));
+  if(D.detail?.id!==productId||D.detailKind!=='catalog')return;
+  if(!entry.product||entry.product.pms_id!==id||
+     !/^[0-9a-f]{64}$/.test(String(entry.product.bundle_sha256||'')))
+   throw Error('Die PMS-Quelle liefert keine übereinstimmende Kennung oder Revision.');
+  D.pmsLinkCandidate=entry;
+  D.pmsLinkMessage='Quellenverbindung noch nicht bestätigt. Bitte die offiziellen Identifikatoren, Stärke/Arzneiform und das Zulassungsgebiet selbst vergleichen.';
+ }catch(e){D.pmsLinkCandidate=null;D.pmsLinkMessage='PMS-Quelle nicht geladen: '+String(e.message||'Fehler');}
+ draw();
+}
+async function submitPmsIdentity(form){
+ const p=D.detail,c=D.pmsLinkCandidate?.product;
+ if(!p||!c||D.detailKind!=='catalog'||!p.catalog_source_commit){
+  D.pmsLinkMessage='Zuerst die aktuelle Medikamenten- und PMS-Quelle laden.';draw();return;
+ }
+ const decision=form.querySelector('[name="decision"]')?.value;
+ const identifiers=!!form.querySelector('[name="identifiers_checked"]')?.checked;
+ const formStrength=!!form.querySelector('[name="form_strength_checked"]')?.checked;
+ const region=!!form.querySelector('[name="region_checked"]')?.checked;
+ const evidence=trim(form.querySelector('[name="evidence_note"]')?.value);
+ if(!['confirm','revoke'].includes(decision)||evidence.length<40||
+    (decision==='confirm'&&(!identifiers||!formStrength||!region))){
+  D.pmsLinkMessage='Mindestens 40 Zeichen Dokumentation und bei Bestätigung alle drei unabhängigen Quellenprüfungen erforderlich.';draw();return;
+ }
+ const body={
+  catalog_product_id:p.id,pms_id:c.pms_id,
+  catalog_source_commit:p.catalog_source_commit,
+  pms_bundle_sha256:c.bundle_sha256,
+  decision,identifiers_checked:identifiers,
+  form_strength_checked:formStrength,region_checked:region,
+  evidence_note:evidence
+ };
+ try{
+  const response=await window.MediIdentaReviewAuth.submitPmsIdentityLink(body);
+  if(response?.confirmed !== (decision==='confirm'))throw Error('Bestätigung stimmt nicht mit Entscheidung überein.');
+  if(D.detail?.id!==p.id)return;
+  D.detail=await api('/products/'+encodeURIComponent(p.id));
+  D.pmsLinkCandidate=null;
+  D.pmsLinkMessage=decision==='confirm'?
+   'Die exakte Quellenzuordnung wurde bestätigt und in die gemeinsame Detailansicht übernommen. Einzelangaben bleiben separat zu prüfen.':
+   'Die Quellenzuordnung wurde widerrufen.';
+ }catch(e){D.pmsLinkMessage='PMS-Zuordnung nicht gespeichert: '+String(e.message||'Fehler');}
+ draw();
+}
+
 async function submitPmsField(form){
  const fieldId=form.dataset.pmsReviewField,hash=form.dataset.pmsSha;
  if(!D.pmsDetail||!D.pmsDetail.fields?.some(f=>f.id===fieldId&&f.statement_sha256===hash))return;
@@ -315,9 +368,9 @@ async function identify(){
 function go(where){window.MediIdentaIdentifiers?.stopCamera?.();D.page=where;D.scanMessage='';D.scanMatches=[];draw();document.documentElement.scrollTop=0;if(where==='pms')loadPms();}
 async function connect(){if(IS_PUBLIC_PREVIEW){D.connected=false;D.meta=null;D.features={collaboration_enabled:false};D.attributions=[{source_key:'EU_UR',name:'European Commission – Union Register',license_code:'CC-BY-4.0',attribution_text:'Quellgebundene Produktidentitäten aus dem EU-Register.'},{source_key:'EMA_EPAR',name:'European Medicines Agency – EPAR',license_code:'EMA-REUSE-ATTRIBUTION',attribution_text:'Produktidentitäten und unabhängig formulierte Entwürfe mit EMA-Quellenverweisen.'}];draw();return;}try{D.meta=await api('/meta');D.connected=true;try{const f=await api('/features');D.features={collaboration_enabled:f.collaboration_enabled===true};}catch{D.features={collaboration_enabled:false};}try{const x=await api('/attributions');D.attributions=Array.isArray(x.sources)?x.sources:[];}catch{D.attributions=[];}}catch{D.meta=null;D.connected=false;D.attributions=[];D.features={collaboration_enabled:false};}if(D.page==='search')find(D.search);else draw();}
 let debounce;
-document.addEventListener('click',e=>{const b=e.target.closest('[data-nav],[data-action],[data-filter]');if(!b)return;if(b.dataset.nav){go(b.dataset.nav);return;}if(b.dataset.filter){D.hits=b.dataset.filter==='fav'?D.offline.filter(x=>D.favorites.includes(x.id)):localSearch(D.search);draw();return;}const a=b.dataset.action;if(a==='detail')openProduct(b.dataset.id);else if(a==='pms-inline')openPms(b.dataset.id,'search');else if(a==='pms-show')openPms(b.dataset.id,'pms');else if(a==='pms-all'){D.pmsQuery=D.search;D.pmsPage=0;go('pms');}else if(a==='search-next'){D.searchPage++;find(D.search);}else if(a==='search-prev'){D.searchPage=Math.max(0,D.searchPage-1);find(D.search);}else if(a==='pms-next'){D.pmsPage++;loadPms();}else if(a==='pms-prev'){D.pmsPage=Math.max(0,D.pmsPage-1);loadPms();}else if(a==='fav'){const id=b.dataset.id;D.favorites=D.favorites.includes(id)?D.favorites.filter(x=>x!==id):[id,...D.favorites];try{localStorage.setItem('medidenta_favs_v04',JSON.stringify(D.favorites))}catch{}draw();}else if(a==='compare'){const id=b.dataset.id;D.compare=D.compare.includes(id)?D.compare.filter(x=>x!==id):[...D.compare,id].slice(-2);draw();}else if(a==='compare-clear'){D.compare=[];D.compareDetails={};draw();}else if(a==='compare-view')showCompare();else if(a==='pzn')identify();else if(a==='photo')picker.click();else if(a==='reconnect')connect();else if(a==='sync-check')checkForCatalogUpdates(true);});
-document.addEventListener('input',e=>{if(e.target.id==='pms-search'){D.pmsQuery=e.target.value;D.pmsPage=0;clearTimeout(debounce);debounce=setTimeout(loadPms,260);return;}if(e.target.id!=='search')return;D.search=e.target.value;D.searchPage=0;D.searchHasMore=false;D.pmsSearchHits=[];clearTimeout(debounce);debounce=setTimeout(()=>find(D.search),220)});
-document.addEventListener('submit',e=>{const form=e.target.closest('form[data-pms-review-field]');if(!form)return;e.preventDefault();submitPmsField(form);});
+document.addEventListener('click',e=>{const b=e.target.closest('[data-nav],[data-action],[data-filter]');if(!b)return;if(b.dataset.nav){go(b.dataset.nav);return;}if(b.dataset.filter){D.hits=b.dataset.filter==='fav'?D.offline.filter(x=>D.favorites.includes(x.id)):localSearch(D.search);draw();return;}const a=b.dataset.action;if(a==='detail')openProduct(b.dataset.id);else if(a==='pms-inline')openPms(b.dataset.id,'search');else if(a==='pms-show')openPms(b.dataset.id,'pms');else if(a==='pms-all'){D.pmsQuery=D.search;D.pmsPage=0;go('pms');}else if(a==='pms-link-preview')previewPmsIdentity();else if(a==='search-next'){D.searchPage++;find(D.search);}else if(a==='search-prev'){D.searchPage=Math.max(0,D.searchPage-1);find(D.search);}else if(a==='pms-next'){D.pmsPage++;loadPms();}else if(a==='pms-prev'){D.pmsPage=Math.max(0,D.pmsPage-1);loadPms();}else if(a==='fav'){const id=b.dataset.id;D.favorites=D.favorites.includes(id)?D.favorites.filter(x=>x!==id):[id,...D.favorites];try{localStorage.setItem('medidenta_favs_v04',JSON.stringify(D.favorites))}catch{}draw();}else if(a==='compare'){const id=b.dataset.id;D.compare=D.compare.includes(id)?D.compare.filter(x=>x!==id):[...D.compare,id].slice(-2);draw();}else if(a==='compare-clear'){D.compare=[];D.compareDetails={};draw();}else if(a==='compare-view')showCompare();else if(a==='pzn')identify();else if(a==='photo')picker.click();else if(a==='reconnect')connect();else if(a==='sync-check')checkForCatalogUpdates(true);});
+document.addEventListener('input',e=>{if(e.target.id==='pms-link-id'){D.pmsLinkInput=e.target.value;D.pmsLinkCandidate=null;return;}if(e.target.id==='pms-search'){D.pmsQuery=e.target.value;D.pmsPage=0;clearTimeout(debounce);debounce=setTimeout(loadPms,260);return;}if(e.target.id!=='search')return;D.search=e.target.value;D.searchPage=0;D.searchHasMore=false;D.pmsSearchHits=[];clearTimeout(debounce);debounce=setTimeout(()=>find(D.search),220)});
+document.addEventListener('submit',e=>{const link=e.target.closest('form[data-pms-identity-review]');if(link){e.preventDefault();submitPmsIdentity(link);return;}const form=e.target.closest('form[data-pms-review-field]');if(!form)return;e.preventDefault();submitPmsField(form);});
 document.addEventListener('change',e=>{if(e.target.id==='code-system'){window.MediIdentaIdentifiers?.stopCamera?.();D.identifierSystem=e.target.value==='GTIN'?'GTIN':'PZN8';D.scanMessage='';D.scanMatches=[];draw();}});
 picker.addEventListener('change',e=>{const f=e.target.files?.[0];if(!f||!f.type.startsWith('image/')||f.size>8e6)return;if(D.photo)URL.revokeObjectURL(D.photo);D.photo=URL.createObjectURL(f);D.photoName=f.name;draw()});
 async function checkForCatalogUpdates(force=false){
