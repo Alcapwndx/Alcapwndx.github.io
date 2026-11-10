@@ -89,10 +89,33 @@
  const routes=Object.freeze(Object.fromEntries(routeValues.map(row=>{
     const [code,en,de]=row.split('|');return [code,{de,en}];
  })));
- // Distinct EMA RMS term list: medicinal/product forms, never infer if
- // FHIR explicitly identifies an unrelated system.
+ // Official EMA dose-form CodeSystem 200000000004:
+ // https://pms.ema.europa.eu/fhir/ig/CodeSystem-200000000004.html
+ const doseForms=[
+ '100000073649|Powder for oral suspension|Pulver zur Herstellung einer Suspension zum Einnehmen',
+ '100000073650|Granules for oral suspension|Granulat zur Herstellung einer Suspension zum Einnehmen',
+ '100000073652|Syrup|Sirup',
+ '100000073654|Dispersible tablet|Dispergierbare Tablette',
+ '100000073655|Oral powder|Pulver zum Einnehmen',
+ '100000073660|Capsule, soft|Weichkapsel',
+ '100000073661|Gastro-resistant capsule, soft|Magensaftresistente Weichkapsel',
+ '100000073662|Prolonged-release capsule, hard|Hartkapsel mit verlängerter Wirkstofffreisetzung',
+ '100000073663|Modified-release capsule, hard|Hartkapsel mit veränderter Wirkstofffreisetzung',
+ '100000073664|Tablet|Tablette',
+ '100000073665|Film-coated tablet|Filmtablette',
+ '100000073666|Orodispersible tablet|Schmelztablette',
+ '100000073667|Gastro-resistant tablet|Magensaftresistente Tablette',
+ '100000073668|Modified-release tablet|Tablette mit veränderter Wirkstofffreisetzung',
+ '100000073681|Effervescent tablet|Brausetablette',
+ '100000073682|Oral lyophilisate|Lyophilisat zum Einnehmen',
+ '100000073683|Prolonged-release tablet|Retardtablette',
+ '100000073684|Chewable tablet|Kautablette',
+ '100000073693|Sublingual spray|Sublingualspray'
+ ];
+ const forms=Object.freeze(Object.fromEntries(doseForms.map(row=>{
+  const [code,en,de]=row.split('|');return [code,{de,en}];
+ })));
  const misc=Object.freeze({
-   '100000073665':{de:'Filmtablette',en:'Film-coated tablet'},
    '100000073498':{de:'Schachtel',en:'Box'},
    '200000002152':{de:'Tablette',en:'Tablet'}
  });
@@ -102,6 +125,12 @@
   const isRoute=kind==='administration_routes'||sys.includes('/lists/100000073345');
   if(isRoute&&(!sys||sys.includes('/lists/100000073345'))&&routes[c]){
    return {...routes[c],system:'http://spor.ema.europa.eu/v1/lists/100000073345',code:c};
+  }
+  if((kind==='combined_dose_form'||kind==='authorised_dose_forms'||
+      kind==='administrable_dose_form'||kind==='manufactured_dose_form'||
+      sys.includes('/lists/200000000004'))&&
+      (!sys||sys.includes('/lists/200000000004'))&&forms[c]){
+    return {...forms[c],system:'http://spor.ema.europa.eu/v1/lists/200000000004',code:c};
   }
   if((!sys||sys.includes('spor.ema.europa.eu'))&&misc[c]){
     return {...misc[c],system:sys||'EMA RMS',code:c};
