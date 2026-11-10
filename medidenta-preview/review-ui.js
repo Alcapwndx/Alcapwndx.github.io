@@ -23,25 +23,59 @@ function ref(f){
  (r.publication_date?'<div>Quellendatum: '+esc(r.publication_date)+'</div>':'')+
  (r.accessed_on?'<div>Abgerufen am: '+esc(r.accessed_on)+'</div>':'')+'</div>';
 }
-function card(f){
- const risk=String(f.risk_level||'normal'),approved=f.editorial_status==='clinically_reviewed';
- const status=approved?'Fachlich validiert':'Nicht fachlich validiert';
- const body='<article class="clinical-draft '+(risk==='critical'?'draft-critical':risk==='high'?'draft-high':'')+'">'+
- '<div class="draft-head"><strong>'+esc(f.target_name)+' · '+esc(TYPES[f.fact_type]||f.fact_type)+'</strong>'+
- '<span class="tag public-fact-status '+(approved?'reviewed-tag':'amber')+'">'+status+'</span></div>'+
- (f.assignment_status==='unmatched'?'<p class="tiny muted">Produktzuordnung derzeit noch ungeklärt.</p>':'')+
- '<p class="draft-text">'+esc(f.content_text)+'</p>'+
- '<details class="reference-disclosure"><summary>EMA-Originalquelle & Fundstelle</summary>'+ref(f)+'</details>'+
- (global.MediIdentaReviewAuth?.reviewActionHtml(f)||'')+'</article>';
- return body;
+function topicCard(g,showTarget){
+ const all=g.records||[];
+ const risk=all.reduce((level,f)=>{
+  const v=String(f.risk_level||'normal');
+  return (riskRank[v]??3)<(riskRank[level]??3)?v:level;
+ },'normal');
+ const heading=(showTarget?esc(g.target_name)+' · ':'')+esc(TYPES[g.type]||g.title||g.type);
+ const entries=g.items.map(item=>{
+  const seen=new Set();
+  const links=item.records.map(f=>{
+    const source=f.reference||{};
+    const label=[source.document_url,source.locator,source.publication_date].join('|');
+    if(seen.has(label))return '';
+    seen.add(label);
+    return ref(f);
+  }).join('');
+  // Same text displays once, but every immutable source record maintains its
+  // own admin/review action, so no approval state can leak across records.
+  const reviews=item.records.map(f=>{
+   const action=global.MediIdentaReviewAuth?.reviewActionHtml(f)||'';
+   return action?'<div class="topic-review-record"><p class="tiny muted">Einzeltext-ID: '+esc(f.id||'–')+
+    ' · '+esc(f.editorial_status==='clinically_reviewed'?'Einzeln validiert':'Noch nicht validiert')+
+    '</p>'+action+'</div>':'';
+  }).join('');
+  return '<div class="topic-entry"><p class="draft-text">'+esc(item.text)+'</p>'+
+   (item.records.length>1?'<p class="tiny muted">Gleicher Text in '+item.records.length+
+    ' Quelldatensätzen – nur einmal dargestellt.</p>':'')+
+   '<details class="reference-disclosure"><summary>Quellen und Einzelprüfungen ('+item.records.length+')</summary>'+
+   links+reviews+'</details></div>';
+ }).join('');
+ return '<article class="clinical-draft clinical-topic '+(risk==='critical'?'draft-critical':risk==='high'?'draft-high':'')+'">'+
+  '<div class="draft-head"><strong>'+heading+'</strong>'+
+  '<span class="tag public-fact-status '+(g.unreviewed===0?'reviewed-tag':'amber')+'">'+
+  (g.unreviewed===0?'Alle Einzeltexte validiert':g.unreviewed+' nicht validiert')+'</span></div>'+
+  '<p class="tiny muted">'+g.items.length+' unterschiedliche Aussagen · '+g.reviewed+
+  ' von '+all.length+' Einzeltexten administrativ validiert</p>'+entries+'</article>';
+}
+function grouped(facts,perProduct){
+ if(global.MediIdentaPresentation?.groupClinical)
+   return global.MediIdentaPresentation.groupClinical(facts,perProduct);
+ // No misleading unification if optional helper script has failed to load.
+ return (facts||[]).map(f=>({type:f.fact_type,title:TYPES[f.fact_type],
+   target_name:f.target_name||'',items:[{text:f.content_text,records:[f]}],
+   records:[f],reviewed:f.editorial_status==='clinically_reviewed'?1:0,
+   unreviewed:f.editorial_status==='clinically_reviewed'?0:1}));
 }
 function linked(D,p){return [...(D.approved||[]),...(D.drafts||[])].filter(f=>Array.isArray(f.linked_product_ids)&&f.linked_product_ids.includes(p.id)).sort((a,b)=>(a.editorial_status==='clinically_reviewed'?-1:0)-(b.editorial_status==='clinically_reviewed'?-1:0)||(riskRank[a.risk_level]??3)-(riskRank[b.risk_level]??3));}
 function details(D,p){
- const a=linked(D,p);
+ const facts=linked(D,p), groups=grouped(facts,true);
  return '<section class="card draft-section"><h2>Fachinformationen</h2>'+
- '<p class="small muted">'+a.length+' quellenbezogene Aussagen für diesen Eintrag. Individuell fachlich validierte Texte: '+
- a.filter(x=>x.editorial_status==='clinically_reviewed').length+'.</p>'+notice()+
- (a.length?a.map(card).join(''):'<p class="small muted">Noch keine Aussagen zugeordnet.</p>')+
+ '<p class="small muted">'+groups.length+' Themenbereiche · '+facts.length+' Quelldatensätze · '+
+ facts.filter(x=>x.editorial_status==='clinically_reviewed').length+' einzelne Freigaben.</p>'+notice()+
+ (groups.length?groups.map(g=>topicCard(g,false)).join(''):'<p class="small muted">Noch keine Aussagen zugeordnet.</p>')+
  '<button class="secondary full spaced" data-nav="knowledge">Weitere Fachinformationen entdecken</button></section>';
 }
 function filtered(D){
@@ -54,7 +88,7 @@ function filtered(D){
 }
 function option(k,v,current){return '<option value="'+k+'" '+(current===k?'selected':'')+'>'+esc(v)+'</option>';}
 function knowledge(D){
- const all=filtered(D),size=12,pages=Math.max(1,Math.ceil(all.length/size));R.page=Math.min(Math.max(0,R.page),pages-1);
+ const raw=filtered(D),all=grouped(raw,false),size=10,pages=Math.max(1,Math.ceil(all.length/size));R.page=Math.min(Math.max(0,R.page),pages-1);
  const list=all.slice(R.page*size,(R.page+1)*size);
  const approved=(D.approved||[]).length;
  const editor=global.MediIdentaReviewAuth?._debug?.role?.();
@@ -74,13 +108,13 @@ function knowledge(D){
  option('unmatched','Zuordnung offen',R.assignment)+'</select></label>'+
  '<label>Prüfpriorität<select id="clinical-risk" class="search-input">'+
  option('all','Alle Prioritäten',R.risk)+Object.entries(RISKS).map(([k,v])=>option(k,v,R.risk)).join('')+'</select></label></div>'+
- '<p class="small muted">'+all.length+' Treffer · Seite '+(R.page+1)+' von '+pages+'</p>'+
+ '<p class="small muted">'+all.length+' Themenbereiche aus '+raw.length+' Fachtextdatensätzen · Seite '+(R.page+1)+' von '+pages+'</p>'+
  (privileged?'<details><summary class="small">Legacy: private lokale Prüfnotizen exportieren</summary>'+
  '<p class="tiny muted">Ältere lokale Markierungen bleiben auf diesem Gerät; neue Moderatorprüfungen werden in der geschützten Datenbank dokumentiert.</p>'+
  '<button class="secondary full" data-review-action="export">Lokale Notizen als JSON exportieren</button></details>':'')+
  (R.saveError?'<p class="notice warning">Lokale Notizen konnten nicht gespeichert werden.</p>':'')+'</section>'+
  (D.draftLoadError?'<div class="notice danger">Fachinformationen konnten nicht vollständig geladen werden.</div>':'')+
- (list.length?list.map(card).join(''):'<div class="empty">Keine passenden Informationen gefunden.</div>')+
+ (list.length?list.map(g=>topicCard(g,true)).join(''):'<div class="empty">Keine passenden Informationen gefunden.</div>')+
  '<div class="row draft-pager"><button class="secondary" data-review-action="prev" '+(R.page===0?'disabled':'')+'>← Zurück</button>'+
  '<span class="small muted">'+(R.page+1)+' / '+pages+'</span>'+
  '<button class="secondary" data-review-action="next" '+(R.page===pages-1?'disabled':'')+'>Weiter →</button></div>';

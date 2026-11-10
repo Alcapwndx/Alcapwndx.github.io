@@ -195,3 +195,37 @@ html[data-theme="dark"] .draft-text{color:#e0eff2}
 }
 [data-pms-review-field] { display: grid; gap: 10px; margin-top: 12px; }
 [data-pms-review-field] textarea { width: 100%; }
+
+
+/* v0.14 – one topic card per clinical category, no duplicate text boxes */
+.clinical-topic { margin-block: 12px; }
+.clinical-topic .topic-entry + .topic-entry,
+.pms-topic .pms-readable-item + .pms-readable-item {
+  border-top: 1px solid var(--border, #d9e6e7);
+  padding-top: 14px; margin-top: 14px;
+}
+.clinical-topic .draft-head { align-items: baseline; }
+.clinical-topic .topic-entry .draft-text { white-space: pre-wrap; }
+.topic-review-record {
+  border-top: 1px solid var(--border, #d9e6e7);
+  margin-top: 12px; padding-top: 10px;
+}
+.pms-topic { overflow-wrap: anywhere; }
+.pms-topic h2 { margin: 0; font-size: 17px; }
+.pms-readable-item h3 { font-size: 14px; margin: 5px 0 7px; }
+.pms-readable-value {
+  white-space: pre-line; line-height: 1.65; font-size: 14px;
+  margin: 5px 0 12px; overflow-wrap: anywhere;
+}
+.pms-tech { margin-top: 8px; }
+.pms-tech summary, .reference-disclosure summary { cursor: pointer; }
+.pms-source-check { display: flex !important; align-items: flex-start; gap: 9px; }
+.pms-source-check input { width: auto !important; margin-top: 3px; }
+.search-source { margin-block: 16px 22px; }
+.search-source h2 { font-size: 17px; margin-bottom: 4px; }
+.pms-inline-result .med-button { text-align: left; }
+html[data-theme="dark"] .clinical-topic .topic-entry + .topic-entry,
+html[data-theme="dark"] .pms-topic .pms-readable-item + .pms-readable-item {
+  border-top-color: #41636a;
+}
+html[data-theme="dark"] .pms-readable-value { color: #e0eff2; }

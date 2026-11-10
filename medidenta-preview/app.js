@@ -102,10 +102,19 @@ async function loadPms(){
  }catch(e){if(n!==D.seq)return;D.pmsHits=[];D.pmsError='PMS-Quelldaten derzeit nicht verfügbar. '+String(e.message||'');}
  finally{if(n===D.seq){D.pmsBusy=false;draw(true);}}
 }
-async function openPms(id){
- D.page='pms-detail';D.pmsDetail=null;D.pmsError='';D.pmsMessage='';draw();
- try{D.pmsDetail=await api('/pms/products/'+encodeURIComponent(id));}
- catch(e){D.pmsError='PMS-Datensatz konnte nicht geladen werden: '+String(e.message||'');}
+async function openPms(id,fromUnifiedSearch=false){
+ D.pmsFromSearch=fromUnifiedSearch;
+ D.page=fromUnifiedSearch?'detail':'pms-detail';
+ D.pmsDetail=null;D.pmsError='';D.pmsMessage='';
+ D.detail=fromUnifiedSearch?{kind:'pms',id:'pms:'+id,name:'EMA-PMS-Quelle'}:null;
+ draw();
+ try{
+  const source=await api('/pms/products/'+encodeURIComponent(id));
+  D.pmsDetail=source;
+  if(fromUnifiedSearch)D.detail={kind:'pms',id:'pms:'+id,name:source.product.display_name};
+ }catch(e){
+  D.pmsError='PMS-Datensatz konnte nicht geladen werden: '+String(e.message||'');
+ }
  draw();
 }
 async function submitPmsField(form){
@@ -201,7 +210,42 @@ function qualityHtml(){
 }
 function draw(preserveFocus){let active=preserveFocus&&document.activeElement&&['search','pms-search'].includes(document.activeElement.id);let focusId=active?document.activeElement.id:null;let pos=active?document.activeElement.selectionStart:null;root.innerHTML=({home:home,search:searchHtml,detail:detailHtml,pms:pmsHtml,'pms-detail':pmsDetailHtml,compare:compareHtml,scan:scanHtml,knowledge:knowledgeHtml,quality:qualityHtml,account:()=>window.MediIdentaReviewAuth?.accountHtml()||title('Prüfkonto noch nicht verfügbar')}[D.page]||home)();document.querySelectorAll('.bottom-nav button').forEach(x=>x.classList.toggle('active',x.dataset.nav===D.page));status();if(D.photo&&document.querySelector('#photo'))document.querySelector('#photo').src=D.photo;if(active&&document.querySelector('#'+focusId)){let el=document.querySelector('#'+focusId);el.focus();try{el.setSelectionRange(pos,pos)}catch{}}}
 function localSearch(q){if(trim(q).length<2)return D.offline.slice(0,50);const tokens=normalize(q).split(/\s+/).filter(Boolean);return D.offline.filter(x=>tokens.every(t=>normalize(x.name+' '+x.substances).includes(t))).slice(0,50)}
-async function find(q){const n=++D.seq;D.loading=true;D.hits=localSearch(q);draw(true);if(D.connected&&trim(q).length>=2){try{const r=await api('/search?q='+encodeURIComponent(q)+'&limit=50&offset='+(D.searchPage*50));if(n!==D.seq)return;D.hits=(r.results||[]).map(x=>({id:x.id,name:x.name,substances:x.substances||'',country_code:x.country_code,marketing_status:x.marketing_status}));D.searchHasMore=r.has_more===true;}catch{D.connected=false;D.hits=localSearch(q)}}if(n===D.seq){D.loading=false;draw(true)}}
+async function find(q){
+ const n=++D.seq;
+ D.loading=true;D.searchError='';D.pmsInlineError='';
+ D.pmsInlineHits=[];D.pmsInlineHasMore=false;
+ D.hits=D.connected?[]:localSearch(q);
+ draw(true);
+ if(D.connected&&trim(q).length>=2){
+  const offset=D.searchPage*50;
+  const [core,pms]=await Promise.allSettled([
+   api('/search?q='+encodeURIComponent(q)+'&limit=50&offset='+offset),
+   api('/pms/products?q='+encodeURIComponent(q)+'&limit=50&offset='+offset)
+  ]);
+  if(n!==D.seq)return;
+  if(core.status==='fulfilled'){
+   D.hits=(core.value.results||[]).map(x=>({
+    id:x.id,name:x.name,substances:x.substances||'',
+    country_code:x.country_code,marketing_status:x.marketing_status
+   }));
+   D.searchHasMore=core.value.has_more===true;
+  }else{
+   D.hits=[];D.searchHasMore=false;
+   D.searchError='Die reguläre Live-Suche ist momentan nicht verfügbar. Es werden keine veralteten Arzneimittel als aktuelle Treffer angezeigt.';
+  }
+  if(pms.status==='fulfilled'){
+   D.pmsInlineHits=Array.isArray(pms.value.results)?pms.value.results:[];
+   D.pmsInlineHasMore=pms.value.has_more===true;
+  }else{
+   D.pmsInlineHits=[];D.pmsInlineHasMore=false;
+   D.pmsInlineError='Die PMS-Quellensuche ist zurzeit nicht verfügbar.';
+  }
+ }else{
+  D.searchHasMore=false;
+  D.hits=D.connected?localSearch(q):localSearch(q);
+ }
+ if(n===D.seq){D.loading=false;draw(true);}
+}
 async function openProduct(id){D.page='detail';D.detail=null;draw();const p=D.offline.find(x=>x.id===id);try{if(D.connected)D.detail=await api('/products/'+encodeURIComponent(id));else if(p)D.detail={...p,substances:trim(p.substances).split(', ').map(name=>({name})),facts:[],photos:[],presentations:[],source:{name:p.source_name,url:p.source_url,license:p.license}};else throw Error('Kein freigegebener Produktdatensatz');}catch{D.detail=p?{...p,substances:trim(p.substances).split(', ').map(name=>({name})),facts:[],photos:[],presentations:[],source:{name:p.source_name,url:p.source_url,license:p.license}}:null;}draw();}
 function validPzn(x){return !!window.MediIdentaIdentifiers?.pzn8(x);}
 async function identify(){
@@ -220,10 +264,10 @@ async function identify(){
  }catch{D.scanMessage='Packungsabfrage fehlgeschlagen. Keine Identifizierung möglich.';D.scanMatches=[];}
  draw();
 }
-function go(where){window.MediIdentaIdentifiers?.stopCamera?.();D.page=where;D.scanMessage='';D.scanMatches=[];draw();document.documentElement.scrollTop=0;if(where==='pms')loadPms();}
+function go(where){window.MediIdentaIdentifiers?.stopCamera?.();D.page=where;D.scanMessage='';D.scanMatches=[];draw();document.documentElement.scrollTop=0;if(where==='pms'){D.pmsFromSearch=false;loadPms();}}
 async function connect(){if(IS_PUBLIC_PREVIEW){D.connected=false;D.meta=null;D.features={collaboration_enabled:false};D.attributions=[{source_key:'EU_UR',name:'European Commission – Union Register',license_code:'CC-BY-4.0',attribution_text:'Quellgebundene Produktidentitäten aus dem EU-Register.'},{source_key:'EMA_EPAR',name:'European Medicines Agency – EPAR',license_code:'EMA-REUSE-ATTRIBUTION',attribution_text:'Produktidentitäten und unabhängig formulierte Entwürfe mit EMA-Quellenverweisen.'}];draw();return;}try{D.meta=await api('/meta');D.connected=true;try{const f=await api('/features');D.features={collaboration_enabled:f.collaboration_enabled===true};}catch{D.features={collaboration_enabled:false};}try{const x=await api('/attributions');D.attributions=Array.isArray(x.sources)?x.sources:[];}catch{D.attributions=[];}}catch{D.meta=null;D.connected=false;D.attributions=[];D.features={collaboration_enabled:false};}if(D.page==='search')find(D.search);else draw();}
 let debounce;
-document.addEventListener('click',e=>{const b=e.target.closest('[data-nav],[data-action],[data-filter]');if(!b)return;if(b.dataset.nav){go(b.dataset.nav);return;}if(b.dataset.filter){D.hits=b.dataset.filter==='fav'?D.offline.filter(x=>D.favorites.includes(x.id)):localSearch(D.search);draw();return;}const a=b.dataset.action;if(a==='detail')openProduct(b.dataset.id);else if(a==='pms-show')openPms(b.dataset.id);else if(a==='search-next'){D.searchPage++;find(D.search);}else if(a==='search-prev'){D.searchPage=Math.max(0,D.searchPage-1);find(D.search);}else if(a==='pms-next'){D.pmsPage++;loadPms();}else if(a==='pms-prev'){D.pmsPage=Math.max(0,D.pmsPage-1);loadPms();}else if(a==='fav'){const id=b.dataset.id;D.favorites=D.favorites.includes(id)?D.favorites.filter(x=>x!==id):[id,...D.favorites];try{localStorage.setItem('medidenta_favs_v04',JSON.stringify(D.favorites))}catch{}draw();}else if(a==='compare'){const id=b.dataset.id;D.compare=D.compare.includes(id)?D.compare.filter(x=>x!==id):[...D.compare,id].slice(-2);draw();}else if(a==='compare-clear'){D.compare=[];D.compareDetails={};draw();}else if(a==='compare-view')showCompare();else if(a==='pzn')identify();else if(a==='photo')picker.click();else if(a==='reconnect')connect();else if(a==='sync-check')checkForCatalogUpdates(true);});
+document.addEventListener('click',e=>{const b=e.target.closest('[data-nav],[data-action],[data-filter]');if(!b)return;if(b.dataset.nav){go(b.dataset.nav);return;}if(b.dataset.filter){D.hits=b.dataset.filter==='fav'?D.offline.filter(x=>D.favorites.includes(x.id)):localSearch(D.search);draw();return;}const a=b.dataset.action;if(a==='detail')openProduct(b.dataset.id);else if(a==='pms-show')openPms(b.dataset.id,false);else if(a==='pms-show-unified')openPms(b.dataset.id,true);else if(a==='search-next'){D.searchPage++;find(D.search);}else if(a==='search-prev'){D.searchPage=Math.max(0,D.searchPage-1);find(D.search);}else if(a==='pms-next'){D.pmsPage++;loadPms();}else if(a==='pms-prev'){D.pmsPage=Math.max(0,D.pmsPage-1);loadPms();}else if(a==='fav'){const id=b.dataset.id;D.favorites=D.favorites.includes(id)?D.favorites.filter(x=>x!==id):[id,...D.favorites];try{localStorage.setItem('medidenta_favs_v04',JSON.stringify(D.favorites))}catch{}draw();}else if(a==='compare'){const id=b.dataset.id;D.compare=D.compare.includes(id)?D.compare.filter(x=>x!==id):[...D.compare,id].slice(-2);draw();}else if(a==='compare-clear'){D.compare=[];D.compareDetails={};draw();}else if(a==='compare-view')showCompare();else if(a==='pzn')identify();else if(a==='photo')picker.click();else if(a==='reconnect')connect();else if(a==='sync-check')checkForCatalogUpdates(true);});
 document.addEventListener('input',e=>{if(e.target.id==='pms-search'){D.pmsQuery=e.target.value;D.pmsPage=0;clearTimeout(debounce);debounce=setTimeout(loadPms,260);return;}if(e.target.id!=='search')return;D.search=e.target.value;D.searchPage=0;D.searchHasMore=false;clearTimeout(debounce);debounce=setTimeout(()=>find(D.search),220)});
 document.addEventListener('submit',e=>{const form=e.target.closest('form[data-pms-review-field]');if(!form)return;e.preventDefault();submitPmsField(form);});
 document.addEventListener('change',e=>{if(e.target.id==='code-system'){window.MediIdentaIdentifiers?.stopCamera?.();D.identifierSystem=e.target.value==='GTIN'?'GTIN':'PZN8';D.scanMessage='';D.scanMatches=[];draw();}});
@@ -262,7 +306,7 @@ async function checkForCatalogUpdates(force=false){
   if(new Set([...facts,...approved].map(x=>x.id)).size!==facts.length+approved.length)throw Error('Doppelte Redaktions-ID');
   D.offline=products;D.drafts=facts;D.approved=approved;D.syncMeta=meta;D.draftLoadError=false;D.catalogRevision=catalog.source_commit||null;D.draftRevision=drafts.source_commit||null;
   D.hits=localSearch(D.search);D.compareDetails={};
-  if(D.page==='detail'&&D.detail){
+  if(D.page==='detail'&&D.detail&&D.detail.kind!=='pms'){
    const p=D.offline.find(x=>x.id===D.detail.id);
    if(!p){D.page='search';D.detail=null;}
    else D.detail={...p,substances:trim(p.substances).split(', ').map(name=>({name})),facts:[],photos:[],presentations:[],
