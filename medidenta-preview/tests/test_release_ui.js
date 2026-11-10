@@ -16,7 +16,7 @@ const html=ui.knowledge(data);
 assert.match(html,/Fachlich validiert/);
 assert.match(html,/Nicht fachlich validiert/);
 assert.match(html,/Fachlich validierte Einzeltexte/);
-assert.match(html,/2 Treffer/);
+assert.match(html,/1 Themenbereiche aus 2 Einzeltexten/);
 const details=ui.details(data,{id:'p1'});
 assert.match(details,/1 individuell bestätigte Fachtexte/);
 assert.equal((details.match(/data-fact-topic="summary"/g)||[]).length,1);
