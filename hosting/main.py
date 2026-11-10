@@ -360,9 +360,18 @@ async def get_product(product_id: str):
     if not p:
         raise HTTPException(404, "Produktidentität nicht gefunden")
     subs = [{ "name": s.strip() } for s in p.get("substances","").split(",") if s.strip()]
-    pms_sources = await _live_pms_sources(product_id, p) if IS_LIVE_CONFIGURED else []
+    pms_sources, pms_unavailable = [], False
+    if IS_LIVE_CONFIGURED:
+        try:
+            pms_sources = await _live_pms_sources(product_id, p)
+        except HTTPException:
+            # PMS Beta is an OPTIONAL extra source, not a reason to hide the
+            # existing medicine identity and its reviewed clinical statements.
+            log.warning("Additional PMS Beta metadata unavailable for product details")
+            pms_unavailable = True
     return no_store({
         **p, "substances": subs, "facts": [], "pms_sources": pms_sources,
+        "pms_unavailable": pms_unavailable,
         "presentations": [], "photos": [], "identifiers": [],
         "source": {"key": p.get("source_key"), "name": p.get("source_name"),
                    "url": p.get("source_url"), "license": p.get("license")},
