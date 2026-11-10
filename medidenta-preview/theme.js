@@ -19,6 +19,17 @@
  }
  const initial=stored();
  apply(initial==='light'||initial==='dark'?initial:auto());
+ // Loaded synchronously in <head> to prevent a theme flash. The header button
+ // does not exist yet, so synchronize its label/icon once the DOM is ready.
+ function syncHeaderButton(){
+   const current=root.document.documentElement.getAttribute('data-theme');
+   apply(current==='dark'?'dark':'light');
+ }
+ if(root.document.readyState==='loading'){
+   root.document.addEventListener('DOMContentLoaded',syncHeaderButton,{once:true});
+ }else{
+   syncHeaderButton();
+ }
  root.document.addEventListener('click',function(e){
    if(!e.target.closest?.('[data-theme-toggle]'))return;
    const next=root.document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';
