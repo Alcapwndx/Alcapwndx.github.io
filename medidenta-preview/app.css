@@ -195,3 +195,41 @@ html[data-theme="dark"] .draft-text{color:#e0eff2}
 }
 [data-pms-review-field] { display: grid; gap: 10px; margin-top: 12px; }
 [data-pms-review-field] textarea { width: 100%; }
+
+
+/* Grouped source-linked information: one visual panel per topic. */
+.clinical-topic{margin:16px 0;padding:14px;border:1px solid #d6e6e9;border-radius:15px;background:#f8fbfc}
+.clinical-topic>h3{font-size:16px;margin-bottom:12px;color:#164658}
+.grouped-fact-item{padding:12px 0;border-top:1px solid #e2eced}
+.grouped-fact-item:first-of-type{border-top:0}
+.grouped-fact-item.draft-critical{border-left:3px solid #ce8d45;padding-left:11px}
+.grouped-fact-item.draft-high{border-left:3px solid #c5a95a;padding-left:11px}
+.grouped-fact-item .draft-head{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.grouped-fact-item .draft-text{margin:11px 0;font-size:13px;line-height:1.65;white-space:pre-wrap}
+.grouped-fact-source,.grouped-pms-source{border-top:1px solid #dce8ea;padding:12px 2px}
+.grouped-fact-source:first-of-type,.grouped-pms-source:first-of-type{border-top:0}
+.grouped-fact-source .review-ref{margin:8px 0}
+.pms-topic h2{margin-bottom:6px;font-size:16px}
+.pms-readable-values{margin:12px 0 0;padding-left:19px;display:grid;gap:12px}
+.pms-readable-values li{padding-left:3px;line-height:1.6;overflow-wrap:anywhere;font-size:13px}
+.pms-readable-values li .tag{margin-left:6px}
+.pms-readable-text{display:inline;font-weight:650;overflow-wrap:anywhere}
+.pms-source-audit,.reference-disclosure{margin-top:12px}
+.pms-source-audit>summary,.reference-disclosure>summary{font-weight:750;font-size:12px;cursor:pointer;padding:9px 0;color:#087f81}
+.pms-raw-disclosure{margin:8px 0}
+.pms-raw-disclosure>summary{font-size:11px;color:#547682;cursor:pointer}
+.integrated-pms-results{margin-top:22px;border-color:#bddbdc}
+.pms-search-result{border:0;border-top:1px solid #deeaec;width:100%;display:flex;align-items:center;justify-content:space-between;gap:9px;background:transparent;text-align:left;color:inherit;padding:13px 0}
+.pms-search-result span:first-child{min-width:0;flex:1}
+.pms-search-result strong,.pms-search-result small{display:block;overflow-wrap:anywhere}
+.pms-search-result strong{font-size:13px;color:#174b59}
+.pms-search-result small{font-size:11px;color:#67838d;margin-top:4px}
+.pms-search-result .tag{flex:0 0 auto}
+@media(max-width:385px){.pms-search-result{align-items:flex-start;flex-direction:column}}
+html[data-theme="dark"] .clinical-topic{background:#1b3b47;border-color:#416572}
+html[data-theme="dark"] .clinical-topic>h3{color:#dceff0}
+html[data-theme="dark"] .grouped-fact-item,html[data-theme="dark"] .grouped-fact-source,html[data-theme="dark"] .grouped-pms-source{border-top-color:#3a5b65}
+html[data-theme="dark"] .pms-search-result{border-color:#3e6571}
+html[data-theme="dark"] .pms-search-result strong{color:#d7f4ef}
+html[data-theme="dark"] .pms-readable-text{color:#e2f2f5}
+html[data-theme="dark"] .pms-source-audit>summary,html[data-theme="dark"] .reference-disclosure>summary{color:#7edfd7}
