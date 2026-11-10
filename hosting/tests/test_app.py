@@ -56,7 +56,7 @@ class AppTests(unittest.TestCase):
         async def fake_product(pid):
             assert pid == "p1"
             return {"id":"p1","name":"Approved only in test","substances":"stoff x","source_key":"EMA_EPAR"}
-        with patch.object(main,"IS_LIVE_CONFIGURED",True),patch.object(main,"_read_table",side_effect=fake_read),patch.object(main,"_live_search_rpc",side_effect=fake_search),patch.object(main,"_live_product",side_effect=fake_product):
+        with patch.object(main,"IS_LIVE_CONFIGURED",True),patch.object(main,"_read_table",side_effect=fake_read),patch.object(main,"_live_search_rpc",side_effect=fake_search),patch.object(main,"_live_product",side_effect=fake_product),patch.object(main,"_live_verified_pms_links",return_value=[]):
             meta=client.get("/medidenta-preview/sync_status.json").json()
             self.assertEqual(meta["mode"],"LIVE_SUPABASE")
             self.assertEqual(meta["release_phase"], "alpha")
@@ -182,7 +182,7 @@ class AppTests(unittest.TestCase):
         with patch.object(main,"IS_LIVE_CONFIGURED",True),\
              patch.object(main,"_bundle",side_effect=AssertionError("full catalog fetch forbidden")),\
              patch.object(main,"_live_search_rpc",side_effect=fake_search),\
-             patch.object(main,"_live_product",side_effect=fake_product):
+             patch.object(main,"_live_product",side_effect=fake_product),patch.object(main,"_live_verified_pms_links",return_value=[]):
             search_result=client.get("/api/v1/search?q=Toujeo&offset=20").json()
             self.assertEqual(search_result["results"][0]["id"],"p1")
             self.assertEqual(search_result["offset"],20)
@@ -195,6 +195,73 @@ class AppTests(unittest.TestCase):
              patch.object(main,"_bundle",side_effect=AssertionError("stale fallback forbidden")),\
              patch.object(main,"_live_search_rpc",side_effect=fail):
             self.assertEqual(client.get("/api/v1/search?q=apixaban").status_code,503)
+
+
+    def test_only_confirmed_pms_sources_share_a_medication_detail(self):
+        async def product(pid):
+            return {"id":pid,"name":"Test medicine","substances":"Sample",
+                    "catalog_source_commit":"a"*40}
+        async def read(table,params):
+            if table=="medidenta_pms_identity_links":
+                self.assertEqual(params["catalog_product_id"],"eq.p1")
+                return [{"pms_id":"600000000000","verified_at":"2026-11-10T06:00:00Z","confirmed":True}]
+            if table=="medidenta_pms_products":
+                return [{"pms_id":"600000000000","display_name":"Source product",
+                         "source_url":"https://api.pms.ema.europa.eu/public/v1/MedicinalProductDefinition/600000000000/$everything",
+                         "bundle_sha256":"b"*64,"imported_at":"2026-11-10T06:00:00Z"}]
+            if table=="medidenta_pms_fields":
+                return [{"id":"pms_"+"a"*40,"pms_id":"600000000000",
+                         "attribute_key":"strength_raw_no_dose_conversion",
+                         "value_json":{"presentationRatio":{"numerator":{"value":5,"unit":"mg"},
+                         "denominator":{"value":1,"unit":"tablet"}}},
+                         "editorial_status":"draft_unreviewed"}]
+            raise AssertionError(table)
+        with patch.object(main,"IS_LIVE_CONFIGURED",True),\
+             patch.object(main,"_live_product",side_effect=product),\
+             patch.object(main,"_pms_read",side_effect=read):
+            record=client.get("/api/v1/products/p1").json()
+            self.assertEqual(len(record["pms_sources"]),1)
+            self.assertEqual(record["pms_sources"][0]["product"]["pms_id"],"600000000000")
+            self.assertEqual(record["pms_sources"][0]["fields"][0]["editorial_status"],"draft_unreviewed")
+            self.assertFalse(record["pms_sources"][0]["clinical_release_ready"])
+            self.assertFalse(record["clinical_content_complete"])
+
+    def test_unverified_source_is_never_auto_matched_by_name(self):
+        async def product(pid):
+            return {"id":pid,"name":"Same common name","substances":"Test",
+                    "catalog_source_commit":"a"*40}
+        async def no_links(table,params):
+            self.assertEqual(table,"medidenta_pms_identity_links")
+            return []
+        with patch.object(main,"IS_LIVE_CONFIGURED",True),\
+             patch.object(main,"_live_product",side_effect=product),\
+             patch.object(main,"_pms_read",side_effect=no_links):
+            self.assertEqual(client.get("/api/v1/products/p1").json()["pms_sources"],[])
+
+    def test_pms_identity_link_admin_rpc_requires_current_sources_and_jwt(self):
+        body={
+            "catalog_product_id":"p1","pms_id":"600000000000",
+            "catalog_source_commit":"a"*40,"pms_bundle_sha256":"b"*64,
+            "decision":"confirm","identifiers_checked":True,
+            "form_strength_checked":True,"region_checked":True,
+            "evidence_note":"Both official source identifiers, strength and region checked on record."
+        }
+        with patch.object(main,"IS_LIVE_CONFIGURED",True):
+            self.assertEqual(client.post("/api/v1/pms/identity-links",json=body).status_code,401)
+            async def rpc(name,args,bearer):
+                self.assertEqual(name,"medidenta_review_pms_identity_link")
+                self.assertEqual(args["p_catalog_source_commit"],"a"*40)
+                self.assertEqual(args["p_pms_bundle_sha256"],"b"*64)
+                self.assertTrue(args["p_region_checked"])
+                return {"catalog_product_id":"p1","pms_id":"600000000000","confirmed":True}
+            with patch.object(main,"_supabase_rpc",side_effect=rpc):
+                result=client.post("/api/v1/pms/identity-links",
+                    headers={"Authorization":"Bearer "+"c"*80},json=body)
+                self.assertEqual(result.status_code,200)
+                self.assertTrue(result.json()[0]["confirmed"])
+                self.assertEqual(client.post("/api/v1/pms/identity-links",
+                    headers={"Authorization":"Bearer "+"c"*80},
+                    json={**body,"region_checked":False}).status_code,422)
 
 
 

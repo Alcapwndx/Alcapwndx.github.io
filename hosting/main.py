@@ -311,7 +311,7 @@ async def _live_product(product_id: str) -> dict | None:
             response = await client.get(
                 f"{URL}/rest/v1/medidenta_catalog_products",
                 headers={"apikey": KEY, "Accept": "application/json"},
-                params={"select": "id,payload", "id": "eq." + product_id, "limit": "1"})
+                params={"select": "id,payload,source_commit", "id": "eq." + product_id, "limit": "1"})
             response.raise_for_status()
             items = response.json()
             if not isinstance(items, list) or len(items) > 1:
@@ -323,7 +323,7 @@ async def _live_product(product_id: str) -> dict | None:
                     or not isinstance(row.get("payload"), dict)
                     or row["payload"].get("id") != product_id):
                 raise ValueError("Untrusted product identity")
-            return dict(row["payload"])
+            return {**row["payload"], "catalog_source_commit": row.get("source_commit")}
         except (httpx.HTTPError, ValueError):
             raise HTTPException(503, "Zentrale Produktdatenbank derzeit nicht verfügbar") from None
 
@@ -360,8 +360,9 @@ async def get_product(product_id: str):
     if not p:
         raise HTTPException(404, "Produktidentität nicht gefunden")
     subs = [{ "name": s.strip() } for s in p.get("substances","").split(",") if s.strip()]
+    pms_sources = await _live_verified_pms_links(product_id) if IS_LIVE_CONFIGURED else []
     return no_store({
-        **p, "substances": subs, "facts": [],
+        **p, "substances": subs, "facts": [], "pms_sources": pms_sources,
         "presentations": [], "photos": [], "identifiers": [],
         "source": {"key": p.get("source_key"), "name": p.get("source_name"),
                    "url": p.get("source_url"), "license": p.get("license")},
@@ -372,7 +373,7 @@ async def get_product(product_id: str):
 
 # Public PMS Beta metadata is a SEPARATE source catalog. Never conflate
 # these IDs with licensed German packs, reviewed SmPCs or existing product IDs.
-_PMS_TABLES = {"medidenta_pms_products", "medidenta_pms_fields"}
+_PMS_TABLES = {"medidenta_pms_products", "medidenta_pms_fields", "medidenta_pms_identity_links"}
 
 
 async def _pms_read(table: str, params: dict) -> list[dict]:
@@ -391,6 +392,86 @@ async def _pms_read(table: str, params: dict) -> list[dict]:
             return data
         except (httpx.HTTPError, ValueError):
             raise HTTPException(503, "PMS-Quelldatenbank derzeit nicht verfügbar") from None
+
+
+async def _live_verified_pms_links(product_id: str) -> list[dict]:
+    """Only explicit, current Admin-reviewed mappings pass Supabase RLS.
+
+    No name matching. A link is a source-identity assertion, NEVER an approval
+    for therapy/dose equivalence or automatic release of individual FHIR claims.
+    """
+    rows = await _pms_read("medidenta_pms_identity_links", {
+        "select": "pms_id,verified_at,confirmed",
+        "catalog_product_id": "eq." + product_id,
+        "order": "verified_at.desc", "limit": "5"})
+    out=[]
+    for link in rows:
+        pid=link.get("pms_id") if isinstance(link,dict) else None
+        if (not isinstance(pid,str) or not re.fullmatch(r"[A-Za-z0-9._-]{1,96}",pid)
+                or link.get("confirmed") is not True):
+            raise HTTPException(503,"PMS-Zuordnung enthält ungültige Identität")
+        products = await _pms_read("medidenta_pms_products", {
+            "select": "pms_id,display_name,source_url,bundle_sha256,imported_at",
+            "pms_id": "eq." + pid, "limit": "1"})
+        if len(products)!=1 or products[0].get("pms_id")!=pid:
+            raise HTTPException(503,"Zugeordnete EMA-Quelle nicht verfügbar")
+        fields=await _pms_read("medidenta_pms_fields",{
+            "select": "id,pms_id,resource_type,resource_id,attribute_key,value_json,relation_status,source_url,statement_sha256,editorial_status,reviewed_at",
+            "pms_id": "eq." + pid, "is_current": "eq.true",
+            "order": "attribute_key.asc,id.asc", "limit": "500"})
+        if len(fields)>=500:
+            raise HTTPException(503,"Zu viele EMA-Quellfelder, unvollständiger Abruf")
+        if any(f.get("pms_id")!=pid for f in fields):
+            raise HTTPException(503,"EMA-Quellfeld gehört zu fremdem PMS-Produkt")
+        out.append({
+            "product":products[0], "fields":fields,
+            "link_verified_at":link.get("verified_at"),
+            "identity_association":"ADMIN_CONFIRMED_SOURCE_LINK_ONLY",
+            "clinical_release_ready":False
+        })
+    return out
+
+
+class PmsIdentityLinkReviewInput(BaseModel):
+    model_config=ConfigDict(extra="forbid")
+    catalog_product_id: str = Field(min_length=1,max_length=100,pattern=r"^[A-Za-z0-9_-]+$")
+    pms_id: str = Field(min_length=1,max_length=96,pattern=r"^[A-Za-z0-9._-]+$")
+    catalog_source_commit: str = Field(pattern=r"^[0-9a-f]{40}$")
+    pms_bundle_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    decision: str
+    identifiers_checked: bool
+    form_strength_checked: bool
+    region_checked: bool
+    evidence_note: str = Field(min_length=40,max_length=3000)
+
+
+@app.post("/api/v1/pms/identity-links")
+async def review_pms_identity_link(payload: PmsIdentityLinkReviewInput, request: Request):
+    if not IS_LIVE_CONFIGURED:
+        raise HTTPException(503,"PMS-Identitätsverknüpfung nur über Supabase")
+    bearer=_user_bearer(request)
+    if payload.decision not in ("confirm","revoke"):
+        raise HTTPException(422,"Ungültige Identitätsentscheidung")
+    if payload.decision=="confirm" and not (
+        payload.identifiers_checked and payload.form_strength_checked and payload.region_checked):
+        raise HTTPException(422,"Identifikatoren, Arzneiform/Stärke und Marktgebiet getrennt prüfen")
+    result=await _supabase_rpc("medidenta_review_pms_identity_link",{
+        "p_catalog_product_id":payload.catalog_product_id,
+        "p_pms_id":payload.pms_id,
+        "p_catalog_source_commit":payload.catalog_source_commit,
+        "p_pms_bundle_sha256":payload.pms_bundle_sha256,
+        "p_decision":payload.decision,
+        "p_identifiers_checked":payload.identifiers_checked,
+        "p_form_strength_checked":payload.form_strength_checked,
+        "p_region_checked":payload.region_checked,
+        "p_evidence_note":payload.evidence_note,
+    },bearer)
+    if (not isinstance(result,dict)
+            or result.get("catalog_product_id")!=payload.catalog_product_id
+            or result.get("pms_id")!=payload.pms_id
+            or result.get("confirmed") != (payload.decision=="confirm")):
+        raise HTTPException(503,"PMS-Zuordnungsbestätigung passt nicht zur Anfrage")
+    return no_store([result])
 
 
 @app.get("/api/v1/pms/products")
