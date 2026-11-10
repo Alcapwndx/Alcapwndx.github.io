@@ -2,6 +2,7 @@
 const assert=require('node:assert/strict');
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
 const dir=path.resolve(__dirname,'..'),window={};
+vm.runInNewContext(fs.readFileSync(path.join(dir,'rms-codes.js'),'utf8'),{window,console},{filename:'rms-codes.js'});
 vm.runInNewContext(fs.readFileSync(path.join(dir,'data-display.js'),'utf8'),{window,console},{filename:'data-display.js'});
 const {groupFacts,groupPmsFields,formatPms}=window.MediIdentaDisplay;
 
@@ -30,7 +31,28 @@ assert.equal(formatPms({attribute_key:'clinical_use_type_unverified',value_json:
  'Warnhinweis (nur FHIR-Kategorie)');
 assert.match(formatPms({attribute_key:'administrable_dose_form',
  value_json:{coding:[{code:'999999',system:'https://spor.ema.europa.eu/list'}]}})[0],
- /Nicht übersetzter EMA-Code/);
+ /Nicht aufgelöster EMA-Code/);
+// EMA SPOR 100000073345: nasal, oral, intravenous; keep unknown code visible.
+const route=code=>formatPms({attribute_key:'administration_routes',
+ value_json:{coding:[{system:'http://spor.ema.europa.eu/v1/lists/100000073345',code}]}});
+assert.equal(route('100000073615')[0],'Nasale Anwendung');
+assert.equal(route('100000073619')[0],'Orale Anwendung');
+assert.equal(route('100000073611')[0],'Intravenöse Anwendung');
+assert.equal(formatPms({attribute_key:'administration_routes',value_json:'100000073633'})[0],
+ 'Subkutane Anwendung');
+assert.equal(formatPms({attribute_key:'administration_routes',
+ value_json:{code:'100000073615',system:'https://spor.ema.europa.eu/v1/lists/100000073345'}})[0],
+ 'Nasale Anwendung');
+assert.match(route('01700009536')[0],/Nicht aufgelöster EMA-Code: 01700009536/);
+assert.match(formatPms({attribute_key:'administration_routes',
+ value_json:{coding:[{system:'http://example.org/unknown',
+ code:'100000073615'}]}})[0],/Nicht aufgelöster EMA-Code/);
+assert.equal(formatPms({attribute_key:'administrable_dose_form',
+ value_json:{coding:[{system:'http://spor.ema.europa.eu/v1/lists/200000000004',
+ code:'100000073665'}]}})[0],'Filmtablette');
+assert.equal(formatPms({attribute_key:'authorised_dose_forms',
+ value_json:'100000073664'})[0],'Tablette');
+
 const p1={id:'pms_a',attribute_key:'package_size_raw',value_json:[{value:14,unit:'Tabletten'}],
  resource_id:'box1',editorial_status:'draft_unreviewed'};
 const p2={...p1,id:'pms_b',resource_id:'box2',editorial_status:'clinically_reviewed'};
@@ -48,7 +70,10 @@ const app=fs.readFileSync(path.join(dir,'app.js'),'utf8');
 assert.match(app,/groupPmsSections/);
 assert.match(app,/pms-readable-values/);
 assert.match(app,/pms-raw-disclosure/);
-assert.match(app,/pmsInlineSearch/);
+assert.doesNotMatch(app,/function pmsInlineSearch/);
+assert.match(app,/embeddedPmsHtml/);
+assert.match(app,/combineSearchHits/);
+assert.doesNotMatch(app,/data-nav="pms"/);
 assert.match(app,/Promise\.allSettled/);
 assert.match(app,/MediIdentaReviewUI\?\.details/);
 const ui=fs.readFileSync(path.join(dir,'review-ui.js'),'utf8');

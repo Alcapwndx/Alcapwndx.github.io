@@ -24,19 +24,24 @@ const PMS_LABELS={
 };
 const TYPE_HINTS={warning:'Warnhinweis (nur FHIR-Kategorie)',indication:'Indikation (nur FHIR-Kategorie)',contraindication:'Kontraindikation (nur FHIR-Kategorie)',interaction:'Wechselwirkung (nur FHIR-Kategorie)',undesirableEffect:'Nebenwirkung (nur FHIR-Kategorie)',undesirable_effect:'Nebenwirkung (nur FHIR-Kategorie)'};
 
-function sourceCode(v){
+function sourceCode(v,kind){
+ const code=typeof v?.code==='string'&&v.code.trim()?v.code.trim():null;
+ const resolved=code?global.MediIdentaRmsCodes?.resolve?.(code,v.system,kind):null;
+ if(resolved)return resolved.de||resolved.en;
  const label=typeof v?.display==='string'&&v.display.trim()?v.display.trim():
   typeof v?.text==='string'&&v.text.trim()?v.text.trim():null;
  if(label)return label;
- const code=typeof v?.code==='string'&&v.code.trim()?v.code.trim():null;
- return code?'Nicht übersetzter EMA-Code: '+code:null;
+ return code?'Nicht aufgelöster EMA-Code: '+code:null;
 }
-function readableConcept(v){
+function readableConcept(v,kind){
  if(!v||typeof v!=='object')return [];
- if(v.concept&&typeof v.concept==='object')return readableConcept(v.concept);
+ if(v.concept&&typeof v.concept==='object')return readableConcept(v.concept,kind);
+ const named=Array.isArray(v.coding)?
+   unique(v.coding.map(x=>sourceCode(x,kind))):
+   [];
+ if(named.length)return named;
  if(typeof v.text==='string'&&v.text.trim())return [v.text.trim()];
- if(Array.isArray(v.coding))return unique(v.coding.map(sourceCode));
- const one=sourceCode(v);return one?[one]:[];
+ const single=sourceCode(v,kind);return single?[single]:[];
 }
 function quantity(v){
  if(!v||typeof v!=='object'||v.value===null||v.value===undefined)return null;
@@ -71,11 +76,14 @@ function strength(v){
 function formatSingle(v,kind,depth=0){
  if(v===null||v===undefined||depth>6)return [];
  if(Array.isArray(v))return unique(v.flatMap(x=>formatSingle(x,kind,depth+1)));
- if(typeof v==='number'&&Number.isFinite(v))return [String(v)];
+ if(typeof v==='number'&&Number.isFinite(v))return formatSingle(String(v),kind,depth+1);
  if(typeof v==='boolean')return [v?'Ja':'Nein'];
  if(typeof v==='string'){
   const s=v.trim();if(!s)return [];
   if(kind==='clinical_use_type_unverified')return [TYPE_HINTS[s]||'FHIR-Kategorie: '+s+' (ungeprüft)'];
+  const known=global.MediIdentaRmsCodes?.resolve?.(s,null,kind);
+  if(known)return [known.de||known.en];
+  if(/^[0-9]{8,15}$/.test(s))return ['Nicht aufgelöster EMA-Code: '+s];
   return [s];
  }
  if(typeof v!=='object')return [];
@@ -85,7 +93,7 @@ function formatSingle(v,kind,depth=0){
  }
  if(kind==='product_identifiers'||kind==='package_identifiers_not_pzn'||kind==='authorization_identifiers'){
   if(typeof v.value==='string'&&v.value.trim()){
-   const name=readableConcept(v.type)[0];
+   const name=readableConcept(v.type,kind)[0];
    return [(name?name+': ':'EMA-Quellkennung: ')+v.value.trim()+
      (kind==='package_identifiers_not_pzn'?' (nicht als PZN bestätigt)':'')];
   }
@@ -99,10 +107,11 @@ function formatSingle(v,kind,depth=0){
  if(kind==='clinical_use_subjects_unverified'&&typeof v.reference==='string')
   return ['FHIR-Referenz: '+v.reference+' (Zuordnung nicht bestätigt)'];
  if(typeof v.description==='string'&&v.description.trim())return [v.description.trim()];
- if(typeof v.display==='string'&&v.display.trim())return [v.display.trim()];
+ if(typeof v.display==='string'&&v.display.trim())return [sourceCode(v,kind)||v.display.trim()];
  if(typeof v.reference==='string'&&v.reference.trim())return ['FHIR-Referenz: '+v.reference.trim()];
+ if(typeof v.code==='string'&&v.code.trim())return [sourceCode(v,kind)];
  if(v.concept||v.coding||v.text){
-  const c=readableConcept(v);if(c.length)return c;
+  const c=readableConcept(v,kind);if(c.length)return c;
  }
  if(v.presentationRatio||v.concentrationRatio||v.strengthRatio||v.presentationQuantity||v.concentrationQuantity){
   const x=strength(v);if(x.length)return x;

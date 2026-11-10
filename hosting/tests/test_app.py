@@ -56,7 +56,7 @@ class AppTests(unittest.TestCase):
         async def fake_product(pid):
             assert pid == "p1"
             return {"id":"p1","name":"Approved only in test","substances":"stoff x","source_key":"EMA_EPAR"}
-        with patch.object(main,"IS_LIVE_CONFIGURED",True),patch.object(main,"_read_table",side_effect=fake_read),patch.object(main,"_live_search_rpc",side_effect=fake_search),patch.object(main,"_live_product",side_effect=fake_product),patch.object(main,"_live_verified_pms_links",return_value=[]):
+        with patch.object(main,"IS_LIVE_CONFIGURED",True),patch.object(main,"_read_table",side_effect=fake_read),patch.object(main,"_live_search_rpc",side_effect=fake_search),patch.object(main,"_live_product",side_effect=fake_product),patch.object(main,"_live_pms_sources",return_value=[]):
             meta=client.get("/medidenta-preview/sync_status.json").json()
             self.assertEqual(meta["mode"],"LIVE_SUPABASE")
             self.assertEqual(meta["release_phase"], "alpha")
@@ -182,7 +182,7 @@ class AppTests(unittest.TestCase):
         with patch.object(main,"IS_LIVE_CONFIGURED",True),\
              patch.object(main,"_bundle",side_effect=AssertionError("full catalog fetch forbidden")),\
              patch.object(main,"_live_search_rpc",side_effect=fake_search),\
-             patch.object(main,"_live_product",side_effect=fake_product),patch.object(main,"_live_verified_pms_links",return_value=[]):
+             patch.object(main,"_live_product",side_effect=fake_product),patch.object(main,"_live_pms_sources",return_value=[]):
             search_result=client.get("/api/v1/search?q=Toujeo&offset=20").json()
             self.assertEqual(search_result["results"][0]["id"],"p1")
             self.assertEqual(search_result["offset"],20)
@@ -226,17 +226,93 @@ class AppTests(unittest.TestCase):
             self.assertFalse(record["pms_sources"][0]["clinical_release_ready"])
             self.assertFalse(record["clinical_content_complete"])
 
-    def test_unverified_source_is_never_auto_matched_by_name(self):
+    def test_unreviewed_pms_beta_appears_in_medicine_detail_without_admin_link(self):
         async def product(pid):
-            return {"id":pid,"name":"Same common name","substances":"Test",
+            return {"id":pid,"name":"Toujeo","substances":"insulin glargin",
                     "catalog_source_commit":"a"*40}
-        async def no_links(table,params):
-            self.assertEqual(table,"medidenta_pms_identity_links")
-            return []
+        calls=[]
+        async def read(table,params):
+            calls.append((table,params))
+            if table=="medidenta_pms_identity_links":
+                return []   # No admin-reviewed association: still display metadata.
+            if table=="medidenta_pms_products":
+                if "display_name" in params:
+                    return [
+                        {"pms_id":"600000000000","display_name":"Toujeo 300 U/mL",
+                         "source_url":"https://api.pms.ema.europa.eu/public/v1/MedicinalProductDefinition/600000000000/$everything",
+                         "bundle_sha256":"a"*64,"imported_at":"2026-11-10T01:00:00Z"},
+                        {"pms_id":"600000000001","display_name":"Toujeo-like competing product",
+                         "source_url":"https://api.pms.ema.europa.eu/public/v1/MedicinalProductDefinition/600000000001/$everything",
+                         "bundle_sha256":"b"*64,"imported_at":"2026-11-10T01:00:00Z"},
+                    ]
+                return [{"pms_id":"600000000000","display_name":"Toujeo 300 U/mL",
+                         "source_url":"https://api.pms.ema.europa.eu/public/v1/MedicinalProductDefinition/600000000000/$everything",
+                         "bundle_sha256":"a"*64,"imported_at":"2026-11-10T01:00:00Z"}]
+            if table=="medidenta_pms_fields":
+                return [{"id":"pms_"+"a"*40,"pms_id":"600000000000",
+                         "resource_type":"AdministrableProductDefinition","resource_id":"ap1",
+                         "attribute_key":"administration_routes",
+                         "value_json":{"coding":[{"system":"http://spor.ema.europa.eu/v1/lists/100000073345",
+                                                  "code":"100000073633"}]},
+                         "relation_status":"DIRECT_PRODUCT","statement_sha256":"a"*64,
+                         "editorial_status":"draft_unreviewed"}]
+            raise AssertionError(table)
         with patch.object(main,"IS_LIVE_CONFIGURED",True),\
              patch.object(main,"_live_product",side_effect=product),\
-             patch.object(main,"_pms_read",side_effect=no_links):
-            self.assertEqual(client.get("/api/v1/products/p1").json()["pms_sources"],[])
+             patch.object(main,"_pms_read",side_effect=read):
+            item=client.get("/api/v1/products/p1").json()
+            self.assertEqual(len(item["pms_sources"]),1)
+            source=item["pms_sources"][0]
+            self.assertEqual(source["identity_association"],"NAME_SIMILARITY_UNCONFIRMED")
+            self.assertFalse(source["clinical_release_ready"])
+            self.assertEqual(source["fields"][0]["editorial_status"],"draft_unreviewed")
+            self.assertEqual(source["fields"][0]["value_json"]["coding"][0]["code"],"100000073633")
+            self.assertFalse(item["pms_unavailable"])
+            self.assertTrue(any(name=="medidenta_pms_products" for name,_ in calls))
+
+    def test_missing_admin_link_table_does_not_block_public_pms_beta(self):
+        async def product(pid):
+            return {"id":pid,"name":"Toujeo","substances":"insulin glargin"}
+        async def read(table,params):
+            if table=="medidenta_pms_identity_links":
+                raise main.HTTPException(503,"Optional link table absent")
+            if table=="medidenta_pms_products":
+                return [{"pms_id":"600000000000","display_name":"Toujeo 300 units/mL",
+                         "source_url":"https://api.pms.ema.europa.eu/public/v1/MedicinalProductDefinition/600000000000/$everything",
+                         "bundle_sha256":"a"*64,"imported_at":"2026-11-10T01:00:00Z"}]
+            if table=="medidenta_pms_fields":
+                return [{"id":"pms_"+"a"*40,"pms_id":"600000000000",
+                         "value_json":{"code":"100000073615"},
+                         "attribute_key":"administration_routes","editorial_status":"draft_unreviewed"}]
+            raise AssertionError(table)
+        with patch.object(main,"IS_LIVE_CONFIGURED",True),\
+             patch.object(main,"_live_product",side_effect=product),\
+             patch.object(main,"_pms_read",side_effect=read):
+            data=client.get("/api/v1/products/p1").json()
+            self.assertEqual(len(data["pms_sources"]),1)
+            self.assertEqual(data["pms_sources"][0]["identity_association"],"NAME_SIMILARITY_UNCONFIRMED")
+            self.assertFalse(data["pms_unavailable"])
+
+    def test_different_brand_name_is_not_assumed_same_medicine(self):
+        self.assertTrue(main._same_pms_brand_name("Toujeo","Toujeo 300 units/mL"))
+        self.assertFalse(main._same_pms_brand_name("Toujeo","Toujeo-like competitor"))
+        self.assertFalse(main._same_pms_brand_name("Toujeo","Toujeoname"))
+        self.assertFalse(main._same_pms_brand_name("AB","AB 50 mg"))
+        self.assertFalse(main._same_pms_brand_name("Lantus","Toujeo"))
+
+    def test_pms_lookup_failure_does_not_hide_catalog_product(self):
+        async def product(pid):
+            return {"id":pid,"name":"Toujeo","substances":"insulin glargin"}
+        async def fail(*args):
+            raise main.HTTPException(503,"PMS temporarily unavailable")
+        with patch.object(main,"IS_LIVE_CONFIGURED",True),\
+             patch.object(main,"_live_product",side_effect=product),\
+             patch.object(main,"_live_pms_sources",side_effect=fail):
+            res=client.get("/api/v1/products/p1")
+            self.assertEqual(res.status_code,200)
+            self.assertEqual(res.json()["name"],"Toujeo")
+            self.assertEqual(res.json()["pms_sources"],[])
+            self.assertTrue(res.json()["pms_unavailable"])
 
     def test_pms_identity_link_admin_rpc_requires_current_sources_and_jwt(self):
         body={
