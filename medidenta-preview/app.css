@@ -233,3 +233,17 @@ html[data-theme="dark"] .pms-search-result{border-color:#3e6571}
 html[data-theme="dark"] .pms-search-result strong{color:#d7f4ef}
 html[data-theme="dark"] .pms-readable-text{color:#e2f2f5}
 html[data-theme="dark"] .pms-source-audit>summary,html[data-theme="dark"] .reference-disclosure>summary{color:#7edfd7}
+
+
+/* v0.14.1: One PMS card per broad source topic, subfields remain labeled. */
+.pms-subtopic { padding-top: 12px; }
+.pms-subtopic + .pms-subtopic {
+  border-top: 1px solid #dce9e9;
+  margin-top: 14px;
+}
+.pms-subtopic h3 { font-size: 14px; margin: 3px 0 8px; }
+.knowledge-topic > h2 { margin-bottom: 12px; }
+.knowledge-topic .clinical-topic { margin-top: 8px; }
+html[data-theme="dark"] .pms-subtopic + .pms-subtopic {
+  border-top-color: #496a73;
+}

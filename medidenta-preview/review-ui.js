@@ -36,8 +36,7 @@ function card(f){
  return body;
 }
 function linked(D,p){return [...(D.approved||[]),...(D.drafts||[])].filter(f=>Array.isArray(f.linked_product_ids)&&f.linked_product_ids.includes(p.id)).sort((a,b)=>(a.editorial_status==='clinically_reviewed'?-1:0)-(b.editorial_status==='clinically_reviewed'?-1:0)||(riskRank[a.risk_level]??3)-(riskRank[b.risk_level]??3));}
-function groupedFacts(D,p){
- const records=linked(D,p);
+function groupedRecords(records){
  const display=global.MediIdentaDisplay;
  if(!display)return records.map(card).join('');
  const groups=display.groupFacts(records);
@@ -63,6 +62,24 @@ function groupedFacts(D,p){
  return '<p class="small muted">'+records.length+' quellgebundene Einzelangaben · '+count+
   ' unterschiedliche Texte'+(duplicates?' · '+duplicates+' wortgleiche Doppelanzeige'+(duplicates===1?'':'n')+' zusammengefasst':'')+'.</p>'+html;
 }
+function groupedFacts(D,p){
+ return groupedRecords(linked(D,p));
+}
+function knowledgeTopics(records){
+ const buckets=new Map();
+ for(const f of records){
+  // Keep different products/salts/targets separate, including unmatched facts.
+  const linked=Array.isArray(f.linked_product_ids)?[...f.linked_product_ids].sort().join('|'):'';
+  const key=JSON.stringify([f.target_type||'',f.target_name||'',linked,f.fact_type||'']);
+  if(!buckets.has(key))buckets.set(key,{
+   target_name:f.target_name||'Produktzuordnung offen',
+   fact_type:f.fact_type||'',
+   records:[]
+  });
+  buckets.get(key).records.push(f);
+ }
+ return [...buckets.values()];
+}
 function details(D,p){
  const records=linked(D,p);
  return '<section class="card draft-section"><h2>Fachinformationen & Good-to-Know</h2>'+
@@ -82,8 +99,8 @@ function filtered(D){
 }
 function option(k,v,current){return '<option value="'+k+'" '+(current===k?'selected':'')+'>'+esc(v)+'</option>';}
 function knowledge(D){
- const all=filtered(D),size=12,pages=Math.max(1,Math.ceil(all.length/size));R.page=Math.min(Math.max(0,R.page),pages-1);
- const list=all.slice(R.page*size,(R.page+1)*size);
+ const all=filtered(D),topics=knowledgeTopics(all),size=10,pages=Math.max(1,Math.ceil(topics.length/size));R.page=Math.min(Math.max(0,R.page),pages-1);
+ const list=topics.slice(R.page*size,(R.page+1)*size);
  const approved=(D.approved||[]).length;
  const editor=global.MediIdentaReviewAuth?._debug?.role?.();
  const privileged=editor==='admin'||editor==='moderator';
@@ -102,13 +119,13 @@ function knowledge(D){
  option('unmatched','Zuordnung offen',R.assignment)+'</select></label>'+
  '<label>Prüfpriorität<select id="clinical-risk" class="search-input">'+
  option('all','Alle Prioritäten',R.risk)+Object.entries(RISKS).map(([k,v])=>option(k,v,R.risk)).join('')+'</select></label></div>'+
- '<p class="small muted">'+all.length+' Treffer · Seite '+(R.page+1)+' von '+pages+'</p>'+
+ '<p class="small muted">'+topics.length+' Themenbereiche aus '+all.length+' Einzeltexten · Seite '+(R.page+1)+' von '+pages+'</p>'+
  (privileged?'<details><summary class="small">Legacy: private lokale Prüfnotizen exportieren</summary>'+
  '<p class="tiny muted">Ältere lokale Markierungen bleiben auf diesem Gerät; neue Moderatorprüfungen werden in der geschützten Datenbank dokumentiert.</p>'+
  '<button class="secondary full" data-review-action="export">Lokale Notizen als JSON exportieren</button></details>':'')+
  (R.saveError?'<p class="notice warning">Lokale Notizen konnten nicht gespeichert werden.</p>':'')+'</section>'+
  (D.draftLoadError?'<div class="notice danger">Fachinformationen konnten nicht vollständig geladen werden.</div>':'')+
- (list.length?list.map(card).join(''):'<div class="empty">Keine passenden Informationen gefunden.</div>')+
+ (list.length?list.map(topic=>'<article class="card knowledge-topic"><h2>'+esc(topic.target_name)+'</h2>'+groupedRecords(topic.records)+'</article>').join(''):'<div class="empty">Keine passenden Informationen gefunden.</div>')+
  '<div class="row draft-pager"><button class="secondary" data-review-action="prev" '+(R.page===0?'disabled':'')+'>← Zurück</button>'+
  '<span class="small muted">'+(R.page+1)+' / '+pages+'</span>'+
  '<button class="secondary" data-review-action="next" '+(R.page===pages-1?'disabled':'')+'>Weiter →</button></div>';
