@@ -7,7 +7,7 @@ Die bestehende Übersetzung von Applikationswegen und Arzneiformen wurde **aussc
 | EMA/SPOR-Referenzliste | Bereich | Beispiele |
 |---|---|---|
 | 200000005003 | PMS-Datensatzstatus | `200000005004` = „Aktueller Quelldatensatz“, `200000005005` = „Vorläufiger Quelldatensatz“ |
-| 100000072049 | regulatorischer Zulassungsstatus | `100000072099` = „Zulassung gültig laut Quelle“, `100000072122` = „Ruhend“ |
+| 100000072049 | regulatorischer Zulassungsstatus | `100000072099` = „Regulatorische Berechtigung gültig laut Quelle“, `100000072122` = „Ruhend“ |
 | 100000072052 | Vermarktungsstatus | `100000072083` = „Im Handel laut Quelle“ |
 | 100000072050 / FHIR R5 `ingredient-role` | Stoffrolle | `100000072072` = Wirkstoff, `100000072082` = Hilfsstoff |
 | 100000000002 | Länder / Gebiete | `100000000403` = Deutschland, `100000000390` = Europäische Union |
