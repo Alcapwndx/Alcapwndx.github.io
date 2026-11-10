@@ -279,29 +279,87 @@ async def attributions():
     })
 
 
+async def _live_search_rpc(q: str, limit: int, offset: int) -> list[dict]:
+    """Read a bounded search page directly from PostgreSQL, not all snapshots."""
+    params = {"p_query": q, "p_limit": limit, "p_offset": offset}
+    async with httpx.AsyncClient(timeout=12.0, follow_redirects=False) as client:
+        try:
+            response = await client.get(
+                f"{URL}/rest/v1/rpc/medidenta_search_catalog",
+                headers={"apikey": KEY, "Accept": "application/json"},
+                params=params)
+            response.raise_for_status()
+            rows = response.json()
+            if not isinstance(rows, list) or len(rows) > limit:
+                raise ValueError("Unexpected catalog search page")
+            products = []
+            for row in rows:
+                if (not isinstance(row, dict) or not isinstance(row.get("payload"), dict)
+                        or row.get("id") != row["payload"].get("id")):
+                    raise ValueError("Invalid catalog product record")
+                products.append(dict(row["payload"]))
+            return products
+        except (httpx.HTTPError, ValueError):
+            # Never silently fall back to an old snapshot if live search fails.
+            raise HTTPException(503, "Zentrale Medikamentensuche derzeit nicht verfügbar") from None
+
+
+async def _live_product(product_id: str) -> dict | None:
+    """Targeted PostgREST identity lookup; no full-catalog materialization."""
+    async with httpx.AsyncClient(timeout=12.0, follow_redirects=False) as client:
+        try:
+            response = await client.get(
+                f"{URL}/rest/v1/medidenta_catalog_products",
+                headers={"apikey": KEY, "Accept": "application/json"},
+                params={"select": "id,payload", "id": "eq." + product_id, "limit": "1"})
+            response.raise_for_status()
+            items = response.json()
+            if not isinstance(items, list) or len(items) > 1:
+                raise ValueError("Unexpected product detail response")
+            if not items:
+                return None
+            row = items[0]
+            if (not isinstance(row, dict) or row.get("id") != product_id
+                    or not isinstance(row.get("payload"), dict)
+                    or row["payload"].get("id") != product_id):
+                raise ValueError("Untrusted product identity")
+            return dict(row["payload"])
+        except (httpx.HTTPError, ValueError):
+            raise HTTPException(503, "Zentrale Produktdatenbank derzeit nicht verfügbar") from None
+
+
 @app.get("/api/v1/search")
-async def search(q: str = Query(min_length=2, max_length=100), limit: int = Query(20, ge=1, le=50)):
-    import unicodedata
-    def norm(s: str):
-        s = unicodedata.normalize("NFKD", s.casefold())
-        return "".join(c for c in s if not unicodedata.combining(c))
-    terms = norm(q).split()
-    products = (await _bundle())["catalog"]["products"]
-    matches = [dict(p) for p in products
-               if all(t in norm(str(p.get("name", ""))+" "+str(p.get("substances", "")))
-                      for t in terms)][:limit]
-    return no_store({"query": q, "results": matches})
+async def search(q: str = Query(min_length=2, max_length=100),
+                 limit: int = Query(20, ge=1, le=50),
+                 offset: int = Query(0, ge=0, le=100000)):
+    if IS_LIVE_CONFIGURED:
+        matches = await _live_search_rpc(q, limit, offset)
+    else:
+        import unicodedata
+        def norm(s: str):
+            s = unicodedata.normalize("NFKD", s.casefold())
+            return "".join(c for c in s if not unicodedata.combining(c))
+        terms = norm(q).split()
+        products = (await _bundle())["catalog"]["products"]
+        matches = [dict(p) for p in products
+                   if all(t in norm(str(p.get("name",""))+" "+str(p.get("substances","")))
+                          for t in terms)][offset:offset+limit]
+    return no_store({"query": q, "results": matches, "offset": offset,
+                     "limit": limit, "has_more": len(matches) == limit})
 
 
 @app.get("/api/v1/products/{product_id}")
 async def get_product(product_id: str):
     if not VALID_ID.fullmatch(product_id):
         raise HTTPException(400, "Ungültige Produkt-ID")
-    products = (await _bundle())["catalog"]["products"]
-    p = next((x for x in products if x.get("id") == product_id), None)
+    if IS_LIVE_CONFIGURED:
+        p = await _live_product(product_id)
+    else:
+        products = (await _bundle())["catalog"]["products"]
+        p = next((x for x in products if x.get("id") == product_id), None)
     if not p:
         raise HTTPException(404, "Produktidentität nicht gefunden")
-    subs = [{"name": s.strip()} for s in p.get("substances", "").split(",") if s.strip()]
+    subs = [{ "name": s.strip() } for s in p.get("substances","").split(",") if s.strip()]
     return no_store({
         **p, "substances": subs, "facts": [],
         "presentations": [], "photos": [], "identifiers": [],

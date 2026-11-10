@@ -49,7 +49,14 @@ class AppTests(unittest.TestCase):
                         {"id":"f2","editorial_status":"draft_unreviewed","reviewed_at":None,
                          "payload":{"id":"f2","target_type":"product","target_name":"Approved only in test","fact_type":"summary","content_text":"Unreviewed mock fact.","linked_product_ids":["p1"],"editorial_status":"draft_unreviewed"}}]
             raise ValueError(table)
-        with patch.object(main,"IS_LIVE_CONFIGURED",True),patch.object(main,"_read_table",side_effect=fake_read):
+        async def fake_search(q, limit, offset):
+            assert q == "approved"
+            assert offset == 0
+            return [{"id":"p1","name":"Approved only in test","substances":"stoff x","source_key":"EMA_EPAR"}]
+        async def fake_product(pid):
+            assert pid == "p1"
+            return {"id":"p1","name":"Approved only in test","substances":"stoff x","source_key":"EMA_EPAR"}
+        with patch.object(main,"IS_LIVE_CONFIGURED",True),patch.object(main,"_read_table",side_effect=fake_read),patch.object(main,"_live_search_rpc",side_effect=fake_search),patch.object(main,"_live_product",side_effect=fake_product):
             meta=client.get("/medidenta-preview/sync_status.json").json()
             self.assertEqual(meta["mode"],"LIVE_SUPABASE")
             self.assertEqual(meta["release_phase"], "alpha")
@@ -163,6 +170,31 @@ class AppTests(unittest.TestCase):
         with patch.object(main,"_read_table",side_effect=fake_read):
             result=asyncio.run(main._read_all_table("medidenta_catalog_products",columns="id"))
             self.assertEqual(len(result),901)
+
+
+    def test_live_search_and_product_do_not_fetch_whole_catalog(self):
+        async def fake_search(q,limit,offset):
+            self.assertEqual((q,limit,offset),("Toujeo",20,20))
+            return [{"id":"p1","name":"Toujeo test","substances":"insulin glargin"}]
+        async def fake_product(pid):
+            self.assertEqual(pid,"p1")
+            return {"id":"p1","name":"Toujeo test","substances":"insulin glargin"}
+        with patch.object(main,"IS_LIVE_CONFIGURED",True),\
+             patch.object(main,"_bundle",side_effect=AssertionError("full catalog fetch forbidden")),\
+             patch.object(main,"_live_search_rpc",side_effect=fake_search),\
+             patch.object(main,"_live_product",side_effect=fake_product):
+            search_result=client.get("/api/v1/search?q=Toujeo&offset=20").json()
+            self.assertEqual(search_result["results"][0]["id"],"p1")
+            self.assertEqual(search_result["offset"],20)
+            self.assertEqual(client.get("/api/v1/products/p1").json()["name"],"Toujeo test")
+
+    def test_live_catalog_search_failure_does_not_fallback_to_static_snapshot(self):
+        async def fail(*args):
+            raise main.HTTPException(503,"Search index unavailable")
+        with patch.object(main,"IS_LIVE_CONFIGURED",True),\
+             patch.object(main,"_bundle",side_effect=AssertionError("stale fallback forbidden")),\
+             patch.object(main,"_live_search_rpc",side_effect=fail):
+            self.assertEqual(client.get("/api/v1/search?q=apixaban").status_code,503)
 
 
 
