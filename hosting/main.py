@@ -429,10 +429,15 @@ async def _live_pms_sources(product_id: str, product: dict) -> list[dict]:
     """
     catalog_name = product.get("name") or ""
     sources = {}
-    rows = await _pms_read("medidenta_pms_identity_links", {
-        "select": "pms_id,verified_at,confirmed",
-        "catalog_product_id": "eq." + product_id,
-        "order": "verified_at.desc", "limit": "12"})
+    # The optional, admin-only identity-link table must never be required
+    # to display public EMA PMS Beta source data.
+    try:
+        rows = await _pms_read("medidenta_pms_identity_links", {
+            "select": "pms_id,verified_at,confirmed",
+            "catalog_product_id": "eq." + product_id,
+            "order": "verified_at.desc", "limit": "12"})
+    except HTTPException:
+        rows = []  # Source-name association remains explicitly unconfirmed.
     for link in rows:
         pid = link.get("pms_id")
         if (not isinstance(pid, str) or
