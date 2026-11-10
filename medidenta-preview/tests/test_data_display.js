@@ -62,7 +62,7 @@ assert.equal(coding('product_status_codes','200000005003','200000005004')[0],
 assert.equal(coding('product_status_codes','200000005003','200000005005')[0],
  'Vorläufiger Quelldatensatz');
 assert.equal(coding('authorization_status_raw','100000072049','100000072099')[0],
- 'Zulassung gültig laut Quelle');
+ 'Regulatorische Berechtigung gültig laut Quelle');
 assert.equal(coding('authorization_status_raw','100000072049','100000072122')[0],
  'Ruhend');
 assert.equal(coding('authorization_region_codes','100000000002','100000000403')[0],
