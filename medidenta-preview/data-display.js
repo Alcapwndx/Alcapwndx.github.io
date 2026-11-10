@@ -9,11 +9,14 @@ const TYPES={summary:'Kurzbeschreibung',indication:'Indikation',mechanism:'Wirkm
 const riskOrder={critical:0,high:1,normal:2};
 const PMS_LABELS={
  product_names:'Produktnamen laut EMA',product_identifiers:'Produktkennungen',
- product_status_codes:'Produktstatus laut Quelle',classification:'Klassifizierung',
+ product_status_codes:'EMA-Datensatzstatus (nicht Zulassungsstatus)',classification:'Klassifizierung',
  combined_dose_form:'Arzneiform',authorised_dose_forms:'Zugelassene Arzneiformen',
  package_identifiers_not_pzn:'Packungskennungen – keine bestätigte PZN',
  package_descriptions:'Packungsangaben',package_size_raw:'Packungsmenge',
  authorization_identifiers:'Zulassungskennungen',authorization_region_codes:'Zulassungsgebiet',
+ legal_status_of_supply:'Rechtlicher Abgabestatus laut EMA (nicht deutsche Verschreibungspflicht)',
+ marketing_status_raw:'Vermarktungsstatus laut Quelle',regulatory_entitlement_type:'Art der regulatorischen Berechtigung',
+ product_domain:'Anwendungsbereich (Human-/Tierarzneimittel)',
  authorization_status_raw:'Zulassungsstatus',administrable_dose_form:'Arzneiform zur Anwendung',
  administration_routes:'Applikationswege',manufactured_dose_form:'Herstellungsarzneiform',
  ingredient_role_codes:'Stoffrolle',substance_identity_raw:'Stoffbezeichnungen laut Quelle',
@@ -48,9 +51,16 @@ function quantity(v){
  const number=typeof v.value==='number'&&Number.isFinite(v.value)?String(v.value):
   typeof v.value==='string'&&v.value.trim()?v.value.trim():null;
  if(!number)return null;
- const unit=typeof v.unit==='string'&&v.unit.trim()?v.unit.trim():
-  typeof v.code==='string'&&v.code.trim()?v.code.trim():'';
- return number+(unit?' '+unit:'');
+ const rawCode=typeof v.code==='string'?v.code.trim():'';
+ const originalUnit=typeof v.unit==='string'?v.unit.trim():'';
+ const rms=rawCode?global.MediIdentaRmsCodes?.resolveUnit?.(rawCode,v.system):null;
+ // Keep the original quantity and denominator exactly. Never calculate or
+ // convert any dose, and never infer that an unknown numeric code means mg.
+ const unit=rms?.de||rms?.en||
+  (originalUnit&&!/^[0-9]{9,15}$/.test(originalUnit)?originalUnit:'')||
+  (rawCode&&!/^[0-9]{9,15}$/.test(rawCode)?rawCode:'');
+ return number+(unit?' '+unit:
+  (rawCode||originalUnit?' [Einheit nicht aufgelöst: '+(rawCode||originalUnit)+']':''));
 }
 function ratio(v){
  if(!v||typeof v!=='object')return null;
