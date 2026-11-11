@@ -35,7 +35,21 @@ function card(f){
  (global.MediIdentaReviewAuth?.reviewActionHtml(f)||'')+'</article>';
  return body;
 }
-function linked(D,p){return [...(D.approved||[]),...(D.drafts||[])].filter(f=>Array.isArray(f.linked_product_ids)&&f.linked_product_ids.includes(p.id)).sort((a,b)=>(a.editorial_status==='clinically_reviewed'?-1:0)-(b.editorial_status==='clinically_reviewed'?-1:0)||(riskRank[a.risk_level]??3)-(riskRank[b.risk_level]??3));}
+function sourceRecords(D,p){
+ return [...(D.approved||[]),...(D.drafts||[])].filter(f=>
+  Array.isArray(f.linked_product_ids)&&f.linked_product_ids.includes(p.id));
+}
+function linked(D,p){
+ const smpc=new Set((Array.isArray(p.smpc_sections)?p.smpc_sections:[])
+  .filter(s=>s&&typeof s.content_text==='string'&&s.content_text.trim())
+  .map(s=>s.fact_type));
+ // An original SmPC chapter supersedes only its corresponding short drafts
+ // in the visible product view. The original draft records and citations remain.
+ return sourceRecords(D,p).filter(f=>!smpc.has(f.fact_type)).sort((a,b)=>
+  (a.editorial_status==='clinically_reviewed'?-1:0)-
+  (b.editorial_status==='clinically_reviewed'?-1:0)||
+  (riskRank[a.risk_level]??3)-(riskRank[b.risk_level]??3));
+}
 function groupedRecords(records){
  const display=global.MediIdentaDisplay;
  if(!display)return records.map(f=>'<div class="fact"><strong>'+esc(TYPES[f.fact_type]||f.fact_type)+'</strong><p>'+esc(f.content_text)+'</p></div>').join('');
@@ -49,7 +63,7 @@ function groupedRecords(records){
       '<p class="draft-text">'+esc(item.text)+'</p></div>').join('')+
     '</section>').join('');
 }
-function sourceRecords(D,p){return linked(D,p);}
+
 
 function knowledgeTopics(records){
  const buckets=new Map();
@@ -68,7 +82,8 @@ function knowledgeTopics(records){
 }
 function details(D,p){
  const records=linked(D,p);
- return '<section class="card draft-section"><h2>Fachinformationen & Good-to-Know</h2>'+
+ if(!records.length&&(p.smpc_sections||[]).length)return '';
+ return '<section class="card draft-section"><h2>Weitere Fachinformationen & Good-to-Know</h2>'+
   '<p class="small muted">Quellenbezogene Fachtextinformationen. Die genauen EMA-Fundstellen sind ganz unten unter „Quellen & Nachweise“ zusammengefasst.</p>'+
   (records.length?groupedRecords(records):'<p class="small muted">Noch keine Fachinformationen zu diesem Präparat zugeordnet.</p>')+
   '</section>';
