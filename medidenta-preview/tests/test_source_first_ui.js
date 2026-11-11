@@ -67,6 +67,15 @@ assert.ok(expanded.lastIndexOf("<summary>Quellen & Nachweise")>
  expanded.indexOf("Ein synthetischer EMA-Testabschnitt"));
 assert.match(expanded,/EMA-Original-PDF öffnen/);
 assert.match(expanded,/Dokumentprüfsumme/);
+D.detail.smpc_sections=[{
+ ...chapter,source_type:"EC_UNION_REGISTER_ANNEX",
+ source_document_url:"https://ec.europa.eu/health/documents/community-register/2026/20261019171099/anx_171099_de.pdf"
+}];
+const ecView=ui.detailHtml();
+assert.match(ecView,/EU-Kommission · Annex I/);
+assert.match(ecView,/Amtlichen EU-Anhang öffnen/);
+assert.match(ecView,/EU-Kommission – Zulassungsanhang/);
+assert.doesNotMatch(ecView,/EMA-Original-PDF öffnen/);
 D.detail.smpc_sections=[];
 const shortFact={...fact,id:"short-interaction",fact_type:"interaction",
  content_text:"Synthetische EMA-verlinkte Wechselwirkung, nur Kurzinformation."};
