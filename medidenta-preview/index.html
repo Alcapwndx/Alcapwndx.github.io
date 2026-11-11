@@ -4,27 +4,27 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#103f52">
-<meta name="description" content="MediIdenta – Recherche geprüfter Arzneimittelidentitäten für medizinische Fachkräfte. Entwicklungs-App.">
+<meta name="description" content="MediIdenta – Arzneimittel und EMA-belegte Informationen transparent recherchieren. Öffentliche Alpha-Testversion.">
 <title>MediIdenta · Öffentliche Alpha</title>
 <link rel="icon" type="image/svg+xml" href="./icon.svg">
 <link rel="manifest" href="./manifest.webmanifest">
 <script src="./theme.js?v=0.9.1"></script>
-<link rel="stylesheet" href="./app.css?v=0.14.1">
+<link rel="stylesheet" href="./app.css?v=0.19">
 </head>
 <body>
 <div id="app" class="app-shell">
   <header class="app-header">
     <div class="brand"><span class="brand-icon" aria-hidden="true">✚</span><span>Medi<span class="brand-accent">Identa</span></span></div>
-    <div class="header-right"><span class="version">ALPHA 0.9</span><button type="button" class="theme-switch" data-theme-toggle aria-label="Design wechseln" aria-pressed="false" title="Design wechseln">☾</button><button class="account-entry" type="button" data-nav="account" aria-label="Prüfkonto / Anmeldung" title="Prüfkonto">♙</button></div>
+    <div class="header-right"><span class="version">ALPHA 0.9</span><button type="button" class="theme-switch" data-theme-toggle aria-label="Design wechseln" aria-pressed="false" title="Design wechseln">☾</button><button class="account-entry" type="button" data-nav="account" aria-label="Konto / Anmeldung" title="Konto">♙</button></div>
   </header>
-  <div class="public-notice" role="note"><strong>ALPHA · Kontrollierte öffentliche Testphase</strong> · MediIdenta wird laufend fachlich und technisch erweitert. Nicht validierte Aussagen sind ausdrücklich gekennzeichnet. Kein Einsatz für Therapie- oder Dosierungsentscheidungen.</div>
+  <div class="public-notice" role="note"><strong>ALPHA · Kontrollierte öffentliche Testphase</strong> · MediIdenta zeigt quellenbezogene Arzneimittelinformationen aus EMA-/EU-Daten. EMA PMS ist eine Beta-Quelle. Nicht für eigenständige Therapie- oder Dosierungsentscheidungen.</div>
   <div id="system-status" role="status" aria-live="polite" class="system-status">Datenquelle wird geprüft …</div>
   <main id="screen" tabindex="-1" aria-live="polite"></main>
   <nav class="bottom-nav" aria-label="Hauptnavigation">
     <button type="button" data-nav="home" aria-label="Start"><span aria-hidden="true">⌂</span><small>Start</small></button>
     <button type="button" data-nav="search" aria-label="Suche"><span aria-hidden="true">⌕</span><small>Suche</small></button>
     <button type="button" data-nav="scan" aria-label="Identifikation"><span aria-hidden="true">▣</span><small>Scan</small></button>
-    <button type="button" data-nav="knowledge" aria-label="Wissen"><span aria-hidden="true">◈</span><small>Wissen</small></button>
+    <button type="button" data-nav="knowledge" aria-label="Praxiswissen – bald verfügbar"><span aria-hidden="true">◈</span><small>Wissen</small><span class="nav-soon" aria-hidden="true">SOON</span></button>
     <button type="button" data-nav="quality" aria-label="Datenqualität"><span aria-hidden="true">≡</span><small>Qualität</small></button>
   </nav>
   <div id="toast" role="status" aria-live="polite"></div>
@@ -32,10 +32,10 @@
 </div>
 <script src="./identifier.js?v=0.9" defer></script>
 <script src="./review-auth-config.js?v=0.9" defer></script>
-<script src="./review-auth.js?v=0.9" defer></script>
+<script src="./review-auth.js?v=0.19" defer></script>
 <script src="./rms-codes.js?v=0.16" defer></script>
 <script src="./data-display.js?v=0.17" defer></script>
-<script src="./review-ui.js?v=0.14.1" defer></script>
-<script src="./app.js?v=0.18" defer></script>
+<script src="./review-ui.js?v=0.19" defer></script>
+<script src="./app.js?v=0.19" defer></script>
 </body>
 </html>

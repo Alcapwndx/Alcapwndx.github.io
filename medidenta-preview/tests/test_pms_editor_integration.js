@@ -60,6 +60,7 @@ function setup(role="admin",embedded=true){
  assert.match(src,/D\.detail\?\.pms_sources/);
  assert.match(src,/\/pms\/overview/);
  assert.match(src,/embeddedPmsHtml/);
- assert.match(src,/terminologyReport/);
+ assert.match(src,/groupPmsSections/);
+ assert.match(src,/sourcesDisclosure/);
  console.log("MediIdenta combined PMS Beta detail + admin review regression: PASS");
 })().catch(e=>{console.error(e);process.exitCode=1;});

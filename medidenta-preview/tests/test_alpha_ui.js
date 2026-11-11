@@ -20,25 +20,32 @@ assert.match(app,/Barcode-Scanner/);
 assert.match(app,/Tablette fotografieren/);
 assert.match(app,/aria-disabled="true"/);
 assert.doesNotMatch(app,/function syncHtml/);
-assert.match(app,/Letzter überprüfter EMA-Quellenabgleich/);
+assert.match(app,/Letzter dokumentierter EMA-Quellenabgleich/);
 assert.match(app,/api\('\/pms\/demo-coverage'\)/);
 assert.match(app,/EMA-PMS-Abdeckung der Demo/);
 assert.match(app,/PMS-Beta-Quelle noch offen/);
 assert.match(app,/Identitäten mit PMS-Beta-Quellen/);
 assert.match(app,/data-action="detail"/);
 
-assert.match(app,/target.*70|mindestens <strong>70 %/);
-assert.match(app,/Keine.*automatische Beta|keine automatische Beta/i);
+assert.match(app,/function sourcesDisclosure\(/);
+assert.match(app,/function knowledgeHtml\(\)/);
+assert.match(app,/Praxiswissen/);
+assert.match(app,/Quellen & Nachweise/);
+assert.doesNotMatch(app,/mindestens <strong>70 %/);
+assert.doesNotMatch(app,/Fachlich validierte Einzeltexte/);
 assert.match(auth,/medidenta_post_comment|\/facts\/.*comments/);
 assert.match(auth,/A\.role!=='admin'/);
 assert.match(auth,/Private Quellenprüfung/);
-assert.match(auth,/data-role-form/);
-assert.match(sw,/medidenta-pages-v0\.18/);
+assert.match(auth,/if\(form\.dataset\.roleForm\)/); // Secure role handler is retained.
+assert.doesNotMatch(html,/data-role-form/); // Public page hides the role editor.
+assert.match(html,/Praxiswissen – bald verfügbar/);
+assert.match(html,/Quellenbezogene Arzneimittelinformationen|quellenbezogene Arzneimittelinformationen/i);
+assert.match(sw,/medidenta-pages-v0\.19/);
 assert.match(sw,/rms-codes\.js/);
 assert.match(sw,/data-display\.js/);
 assert.match(html,/data-display\.js\?v=0\.17/);
 assert.match(html,/rms-codes\.js\?v=0\.16/);
-assert.match(html,/app\.js\?v=0\.18/);
+assert.match(html,/app\.js\?v=0\.19/);
 assert.match(sw,/theme\.js/);
 
 // The OS preference is only the DEFAULT; manual selection persists.

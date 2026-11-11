@@ -11,16 +11,13 @@ const safeUrl=x=>{try{const u=new URL(x);return u.protocol==='https:'?u.href:nul
 const D={page:'home',connected:false,meta:null,offline:[],hits:[],search:'',detail:null,detailError:'',photo:null,photoName:'',scanMessage:'',scanMatches:[],loading:false,seq:0,identifierSystem:'PZN8',compare:[],compareDetails:{},attributions:[],drafts:[],approved:[],draftLoadError:false,syncMeta:null,syncBusy:false,syncMessage:'',catalogRevision:null,draftRevision:null,features:{collaboration_enabled:false},pmsHits:[],pmsQuery:'',pmsPage:0,pmsHasMore:false,pmsBusy:false,pmsError:'',pmsDetail:null,pmsMessage:'',pmsOverview:null,pmsOverviewError:false,pmsCoverage:null,pmsCoverageError:false,searchPage:0,searchHasMore:false,pmsSearchHits:[],pmsSearchMore:false,pmsSearchError:false,detailKind:'catalog',pmsBack:'search',catalogSearchError:''};
 try{D.favorites=JSON.parse(localStorage.getItem('medidenta_favs_v04')||'[]');if(!Array.isArray(D.favorites))D.favorites=[];}catch{D.favorites=[]}
 const api=async path=>{const c=new AbortController(),t=setTimeout(()=>c.abort(),path.startsWith('/products/')?18000:8000);try{const r=await fetch('/api/v1'+path,{signal:c.signal,cache:'no-store',headers:{Accept:'application/json'}});const data=await r.json();if(!r.ok)throw Error(data.error||'HTTP '+r.status);return data;}finally{clearTimeout(t)}};
-function clinicalNotice(){return '<div class="notice warning"><strong>Entwicklungsstand – keine klinische Einsatzfreigabe der App.</strong> Einzelne Fachtextaussagen können nach persönlicher Kontrolle fachlich freigegeben sein, nicht jedoch automatisch ganze Präparate oder Dosierungen. Aktuelle Originalquellen und Anordnungen bleiben maßgeblich.</div>'}
+function clinicalNotice(){return '<div class="notice warning"><strong>Alpha-Testversion – keine klinische Entscheidungsunterstützung.</strong> Die Informationen beruhen auf angegebenen EMA-/EU-Quellen; insbesondere EMA PMS Beta kann unvollständig sein. Bitte für konkrete Behandlungs-, Dosierungs- oder Austauschentscheidungen die aktuellen Original-Fachinformationen und ärztlichen Anordnungen heranziehen.</div>';}
 function status(){
- const p=D.offline.length,c=D.approved.length;
- if(IS_PUBLIC_PREVIEW){
-  bar.className='system-status offline';
-  bar.textContent='● ALPHA · Statischer Testbestand · '+p+' Identitäten · '+c+' validierte Einzeltexte · keine Live-API';
-  return;
- }
+ const p=D.offline.length;
  bar.className='system-status'+(D.connected?'':' offline');
- bar.textContent=D.connected?'● ALPHA · Live-Datenbank verbunden · '+p+' Identitäten · '+c+' validierte Einzeltexte':
+ bar.textContent=IS_PUBLIC_PREVIEW?
+  '● ALPHA · Statischer Testbestand · '+p+' Identitäten · keine Live-API':
+  D.connected?'● ALPHA · Live-Datenbank verbunden · '+p+' Identitäten':
   '● ALPHA · Verbindung derzeit nicht verfügbar · zuletzt geladener Datenstand';
 }
 function title(s){return '<div class="eyebrow">MediIdenta · Fachkreiskatalog</div><h1>'+escapeHtml(s)+'</h1>'}
@@ -61,10 +58,91 @@ function combineSearchHits(catalog,pms){
  const remaining=candidates.filter(p=>!attached.has(p.pms_id));
  return [...normal,...remaining];
 }
-function home(){return '<div class="hero"><div class="eyebrow">FÜR PFLEGE · MEDIZIN · APOTHEKE</div><h1>Arzneimittel schneller finden.</h1><p>Die eigene MediIdenta-Datenbank. Quellenbezogen. Transparent.</p><button class="hero-search" data-nav="search">⌕ &nbsp; Handelsname oder Wirkstoff suchen …</button></div><div class="grid2 spaced"><button class="tile" data-nav="scan"><span class="symbol">▣</span><strong>Identifikation</strong><small>Packungscode prüfen · Kamera bald verfügbar</small></button><button class="tile" data-nav="knowledge"><span class="symbol">◈</span><strong>Fachinformationen</strong><small>Quellenbasierte Informationen entdecken</small></button></div><div class="section-title"><h2>Aus dem Katalog</h2><button data-nav="search">Alle suchen →</button></div><p class="small muted">'+D.offline.length+' Produktidentitäten im aktuellen Katalog</p>'+D.offline.slice(0,3).map(row).join('')+clinicalNotice();}
+function home(){return '<div class="hero"><div class="eyebrow">FÜR PFLEGE · MEDIZIN · APOTHEKE</div><h1>Arzneimittel schneller finden.</h1><p>Die eigene MediIdenta-Datenbank. Quellenbezogen. Transparent.</p><button class="hero-search" data-nav="search">⌕ &nbsp; Handelsname oder Wirkstoff suchen …</button></div><div class="grid2 spaced"><button class="tile" data-nav="scan"><span class="symbol">▣</span><strong>Identifikation</strong><small>Packungscode prüfen · Kamera bald verfügbar</small></button><button class="tile" data-nav="knowledge"><span class="symbol">◈</span><strong>Praxiswissen</strong><small>Allgemeines Wissen für die Praxis · SOON</small></button></div><div class="section-title"><h2>Aus dem Katalog</h2><button data-nav="search">Alle suchen →</button></div><p class="small muted">'+D.offline.length+' Produktidentitäten im aktuellen Katalog</p>'+D.offline.slice(0,3).map(row).join('')+clinicalNotice();}
 function searchHtml(){const xs=D.hits;return title('Medikamente suchen')+'<label for="search" class="search-label">Wirkstoff oder Handelsname</label><input id="search" class="search-input" type="search" value="'+escapeHtml(D.search)+'" placeholder="z. B. Toujeo, Ozempic, Apixaban"><div class="filters"><button class="filter" data-filter="all">Alle Treffer</button><button class="filter" data-filter="fav">★ Favoriten</button></div><div class="small muted">'+(D.loading?'Suche läuft …':xs.length+' Treffer · '+(D.connected?'Live-API':'Offline-Snapshot'))+'</div><div id="hits">'+xs.map(row).join('')+'</div>'+(D.connected&&trim(D.search).length>=2?'<div class="row draft-pager"><button class="secondary" data-action="search-prev" '+(D.searchPage===0?'disabled':'')+'>← Zurück</button><span class="small muted">Seite '+(D.searchPage+1)+'</span><button class="secondary" data-action="search-next" '+(!D.searchHasMore?'disabled':'')+'>Weiter →</button></div>':'')+(D.compare.length?'<div class="compare-tray"><strong>⇄ '+D.compare.length+'/2 ausgewählt</strong><div class="row"><button class="secondary" data-action="compare-clear">Löschen</button><button class="primary" data-action="compare-view" '+(D.compare.length!==2?'disabled':'')+'>Vergleichen</button></div></div>':'')+(!xs.length&&!D.pmsSearchHits.length?'<div class="empty">Keine passenden Medikamenten- oder EMA-PMS-Quelldatensätze gefunden.</div>':'')+clinicalNotice();}
-function factsHtml(facts){return facts.length?facts.map(f=>'<div class="fact"><strong>'+escapeHtml(f.fact_type||'Fachinformation')+'</strong><p>'+escapeHtml(f.content_text||'')+'</p>'+((f.references||[]).map(r=>{const u=safeUrl(r.document_url);return u?'<a target="_blank" rel="noopener noreferrer" href="'+escapeHtml(u)+'">'+escapeHtml(r.document_title||'Originalquelle')+'</a>':''}).join(''))+'</div>').join(''):'<div class="notice warning">Noch keine medizinisch freigegebenen Fachtexte verfügbar. Die noch ungeprüften redaktionellen Entwürfe stehen darunter separat gekennzeichnet.</div>'}
-function detailHtml(){if(D.detailKind==='pms')return pmsDetailHtml();const p=D.detail;if(!p)return '<button class="back" data-nav="search">← Zur Suche</button>'+title('Medikamentendetails')+(D.detailError?'<div class="notice warning">'+escapeHtml(D.detailError)+'</div>':'<p class="small muted">Produktdaten werden geladen …</p>');const subst=Array.isArray(p.substances)?p.substances.map(x=>x.name).join(', '):p.substances||'–';const src=p.source||{};const sourceLink=safeUrl(src.url);const facts=Array.isArray(p.facts)?p.facts:[],photos=Array.isArray(p.photos)?p.photos:[],presentations=Array.isArray(p.presentations)?p.presentations:[];return '<button class="back" data-nav="search">← Zur Suche</button>'+title(p.name)+'<p class="detail-sub">'+escapeHtml(subst)+'</p>'+badge('Produktidentität hinterlegt')+' '+badge('Alpha · Testbestand','amber')+'<section class="card"><h2>Produktdetails</h2><div class="detail-list"><div><span>Marktgebiet</span><strong>'+escapeHtml(p.country_code||'–')+'</strong></div><div><span>Zulassung laut Quelle</span><strong>'+escapeHtml(p.marketing_status||'unknown')+'</strong></div><div><span>Zulassungsinhaber</span><strong>'+escapeHtml(p.marketing_holder||'Nicht hinterlegt')+'</strong></div><div><span>Letzte Datenänderung</span><strong>'+escapeHtml(p.updated_at||'Nicht hinterlegt')+'</strong></div></div><div class="notice warning">EU-Zulassung belegt weder aktuelle deutsche Marktverfügbarkeit noch Stärke oder Packungsgröße.</div></section><section class="card"><h2>Originalbilder</h2>'+(photos.length?photos.map(photo=>{const u=safeUrl(photo.media_url);return u?'<img alt="Freigegebenes Präparatebild" loading="lazy" style="width:100%;border-radius:12px" src="'+escapeHtml(u)+'">':'<p>Bilddatei nicht abrufbar.</p>'}).join(''):'<div class="photo-box">▧<br>Kein freigegebenes Originalbild vorhanden</div>')+'</section><section class="card"><h2>Darreichungsformen und Stärken</h2>'+(presentations.length?presentations.map(x=>'<p>'+escapeHtml([x.dosage_form,x.strength_label,x.administration_route].filter(Boolean).join(' · '))+'</p>').join(''):'<p class="muted small">Noch keine präparatespezifisch geprüften Angaben.</p>')+'</section>'+embeddedPmsHtml(p.pms_sources||[],p.pms_unavailable===true)+(window.MediIdentaReviewUI?.details(D,p)||'<section class="card"><h2>Fachinformationen & Good-to-Know</h2><div class="facts">'+factsHtml(facts)+'</div></section>')+'<section class="card"><h2>Datenquelle</h2><p class="small">'+escapeHtml(src.name||p.source_name||'Nicht hinterlegt')+'</p><p class="tiny muted">'+escapeHtml(src.license||p.license||'')+'</p>'+(sourceLink?'<p><a target="_blank" rel="noopener noreferrer" href="'+escapeHtml(sourceLink)+'">Offizielle Quelle ansehen ↗</a></p>':'')+'</section>'+clinicalNotice();}
+function factsHtml(facts){
+ return facts.length?facts.map(f=>'<div class="fact"><strong>'+escapeHtml(f.fact_type||'Fachinformation')+'</strong><p>'+escapeHtml(f.content_text||'')+'</p></div>').join(''):
+ '<p class="small muted">Noch keine Fachinformationen zu diesem Präparat hinterlegt.</p>';
+}
+/* One source dropdown at the END of each medicine, with unique EMA and PMS citations.
+   Original review hashes, decisions and unmodified FHIR payloads stay in the backend. */
+function sourcesDisclosure(product,pmsSources,facts){
+ const p=product||{},src=p.source||{},entries=[];
+ const catalogUrl=safeUrl(src.url||p.source_url);
+ if(src.name||p.source_name||catalogUrl){
+  entries.push('<li><strong>Produktidentität:</strong> '+escapeHtml(src.name||p.source_name||'EU-/EMA-Datenquelle')+
+    (catalogUrl?' · <a href="'+escapeHtml(catalogUrl)+'" target="_blank" rel="noopener noreferrer">Originalquelle öffnen</a>':'')+
+    (src.license||p.license?' · '+escapeHtml(src.license||p.license):'')+'</li>');
+ }
+ const citations=new Map();
+ for(const f of Array.isArray(facts)?facts:[]){
+  const r=f.reference||{};
+  const link=safeUrl(r.document_url);
+  const key=JSON.stringify([r.document_url||'',r.document_title||'',r.locator||'']);
+  if(!citations.has(key)&&(link||r.document_title)){
+   citations.set(key,'<li><strong>EMA-Fachinformation:</strong> '+escapeHtml(r.document_title||'EMA-Originalquelle')+
+    (r.locator?' · Abschnitt '+escapeHtml(r.locator):'')+
+    (r.publication_date?' · Stand '+escapeHtml(r.publication_date):'')+
+    (link?' · <a href="'+escapeHtml(link)+'" target="_blank" rel="noopener noreferrer">Originalquelle öffnen</a>':'')+'</li>');
+  }
+ }
+ entries.push(...citations.values());
+ const seen=new Set();
+ for(const entry of Array.isArray(pmsSources)?pmsSources:[]){
+  const item=entry.product||{},id=trim(item.pms_id);
+  if(!id||seen.has(id))continue;
+  seen.add(id);
+  const u=safeUrl(item.source_url),fields=Array.isArray(entry.fields)?entry.fields:[];
+  entries.push('<li><strong>EMA PMS Beta:</strong> '+escapeHtml(item.display_name||'Produktquelle')+
+    ' · PMS-ID '+escapeHtml(id)+
+    (item.imported_at?' · Import '+escapeHtml(item.imported_at):'')+
+    (u?' · <a href="'+escapeHtml(u)+'" target="_blank" rel="noopener noreferrer">FHIR-Originalquelle öffnen</a>':'')+
+    '<p class="tiny muted">'+fields.length+' strukturierte Quellfelder. Die namentliche Zuordnung allein beweist keine Übereinstimmung von Stärke, Arzneiform oder Packung.</p>'+
+    (fields.length?'<details class="source-raw"><summary>Technische FHIR-Feldnachweise ('+fields.length+')</summary>'+
+      '<ul>'+fields.map(f=>{
+        const fieldUrl=safeUrl(f.source_url);
+        return '<li>'+escapeHtml(f.resource_type||'FHIR')+' / '+escapeHtml(f.resource_id||'–')+
+          ' · '+escapeHtml(f.attribute_key||'Quellfeld')+
+          (fieldUrl?' · <a href="'+escapeHtml(fieldUrl)+'" target="_blank" rel="noopener noreferrer">Quelle</a>':'')+
+          '</li>';
+      }).join('')+'</ul></details>':'')+'</li>');
+ }
+ return '<section class="card sources-bottom"><details class="source-accordion">'+
+  '<summary>Quellen & Nachweise <span class="source-count">('+entries.length+')</span></summary>'+
+  '<p class="small muted">EMA-/EU-Originalquellen und Fundstellen. PMS-Beta-Produktzuordnungen nach Namen sind keine bestätigten Packungsidentitäten.</p>'+
+  (entries.length?'<ul class="source-list">'+entries.join('')+'</ul>':'<p class="small muted">Für diesen Eintrag sind noch keine Quellenangaben hinterlegt.</p>')+
+  '</details></section>';
+}
+function detailHtml(){
+ if(D.detailKind==='pms')return pmsDetailHtml();
+ const p=D.detail;
+ if(!p)return '<button class="back" data-nav="search">← Zur Suche</button>'+title('Medikamentendetails')+
+  (D.detailError?'<div class="notice warning">'+escapeHtml(D.detailError)+'</div>':'<p class="small muted">Produktdaten werden geladen …</p>');
+ const subst=Array.isArray(p.substances)?p.substances.map(x=>x.name).join(', '):p.substances||'–';
+ const facts=Array.isArray(p.facts)?p.facts:[];
+ const photos=Array.isArray(p.photos)?p.photos:[];
+ const presentations=Array.isArray(p.presentations)?p.presentations:[];
+ const pms=Array.isArray(p.pms_sources)?p.pms_sources:[];
+ const linked=window.MediIdentaReviewUI?.sourceRecords?.(D,p)||[];
+ return '<button class="back" data-nav="search">← Zur Suche</button>'+title(p.name)+
+  '<p class="detail-sub">'+escapeHtml(subst)+'</p>'+badge('Produktidentität hinterlegt')+' '+badge('Alpha · Testbestand','amber')+
+  '<section class="card"><h2>Produktdetails</h2><div class="detail-list">'+
+  '<div><span>Marktgebiet</span><strong>'+escapeHtml(p.country_code||'–')+'</strong></div>'+
+  '<div><span>Zulassung laut Quelle</span><strong>'+escapeHtml(p.marketing_status||'unknown')+'</strong></div>'+
+  '<div><span>Zulassungsinhaber</span><strong>'+escapeHtml(p.marketing_holder||'Nicht hinterlegt')+'</strong></div>'+
+  '<div><span>Letzte Datenänderung</span><strong>'+escapeHtml(p.updated_at||'Nicht hinterlegt')+'</strong></div></div>'+
+  '<div class="notice warning">EU-Zulassung belegt weder aktuelle deutsche Marktverfügbarkeit noch Stärke oder Packungsgröße.</div></section>'+
+  '<section class="card"><h2>Originalbilder</h2>'+
+  (photos.length?photos.map(photo=>{const u=safeUrl(photo.media_url);return u?
+    '<img alt="Präparatebild laut Quelle" loading="lazy" style="width:100%;border-radius:12px" src="'+escapeHtml(u)+'">':
+    '<p>Bilddatei nicht abrufbar.</p>'}).join(''):'<div class="photo-box">▧<br>Kein verifiziertes Originalbild vorhanden</div>')+'</section>'+
+  '<section class="card"><h2>Darreichungsformen und Stärken</h2>'+
+  (presentations.length?presentations.map(x=>'<p>'+escapeHtml([x.dosage_form,x.strength_label,x.administration_route].filter(Boolean).join(' · '))+'</p>').join(''):
+   '<p class="muted small">Noch keine präparatespezifischen Angaben hinterlegt.</p>')+'</section>'+
+  embeddedPmsHtml(pms,p.pms_unavailable===true)+
+  (window.MediIdentaReviewUI?.details(D,p)||'<section class="card"><h2>Fachinformationen & Good-to-Know</h2><div class="facts">'+factsHtml(facts)+'</div></section>')+
+  clinicalNotice()+sourcesDisclosure(p,pms,[...linked,...facts]);
+}
 // PMS Beta metadata remains SEPARATE from the known/verified product catalog.
 // Every field is an explicit, source-versioned unverified candidate until admin review.
 function pmsReviewForm(f){
@@ -76,59 +154,24 @@ function pmsReviewForm(f){
   '<label><input type="checkbox" name="source_checked" required> EMA-Originalangabe, Einheit, Stärke und Produktbezug selbst geprüft.</label>'+
   '<button type="submit" class="primary full">Einzelentscheidung speichern</button></form>';
 }
-function pmsSourceRecord(f,admin){
- const raw=JSON.stringify(f.value_json,null,2)||'–';
- return '<div class="grouped-pms-source"><p class="tiny muted">FHIR: '+escapeHtml(f.resource_type)+
-  ' · '+escapeHtml(f.resource_id)+' · '+escapeHtml(f.editorial_status==='clinically_reviewed'?'Einzelwert geprüft':'Nicht validiert')+'</p>'+
-  (f.relation_status!=='DIRECT_PRODUCT'?'<p class="tiny muted">Die FHIR-Bundle-Zuordnung ist noch nicht bestätigt.</p>':'')+
-  '<details class="pms-raw-disclosure"><summary>Unveränderten FHIR-Quellwert anzeigen</summary>'+
-  '<pre class="pms-json">'+escapeHtml(raw)+'</pre></details>'+
-  (admin?pmsReviewForm(f):'')+'</div>';
-}
 function pmsCardsHtml(entry){
  const p=entry.product||{},fields=Array.isArray(entry.fields)?entry.fields:[];
- const report=window.MediIdentaDisplay?.terminologyReport?.(fields);
- const admin=window.MediIdentaReviewAuth?._debug?.role?.()==='admin';
- const src=safeUrl(p.source_url);
  const sections=window.MediIdentaDisplay?.groupPmsSections?.(fields)||[];
- const merged=sections.reduce((total,section)=>total+section.unique_items,0);
  const association=entry.identity_association||'PMS_SOURCE_ONLY_UNCONFIRMED';
- const isConfirmed=association==='ADMIN_CONFIRMED_SOURCE_LINK_ONLY';
- const warning=isConfirmed?
-  'PMS-Quelle ist dieser MediIdenta-Produktidentität ausdrücklich zugeordnet. Die Angaben bleiben einzelne EMA-Beta-Quellwerte, keine klinische Freigabe.':
-  association==='NAME_SIMILARITY_UNCONFIRMED'?
-  'PMS-Quelldatensatz wurde wegen eines ähnlichen Produktnamens angezeigt. Keine Identitätsprüfung: Wirkstärke, Arzneiform, Wirkstoff und Zulassungsgebiet können abweichen.':
-  'Eigenständiger PMS-Beta-Quelldatensatz. Keine bestätigte Zuordnung zu einem anderen MediIdenta-Präparat.';
+ const warning=association==='ADMIN_CONFIRMED_SOURCE_LINK_ONLY'?
+   'Diese PMS-Quelle ist einer Katalogidentität zugeordnet. Die Angaben bleiben EMA-Beta-Quelldaten.':
+   association==='NAME_SIMILARITY_UNCONFIRMED'?
+   'Diese EMA-PMS-Quelle wird wegen eines ähnlichen Produktnamens angezeigt. Wirkstärke, Arzneiform, Wirkstoff und Marktgebiet können abweichen.':
+   'Eigenständiger EMA-PMS-Beta-Quelldatensatz ohne bestätigte Verbindung zu einer Katalogidentität.';
  const cards=sections.map(section=>'<section class="card pms-topic" data-pms-section="'+escapeHtml(section.title)+'">'+
   '<h2>'+escapeHtml(section.title)+'</h2>'+
-  '<p class="tiny muted">'+section.unique_items+' verschiedene Angaben · '+section.records.length+' Originalfelder</p>'+
   section.groups.map(g=>'<div class="pms-subtopic" data-pms-topic="'+escapeHtml(g.key)+'">'+
    '<h3>'+escapeHtml(g.label)+'</h3>'+
-   '<ul class="pms-readable-values">'+g.items.map(item=>{
-    const count=item.records.length,reviewed=item.records.filter(f=>f.editorial_status==='clinically_reviewed').length;
-    const state=reviewed===count?'Einzelwert fachlich geprüft':reviewed?'Einzelne Quellwerte geprüft':'Nicht fachlich validiert';
-    return '<li><span class="pms-readable-text">'+escapeHtml(item.text)+'</span>'+
-      (reviewed?(' '+badge(state,reviewed===count?'':'amber')):'')+
-      (count>1?'<span class="tiny muted"> Aus '+count+' Originaldatensätzen; Status je Quelle bleibt getrennt.</span>':'')+'</li>';
-   }).join('')+'</ul>'+
-   '<details class="pms-source-audit"><summary>Quellen, Originalcodes und optionale Adminprüfung ('+g.records.length+')</summary>'+
-   g.records.map(f=>pmsSourceRecord(f,admin)).join('')+'</details></div>').join('')+'</section>').join('');
- return '<div class="pms-beta-intro">'+badge('EMA PMS Beta','amber')+' '+
-  badge('Quelleninformation · keine klinische Freigabe','gray')+
-  '<p class="small muted">'+escapeHtml(warning)+'</p>'+
-  '<p class="tiny muted"><strong>EMA-PMS-Produkt:</strong> '+escapeHtml(p.display_name||'Ohne Namen')+
-  ' · ID '+escapeHtml(p.pms_id||'–')+'</p>'+
-  (src?'<a href="'+escapeHtml(src)+'" target="_blank" rel="noopener noreferrer">Originaldaten der EMA öffnen ↗</a>':'')+
-  '<p class="tiny muted">Quellimport: '+escapeHtml(p.imported_at||'Nicht hinterlegt')+
-  ' · '+fields.length+' FHIR-Originalfelder, '+merged+' unterschiedliche Anzeigen. '+
-  'Die Originalcodes und Einzelprüfungen bleiben im Quellprotokoll abrufbar.</p>'+
-  (report?.fields_with_unknown_codes?
-   '<details class="pms-source-audit"><summary>Unbekannte EMA-Codes ('+report.fields_with_unknown_codes+
-   ' Quellfelder · '+report.code_types_unknown+' Codes)</summary>'+
-   '<p class="tiny muted">Diese Codes werden ausdrücklich nicht erraten. Originalcodes können anhand der zugehörigen offiziellen RMS-/SMS-/OMS-Referenz geprüft werden.</p>'+
-   '<ul>'+report.examples.map(x=>'<li><code>'+escapeHtml(x.code)+'</code> · '+x.count+' Feld(er)</li>').join('')+'</ul></details>':
-   '<p class="tiny muted">In den aktuell angezeigten Texten wurden keine ungelösten numerischen EMA-Codes erkannt.</p>')+
-  '</div>'+
+   '<ul class="pms-readable-values">'+g.items.map(item=>
+    '<li><span class="pms-readable-text">'+escapeHtml(item.text)+'</span></li>').join('')+
+   '</ul></div>').join('')+'</section>').join('');
+ return '<div class="pms-beta-intro">'+badge('EMA PMS Beta','amber')+
+  '<p class="small muted">'+escapeHtml(warning)+'</p></div>'+
   (sections.length?cards:'<div class="notice warning">Keine strukturierten PMS-Quellfelder für dieses Produkt verfügbar.</div>');
 }
 function embeddedPmsHtml(sources,unavailable=false){
@@ -137,14 +180,13 @@ function embeddedPmsHtml(sources,unavailable=false){
   return '<section class="card pms-integrated"><h2>EMA PMS Beta · Datenstand</h2>'+
    '<p class="small muted">'+(D.connected?
     'Für diese Identität ist noch keine passende EMA-PMS-Beta-Quelle importiert. '+
-    'Die gezielte Ergänzung der 36 Demo-Medikamente läuft; fehlende Quellen werden nicht erfunden.':
+    'Bei dieser Verbindung ist noch keine PMS-Quelle abrufbar; es werden keine fehlenden Daten ergänzt oder erfunden.':
     'EMA-PMS-Beta-Quelldaten benötigen die Live-Verbindung. Im Offline-Snapshot liegen dazu keine Daten vor.')+
    '</p>'+badge('PMS-Beta-Quelle noch offen','amber')+'</section>';
  }
  return '<section class="pms-integrated"><h2>EMA PMS Beta · Strukturierte Quelldaten</h2>'+
-  '<p class="small muted">Zusätzliche EMA-Beta-Quelldaten werden ohne vorherige Adminfreigabe angezeigt. '+
-  'Sie sind keine geprüften Fachinformationen und beweisen keine Austauschbarkeit. '+
-  'Die Bezeichnung „Beta“ bezieht sich auf die EMA-Datenquelle, nicht auf die MediIdenta-App.</p>'+
+  '<p class="small muted">Strukturierte Angaben aus der offiziellen EMA PMS Beta. '+
+  'Sie ergänzen die Fachinformationen, belegen aber allein keine Gleichheit von Arzneiform, Stärke, Packung oder Austauschbarkeit.</p>'+
   (D.pmsMessage?'<div class="notice" role="status">'+escapeHtml(D.pmsMessage)+'</div>':'')+
   (unavailable?'<div class="notice warning">EMA-PMS-Quelldaten können derzeit nicht geladen werden.</div>':'')+
   list.map(pmsCardsHtml).join('')+'</section>';
@@ -156,11 +198,12 @@ function pmsDetailHtml(){
  const p=entry.product||{};
  return '<button class="back" data-nav="search">← Zur Suche</button>'+
   title(p.display_name||'Medikament')+'<p class="detail-sub">EMA PMS Beta · Produkt- und Quelldaten</p>'+
-  badge('EMA PMS Beta · nicht fachlich validiert','amber')+
+  badge('EMA PMS Beta','amber')+
   '<section class="card"><h2>Medikamentendetails</h2>'+
   '<p class="small muted">Dieser Eintrag ist bislang nur in der EMA-PMS-Quelle vorhanden. '+
   'Es liegt keine bestätigte Verknüpfung mit einem MediIdenta-Katalogprodukt vor.</p></section>'+
-  pmsCardsHtml({...entry,identity_association:'PMS_SOURCE_ONLY_UNCONFIRMED'})+clinicalNotice();
+  pmsCardsHtml({...entry,identity_association:'PMS_SOURCE_ONLY_UNCONFIRMED'})+
+  clinicalNotice()+sourcesDisclosure(null,[entry],[]);
 }
 async function loadPms(){
  if(!D.connected){D.pmsError='Der PMS-Livebereich ist nur über die Render-Live-Datenbank erreichbar.';D.pmsHits=[];draw(true);return;}
@@ -245,64 +288,55 @@ function scanHtml(){
  '<section class="coming-soon"><h2>Tablette fotografieren '+badge('SOON','soon')+'</h2><p>Fotoerkennung wird erst nach geeigneter Bilddatenbasis und Qualitätsprüfung freigeschaltet. Keine Identifikation anhand eines Fotos möglich.</p><button class="secondary" disabled aria-disabled="true">📷 Fotoerkennung · demnächst</button></section>'+
  clinicalNotice();
 }
-function knowledgeHtml(){return window.MediIdentaReviewUI?.knowledge(D)||title('Fachtextprüfung nicht verfügbar');}
+function knowledgeHtml(){
+ return title('Praxiswissen')+
+  '<section class="coming-soon knowledge-soon"><h2>Allgemeines Praxiswissen '+badge('SOON','soon')+'</h2>'+
+  '<p>Hier entsteht später ein eigenständiger Bereich mit allgemeinem Wissen für den Pflege- und Medizinalltag.</p>'+
+  '<p class="small muted">Medikamentenbezogene Fachinformationen findest du bereits direkt beim jeweiligen Präparat.</p></section>';
+}
 function qualityHtml(){
- const m=D.meta||{};
  const lastImport=D.syncMeta?.last_catalog_import_at;
  const lastEma=D.syncMeta?.last_ema_check_at;
- const showDate=x=>{if(!x)return 'Noch nicht dokumentiert';const d=new Date(x);return Number.isNaN(+d)?'Nicht verfügbar':d.toLocaleString('de-DE',{dateStyle:'medium',timeStyle:'short'});};
- const knownProducts=new Set(D.offline.map(p=>p.id));
- const reviewedProducts=new Set((D.approved||[]).flatMap(f=>f.linked_product_ids||[]).filter(id=>knownProducts.has(id)));
- const coverage=D.offline.length?Math.round(1000*reviewedProducts.size/D.offline.length)/10:0;
- const totalFacts=D.drafts.length+D.approved.length;
+ const showDate=x=>{if(!x)return 'Noch nicht dokumentiert';const d=new Date(x);
+  return Number.isNaN(+d)?'Nicht verfügbar':d.toLocaleString('de-DE',{dateStyle:'medium',timeStyle:'short'});};
+ const textCount=(D.drafts||[]).length+(D.approved||[]).length;
  return title('Datenqualität & Transparenz')+
- '<p class="small muted">Aktueller Datenbestand der kontrollierten öffentlichen Alpha-Phase. Validierung gilt für einzelne Textfassungen, nicht für die gesamte Anwendung oder das ganze Medikament.</p>'+
- '<div class="stats"><div class="stat"><strong>'+D.offline.length+'</strong><span>Produktidentitäten</span></div>'+
- '<div class="stat"><strong>'+D.approved.length+'</strong><span>Fachlich validierte Einzeltexte</span></div>'+
- '<div class="stat"><strong>'+D.drafts.length+'</strong><span>Nicht fachlich validierte Einzeltexte</span></div>'+
- '<div class="stat"><strong>'+escapeHtml(String(coverage).replace('.',','))+'%</strong><span>Medikamente mit mindestens einer validierten Aussage</span></div></div>'+
- '<section class="card"><h2>Datenherkunft</h2>'+
- '<p class="small"><strong>Live-Verbindung:</strong> '+escapeHtml(D.connected?'Supabase PostgreSQL':'Aktuell keine Live-Verbindung')+'</p>'+
- '<p class="small"><strong>Letzter Datenbankimport:</strong> <span class="quality-timestamp">'+escapeHtml(showDate(lastImport||(!D.connected?D.syncMeta?.source_date:null)))+'</span></p>'+
- '<p class="small"><strong>Letzter überprüfter EMA-Quellenabgleich:</strong> <span class="quality-timestamp">'+escapeHtml(showDate(lastEma))+'</span></p>'+
- '<p class="tiny muted">Datenbankimport und EMA-Quellenabgleich sind unterschiedliche Vorgänge. Ein erfolgreicher Import belegt keine erneute Prüfung der aktuellen EMA-Originalquelle. Solange ein Quellenabgleich nicht gesondert protokolliert wird, zeigen wir dafür kein erfundenes Datum.</p></section>'+
- '<section class="card"><h2>EMA-PMS-Abdeckung der Demo</h2>'+
- (D.pmsCoverage?'<div class="stats"><div class="stat"><strong>'+
-  escapeHtml(D.pmsCoverage.with_pms_source)+' / '+escapeHtml(D.pmsCoverage.identity_total)+
-  '</strong><span>Identitäten mit PMS-Beta-Quellen</span></div>'+
-  '<div class="stat"><strong>'+escapeHtml(String(D.pmsCoverage.coverage_percent).replace('.',','))+
-  '%</strong><span>Abdeckung des Demo-Katalogs</span></div></div>'+
-  '<p class="tiny muted">Eine PMS-Beta-Quelle ist eine unverifizierte Zuordnung über den Produktnamen. Die Abdeckung beweist keine identischen Wirkstärken, Packungen oder klinische Freigabe.</p>'+
-  '<details><summary>Alle '+escapeHtml(D.pmsCoverage.identity_total)+
-   ' Medikamentenidentitäten und ihre PMS-Daten</summary>'+
-   D.pmsCoverage.items.map(p=>'<div class="fact"><div class="row">'+
-    '<button class="med-button grow" data-action="detail" data-id="'+escapeHtml(p.id)+'">'+
-    '<strong>'+escapeHtml(p.name)+'</strong></button>'+
-    badge(p.pms_source_count?'PMS Beta verfügbar':'Quelle noch offen',p.pms_source_count?'gray':'amber')+
-    '</div></div>').join('')+'</details>':
-  '<p class="small muted">'+(D.pmsCoverageError?
-   'Die PMS-Abdeckung konnte derzeit nicht vollständig ermittelt werden.':
-   'Die Abdeckung der vorhandenen 36 Identitäten wird geprüft …')+'</p>')+
- '</section>'+
- '<section class="card"><h2>EMA-PMS-Beta-Datenbestand</h2>'+
- (D.pmsOverview?
-  '<div class="stats"><div class="stat"><strong>'+escapeHtml(D.pmsOverview.pms_products)+'</strong><span>PMS-Quellprodukte</span></div>'+
-  '<div class="stat"><strong>'+escapeHtml(D.pmsOverview.pms_fields)+'</strong><span>Öffentliche Quellfelder</span></div>'+
-  '<div class="stat"><strong>'+escapeHtml(D.pmsOverview.individually_reviewed_fields)+'</strong><span>Einzeln fachlich geprüft</span></div></div>'+
-  '<p class="small"><strong>Letzter PMS-Quellenimport:</strong> '+escapeHtml(showDate(D.pmsOverview.last_pms_source_import_at))+'</p>':
-  '<p class="small muted">'+(D.pmsOverviewError?'PMS-Beta-Statistik derzeit nicht abrufbar.':
-   'PMS-Beta-Statistik wird geladen …')+'</p>')+
- '<p class="tiny muted">EMA PMS ist eine externe Beta-Quellendatenbank. Ein Import ist keine inhaltliche EMA-Neuvalidierung oder klinische Freigabe. Diese Zahlen zählen Quellen, nicht deutsche Arzneimittelpackungen.</p></section>'+
- '<section class="card"><h2>Weg von Alpha zu Beta</h2>'+
- '<p class="small">Eine Beta-Phase ist erst nach expliziter Freigabe vorgesehen, wenn die folgenden Bedingungen erfüllt sind:</p>'+
- '<ol class="phase-checks"><li>Ein ausreichend breiter, fachlich bewerteter Medikamentenkatalog ist verfügbar.</li>'+
- '<li>Für mindestens <strong>70 % der erfassten Medikamente</strong> liegt wenigstens eine individuell fachlich validierte Information vor. Der aktuelle Wert beträgt '+escapeHtml(String(coverage).replace('.',','))+' %.</li>'+
- '<li>Identifikationsfunktionen und dazugehörige Packungsinformationen sind mit belastbaren Quelldaten und Tests nutzbar.</li>'+
- '<li>Sicherheits-, Datenqualitäts- und Freigabeprüfungen für eine Beta sind bestanden.</li></ol>'+
- '<p class="tiny muted">Die 70-%-Marke allein löst keine automatische Beta-Umbenennung aus. Aktuelle Phase: ALPHA. '+totalFacts+' klinische Einzeltexte erfasst.</p></section>'+
- '<section class="card"><h2>Quellen und Transparenz</h2>'+
- (D.attributions.length?D.attributions.map(x=>'<div class="fact"><strong>'+escapeHtml(x.name||x.source_key)+'</strong><p class="tiny">Lizenz: '+escapeHtml(x.license_code||'Nicht angegeben')+'</p></div>').join(''):'<p class="small muted">Quellenliste nicht verfügbar.</p>')+
- '</section>'+clinicalNotice();
+  '<p class="small muted">Quellen, Datenstand und Abdeckung des MediIdenta-Alpha-Katalogs. Die frühere redaktionelle Fachfreigabe ist kein sichtbarer Schritt mehr.</p>'+
+  '<div class="stats">'+
+   '<div class="stat"><strong>'+D.offline.length+'</strong><span>Produktidentitäten</span></div>'+
+   '<div class="stat"><strong>'+textCount+'</strong><span>Quellenbezogene Fachtextangaben</span></div>'+
+   '<div class="stat"><strong>'+escapeHtml(D.connected?'Live':'Offline')+'</strong><span>Datenverbindung</span></div></div>'+
+  '<section class="card"><h2>Datenherkunft und Aktualität</h2>'+
+   '<p class="small"><strong>Katalogdatenbank:</strong> '+escapeHtml(D.connected?'Supabase PostgreSQL':'Offline-Snapshot / keine Live-Verbindung')+'</p>'+
+   '<p class="small"><strong>Letzter Datenbankimport:</strong> <span class="quality-timestamp">'+escapeHtml(showDate(lastImport||(!D.connected?D.syncMeta?.source_date:null)))+'</span></p>'+
+   '<p class="small"><strong>Letzter dokumentierter EMA-Quellenabgleich:</strong> <span class="quality-timestamp">'+escapeHtml(showDate(lastEma))+'</span></p>'+
+   '<p class="tiny muted">Importdatum und erneute Quellenprüfung sind verschiedene Vorgänge. Ohne separat dokumentierten Abgleich wird kein Prüfdatum behauptet.</p></section>'+
+  '<section class="card"><h2>EMA-PMS-Abdeckung der Demo</h2>'+
+   (D.pmsCoverage?'<div class="stats"><div class="stat"><strong>'+
+      escapeHtml(D.pmsCoverage.with_pms_source)+' / '+escapeHtml(D.pmsCoverage.identity_total)+
+      '</strong><span>Identitäten mit PMS-Beta-Quellen</span></div>'+
+      '<div class="stat"><strong>'+escapeHtml(String(D.pmsCoverage.coverage_percent).replace('.',','))+
+      '%</strong><span>Abdeckung des Demo-Katalogs</span></div></div>'+
+      '<p class="tiny muted">Der Zahlenwert beschreibt Quellenabdeckung nach Namen, nicht die Vollständigkeit von Wirkstärken und Packungen.</p>'+
+      '<details><summary>Alle '+escapeHtml(D.pmsCoverage.identity_total)+' Medikamentenidentitäten anzeigen</summary>'+
+      (Array.isArray(D.pmsCoverage.items)?D.pmsCoverage.items:[]).map(p=>
+        '<div class="fact"><div class="row"><button class="med-button grow" data-action="detail" data-id="'+escapeHtml(p.id)+'"><strong>'+escapeHtml(p.name)+'</strong></button>'+
+        badge(p.pms_source_count?'PMS Beta verfügbar':'Quelle noch offen',p.pms_source_count?'gray':'amber')+
+        '</div></div>').join('')+'</details>':
+     '<p class="small muted">'+(D.pmsCoverageError?
+      'Die PMS-Abdeckung ist momentan nicht erreichbar.':
+      'Die aktuelle PMS-Abdeckung wird geladen …')+'</p>')+'</section>'+
+  '<section class="card"><h2>EMA-PMS-Beta-Datenbestand</h2>'+
+   (D.pmsOverview?
+     '<div class="stats"><div class="stat"><strong>'+escapeHtml(D.pmsOverview.pms_products)+'</strong><span>PMS-Quellprodukte</span></div>'+
+     '<div class="stat"><strong>'+escapeHtml(D.pmsOverview.pms_fields)+'</strong><span>Öffentliche PMS-Quellfelder</span></div></div>'+
+     '<p class="small"><strong>Letzter PMS-Import:</strong> '+escapeHtml(showDate(D.pmsOverview.last_pms_source_import_at))+'</p>':
+     '<p class="small muted">'+(D.pmsOverviewError?'PMS-Statistik derzeit nicht abrufbar.':'PMS-Statistik wird geladen …')+'</p>')+
+   '<p class="tiny muted">EMA PMS ist eine externe Beta-Quelle. Sie kann unvollständig sein. PMS-IDs sind keine deutschen PZN.</p></section>'+
+  '<section class="card"><h2>Quellen und Transparenz</h2>'+
+   (D.attributions.length?D.attributions.map(x=>'<div class="fact"><strong>'+escapeHtml(x.name||x.source_key)+'</strong><p class="tiny">Lizenz: '+escapeHtml(x.license_code||'Nicht angegeben')+'</p></div>').join(''):'<p class="small muted">Quellenliste nicht verfügbar.</p>')+
+   '</section>'+
+  clinicalNotice();
 }
 function draw(preserveFocus){let active=preserveFocus&&document.activeElement&&document.activeElement.id==='search';let focusId=active?document.activeElement.id:null;let pos=active?document.activeElement.selectionStart:null;root.innerHTML=({home:home,search:searchHtml,detail:detailHtml,compare:compareHtml,scan:scanHtml,knowledge:knowledgeHtml,quality:qualityHtml,account:()=>window.MediIdentaReviewAuth?.accountHtml()||title('Prüfkonto noch nicht verfügbar')}[D.page]||home)();document.querySelectorAll('.bottom-nav button').forEach(x=>x.classList.toggle('active',x.dataset.nav===D.page));status();if(D.photo&&document.querySelector('#photo'))document.querySelector('#photo').src=D.photo;if(active&&document.querySelector('#'+focusId)){let el=document.querySelector('#'+focusId);el.focus();try{el.setSelectionRange(pos,pos)}catch{}}}
 function localSearch(q){if(trim(q).length<2)return D.offline.slice(0,50);const tokens=normalize(q).split(/\s+/).filter(Boolean);return D.offline.filter(x=>tokens.every(t=>normalize(x.name+' '+x.substances).includes(t))).slice(0,50)}

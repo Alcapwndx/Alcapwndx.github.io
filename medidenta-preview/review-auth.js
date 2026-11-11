@@ -152,40 +152,25 @@ async function logout(){
  clearUser();done('Abgemeldet.');
 }
 function accountHtml(){
- const info='<div class="notice warning"><strong>Alpha-Test:</strong> User können Kommentare einreichen. Moderatoren prüfen Quellen und Kommentare, erteilen aber keine klinische Freigabe. Nur Administratoren dürfen einzelne Aussagen fachlich validieren. Keine Patientendaten in die App eingeben.</div>';
- const heading='<div class="eyebrow">MediIdenta · Mein Konto</div><h1>Konto & Mitwirkung</h1>';
+ const heading='<div class="eyebrow">MediIdenta · Mein Konto</div><h1>Konto & Anmeldung</h1>';
+ const info='<p class="small muted">Eine Anmeldung ist für den öffentlichen Medikamentenkatalog nicht erforderlich. Die geschützte Konten- und Rollenstruktur bleibt für spätere Funktionen erhalten.</p>';
  if(!A.configured)return heading+info+
-  '<section class="card"><h2>Anmeldung vorbereitet</h2><p>Die geschützte Kontoverwaltung muss noch einmalig mit Supabase verbunden werden.</p>'+
-  '<p class="small muted">Bis dahin können Fachtexte wie bisher gelesen und lokale Prüfnotizen erstellt werden. Eine gespeicherte, authentifizierte Bestätigung ist noch nicht möglich.</p></section>';
+  '<section class="card"><h2>Kontofunktionen noch nicht eingerichtet</h2><p>Medikamentendaten und Quellen können ohne Konto gelesen werden.</p></section>';
  if(A.user){
   const role=A.role==='admin'?'Administrator/in':A.role==='moderator'?'Moderator/in':'User (Kommentieren)';
-  const history=A.events.slice(0,15).map(x=>'<div class="auth-history"><strong>'+esc(x.fact_id)+'</strong> · '+esc(DECISIONS[x.decision]||x.decision)+
-   '<div class="tiny muted">'+esc(new Date(x.created_at).toLocaleString('de-DE'))+' · Revision '+esc(x.source_commit?.slice(0,12))+'</div></div>').join('');
   return heading+info+'<section class="card"><h2>Mein Konto</h2><p><strong>'+esc(A.user.email)+'</strong></p>'+
-   '<p class="account-role small"><strong>Rolle:</strong> '+esc(role)+'</p>'+
-   '<p class="tiny muted">Deine Benutzer-ID für eine Rollenvergabe: <code>'+esc(A.user.id)+'</code></p>'+
-   (!A.role?'<div class="notice">Als User kannst du Kommentare einreichen. Diese werden vor ihrer öffentlichen Anzeige moderiert.</div>':'')+
+   '<p class="account-role small"><strong>Konto:</strong> '+esc(role)+'</p>'+
    '<button class="secondary full spaced" data-editor-action="logout">Abmelden</button></section>'+
-   (A.role==='admin'&&A.getState?.()?.features?.collaboration_enabled===true?'<section class="card"><h2>Benutzerrollen verwalten</h2>'+
-    '<p class="small muted">Andere Nutzer melden sich zunächst per E-Mail an und teilen dir anschließend ihre Benutzer-ID mit. Nur du als Admin kannst Rollen zuweisen.</p>'+
-    '<form class="editor-form" data-role-form="assign">'+
-    '<label>Benutzer-ID (UUID)<input name="user_id" required maxlength="36" placeholder="00000000-0000-0000-0000-000000000000" autocomplete="off"></label>'+
-    '<label>Neue Rolle<select name="role" class="search-input"><option value="user">User · Kommentieren</option>'+
-    '<option value="moderator">Moderator · Quellen prüfen und Kommentare moderieren</option>'+
-    '<option value="admin">Admin · alle Redaktionsrechte</option></select></label>'+
-    '<button type="submit" class="primary full">Rolle sicher zuweisen</button></form></section>':'')+
-   (A.role==='admin'&&A.getState?.()?.features?.collaboration_enabled!==true?'<div class="notice warning">Zusätzliche Alpha-Funktionen werden nach der v0.9-Supabase-Migration freigeschaltet. Deine bisherige Admin-Freigabe bleibt erhalten.</div>':'')+
-   (A.role==='admin'?'<section class="card"><h2>Meine letzten Freigabeentscheidungen</h2>'+(history||'<p class="muted">Noch keine Entscheidungen protokolliert.</p>')+'</section>':'')+
    (A.message?'<div class="notice '+(A.error?'danger':'warning')+'">'+esc(A.message)+'</div>':'');
  }
  return heading+info+
- '<section class="card"><h2>Per E-Mail anmelden oder Konto erstellen</h2>'+
- '<p class="small muted">Ohne Passwort: Du erhältst einen sicheren Anmeldelink per E-Mail. Der Link führt zurück in diese MediIdenta-App. Ein neues Konto erhält nicht automatisch medizinische Prüfrechte.</p>'+
- '<form data-editor-form="request" class="editor-form"><label>E-Mail-Adresse<input name="email" type="email" autocomplete="email" required maxlength="254" value="'+esc(A.pendingEmail)+'" placeholder="name@beispiel.de"></label>'+
- '<button type="submit" class="primary full" '+(A.busy?'disabled':'')+'>Anmeldelink per E-Mail senden</button></form>'+
- '<p class="tiny muted">Für die kostenlose Supabase-Standard-E-Mail ist keine eigene SMTP-Vorlage erforderlich. Falls du später einen SMTP-Anbieter und einen Code-Versand einrichtest, kann der Code-Login wieder aktiviert werden.</p>'+
- (A.message?'<div class="notice '+(A.error?'danger':'warning')+'">'+esc(A.message)+'</div>':'')+
- '</section>';
+  '<section class="card"><h2>Per E-Mail anmelden</h2>'+
+  '<p class="small muted">Du kannst einen sicheren Anmeldelink per E-Mail erhalten. Die Medikamentensuche funktioniert auch ohne Anmeldung.</p>'+
+  '<form data-editor-form="request" class="editor-form">'+
+  '<label>E-Mail-Adresse<input name="email" type="email" autocomplete="email" required maxlength="254" value="'+esc(A.pendingEmail)+'" placeholder="name@beispiel.de"></label>'+
+  '<button type="submit" class="primary full" '+(A.busy?'disabled':'')+'>Anmeldelink per E-Mail senden</button></form>'+
+  (A.message?'<div class="notice '+(A.error?'danger':'warning')+'">'+esc(A.message)+'</div>':'')+
+  '</section>';
 }
 function isActiveRevision(D){
  const commit=D?.syncMeta?.source_commit;

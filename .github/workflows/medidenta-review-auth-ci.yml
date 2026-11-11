@@ -31,6 +31,7 @@ jobs:
           node medidenta-preview/tests/test_magic_link.js
           node medidenta-preview/tests/test_alpha_ui.js
           node medidenta-preview/tests/test_release_ui.js
+          node medidenta-preview/tests/test_source_first_ui.js
           node medidenta-preview/tests/test_data_display.js
           node medidenta-preview/tests/test_pms_editor_integration.js
       - name: Kein privates Supabase-Secret im öffentlichen Client
