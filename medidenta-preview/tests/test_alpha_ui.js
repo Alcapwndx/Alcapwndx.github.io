@@ -5,7 +5,7 @@ const read=n=>fs.readFileSync(path.join(dir,n),"utf8");
 const html=read("index.html"),style=read("app.css"),app=read("app.js"),
  auth=read("review-auth.js"),sw=read("service-worker.js");
 assert.match(html,/ALPHA · Kontrollierte öffentliche Testphase/);
-assert.match(html,/<span class="version">ALPHA 0\.20<\/span>/);
+assert.match(html,/<span class="version">ALPHA 0\.21<\/span>/);
 assert.doesNotMatch(html,/<span class="version">ALPHA 0\.9<\/span>/);
 assert.match(app,/function smpcHtml\(/);
 assert.match(app,/source_document_sha256/);
