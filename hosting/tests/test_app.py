@@ -30,6 +30,58 @@ class AppTests(unittest.TestCase):
             self.assertNotIn("service_role",cfg)
             self.assertEqual(client.post("/api/v1/reviews",json={}).status_code,422)
 
+    def test_current_smpc_original_sections_are_exact_and_official(self):
+        record = {
+            "catalog_product_id":"p1","fact_type":"indication","section_code":"4.1",
+            "content_text":"Synthetischer Prüftext mit genügend Zeichen; keine Arzneimittelaussage.",
+            "source_document_url":"https://www.ema.europa.eu/en/documents/product-information/test-epar-product-information_en.pdf",
+            "source_language":"en","source_document_sha256":"a"*64,
+            "section_sha256":"b"*64,"source_page_start":2,"source_page_end":2,
+            "source_type":"EMA_SMPC_PDF","source_product_name":"Test",
+            "identity_evidence":"EXACT_BRAND_AND_ALL_ACTIVE_SUBSTANCES",
+            "parse_status":"STRUCTURE_VERIFIED"
+        }
+        validated=main._validate_smpc_record(record,"p1")
+        self.assertEqual(validated["fact_type"],"indication")
+        self.assertEqual(validated["content_text"],record["content_text"])
+        self.assertNotIn("identity_evidence",validated)
+        for field,value in (
+            ("catalog_product_id","p2"),("fact_type","interaction"),
+            ("source_language","de"),("section_sha256","not-hash"),
+            ("parse_status","NEEDS_REVIEW"),
+            ("identity_evidence","NAME_ONLY"),
+            ("source_document_url","https://evil.example/document.pdf"),
+            ("source_document_url","https://www.ema.europa.eu.evil.com/en/documents/product-information/test-epar-product-information_en.pdf")
+        ):
+            with self.subTest(field=field,value=value),self.assertRaises(ValueError):
+                main._validate_smpc_record({**record,field:value},"p1")
+
+    def test_product_api_smpc_is_optional_and_never_inferred_from_pms(self):
+        async def fake_product(product_id):
+            return {"id":product_id,"name":"Test only",
+                    "substances":"test ingredient","source_name":"EMA"}
+        chapter={"fact_type":"indication","section_code":"4.1",
+                 "content_text":"Synthetic official source section, not medical advice.",
+                 "source_document_url":"https://www.ema.europa.eu/en/documents/product-information/test-epar-product-information_en.pdf",
+                 "source_document_sha256":"a"*64,"source_language":"en",
+                 "source_page_start":2,"source_page_end":3}
+        with patch.object(main,"IS_LIVE_CONFIGURED",True),\
+             patch.object(main,"_live_product",side_effect=fake_product),\
+             patch.object(main,"_live_pms_sources",return_value=[]),\
+             patch.object(main,"_live_smpc_sections",return_value=[chapter]):
+            result=client.get("/api/v1/products/p1")
+            self.assertEqual(result.status_code,200)
+            self.assertEqual(len(result.json()["smpc_sections"]),1)
+            self.assertEqual(result.json()["smpc_sections"][0]["section_code"],"4.1")
+            self.assertEqual(result.json()["smpc_status"],"SOURCE_SECTIONS_AVAILABLE")
+        with patch.object(main,"IS_LIVE_CONFIGURED",False),\
+             patch.object(main,"PARTIAL_CONFIG",False):
+            catalog=client.get("/medidenta-preview/catalog_snapshot.json").json()
+            product_id=catalog["products"][0]["id"]
+            result=client.get("/api/v1/products/"+product_id)
+            self.assertEqual(result.json()["smpc_sections"],[])
+            self.assertEqual(result.json()["smpc_status"],"NO_EXTRACTED_SOURCE_YET")
+
     def test_assets_and_redirect(self):
         self.assertEqual(client.get("/",follow_redirects=False).status_code,307)
         self.assertEqual(client.get("/medidenta-preview/").status_code,200)
