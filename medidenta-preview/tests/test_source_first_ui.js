@@ -41,7 +41,7 @@ const medicine=ui.detailHtml();
 assert.match(medicine,/Synthetischer Testinhalt/);
 assert.match(medicine,/EMA PMS Beta/);
 assert.equal((medicine.match(/class="source-accordion"/g)||[]).length,1);
-assert.ok(medicine.indexOf("Quellen & Nachweise")>medicine.indexOf("Synthetischer Testinhalt"));
+assert.ok(medicine.lastIndexOf("<summary>Quellen & Nachweise")>medicine.indexOf("Synthetischer Testinhalt"));
 assert.match(medicine,/SmPC 4\.1/);
 assert.match(medicine,/600000993602/);
 assert.doesNotMatch(medicine,/data-pms-review-field=|data-editor-fact=|Adminprüfung|Fachlich validiert|Quellen und Einzelprüfungen/);
