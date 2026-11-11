@@ -1,4 +1,4 @@
-/* MediIdenta Alpha v0.21 – eigene MediIdenta-API / Identity-Snapshot.
+/* MediIdenta Alpha v0.22 – eigene MediIdenta-API / Identity-Snapshot.
    Keine Fotos, PZN oder Fachtexte ohne explizite Backend-Freigabe als identifiziert darstellen. */
 'use strict';
 /* Live-Supabase mode is detected from the server-provided public config. */
@@ -77,7 +77,7 @@ function smpcHtml(sections,unavailable=false,linkedFacts=[]){
  ];
  const list=Array.isArray(sections)?sections:[];
  return '<section class="smpc-overview" aria-label="EMA-Fachinformationen">'+
-  '<h2>EMA-Fachinformationen</h2>'+
+  '<h2>Amtliche EU-Fachinformationen</h2>'+
   '<p class="small muted">Originalabschnitte aus der offiziellen Fachinformation (SmPC). Nur eindeutig zugeordnete und technisch überprüfte Dokumente werden übernommen; bei fehlenden Quellen wird nichts ergänzt oder erfunden.</p>'+
   (unavailable?'<p class="notice warning">Die SmPC-Quellendatenbank ist derzeit nicht verfügbar. Vorhandene ältere Kurztexte sind davon getrennt.</p>':'')+
   specs.map(([type,label,code])=>{
@@ -98,7 +98,9 @@ function smpcHtml(sections,unavailable=false,linkedFacts=[]){
    return '<section class="card smpc-topic" data-smpc-fact="'+type+'">'+
     '<h3>'+label+'</h3>'+
     (data?
-     '<p class="tiny muted">EMA-SmPC Abschnitt '+code+' · Originalsprache: '+
+     '<p class="tiny muted">'+(sec.source_type==='EC_UNION_REGISTER_ANNEX'?
+      'EU-Kommission · Annex I (Registerfassung, möglicherweise nicht die neueste EMA-Fachinformation)':
+      'EMA-SmPC')+' · Abschnitt '+code+' · Originalsprache: '+
      (sec.source_language==='de'?'Deutsch':'Englisch')+'</p>'+
      '<div class="smpc-original" lang="'+(sec.source_language==='de'?'de':'en')+'">'+escapeHtml(data)+'</div>':
      (fallback.length?
@@ -137,11 +139,14 @@ function sourcesDisclosure(product,pmsSources,facts,smpcSections=[]){
   const key=JSON.stringify([u,section,lang]);
   if(!u||!/^4\.(1|3|5|8)$/.test(section)||smpcSeen.has(key))continue;
   smpcSeen.add(key);
-  entries.push('<li><strong>EMA-Fachinformation (SmPC):</strong> Abschnitt '+
+  const isEC=record.source_type==='EC_UNION_REGISTER_ANNEX';
+  entries.push('<li><strong>'+(isEC?'EU-Kommission – Zulassungsanhang (Annex I)':'EMA-Fachinformation (SmPC)')+
+   ':</strong> Abschnitt '+
    escapeHtml(section)+' · '+lang+
    ' · PDF-Seiten '+escapeHtml(record.source_page_start||'–')+
    '–'+escapeHtml(record.source_page_end||'–')+
-   ' · <a href="'+escapeHtml(u)+'" target="_blank" rel="noopener noreferrer">EMA-Original-PDF öffnen</a>'+
+   ' · <a href="'+escapeHtml(u)+'" target="_blank" rel="noopener noreferrer">'+
+   (isEC?'Amtlichen EU-Anhang öffnen':'EMA-Original-PDF öffnen')+'</a>'+
    (record.source_document_sha256?
     '<p class="tiny muted">Dokumentprüfsumme (SHA-256): '+escapeHtml(record.source_document_sha256)+'</p>':'')+
    '</li>');

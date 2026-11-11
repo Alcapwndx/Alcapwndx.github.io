@@ -335,6 +335,8 @@ _SMPC_FACTS = {"4.1":"indication", "4.3":"contraindication",
                "4.5":"interaction", "4.8":"adverse_effect"}
 _SMPC_PDF_PATH = re.compile(
     r"^/(en|de)/documents/product-information/[a-z0-9-]+-epar-product-information_(en|de)\.pdf$")
+_SMPC_EC_ANNEX_PATH = re.compile(
+    r"^/health/documents/community-register/[0-9]{4}/[0-9]{10,16}/anx_[0-9]+_(de|en)\.pdf$")
 _SMPC_SHA = re.compile(r"^[0-9a-f]{64}$")
 
 
@@ -348,9 +350,15 @@ def _validate_smpc_record(record: dict, product_id: str) -> dict:
     if not isinstance(url, str):
         raise ValueError("Missing official SmPC document URL")
     p = urlparse(url)
-    if (p.scheme != "https" or p.hostname != "www.ema.europa.eu" or p.port
-            or p.username or p.password or p.query or p.fragment
-            or not _SMPC_PDF_PATH.fullmatch(p.path)):
+    source_type=record.get("source_type")
+    if source_type == "EMA_SMPC_PDF":
+        official = p.hostname == "www.ema.europa.eu" and bool(_SMPC_PDF_PATH.fullmatch(p.path))
+    elif source_type == "EC_UNION_REGISTER_ANNEX":
+        official = p.hostname == "ec.europa.eu" and bool(_SMPC_EC_ANNEX_PATH.fullmatch(p.path))
+    else:
+        official = False
+    if (p.scheme != "https" or p.port or p.username or p.password
+            or p.query or p.fragment or not official):
         raise ValueError("Untrusted SmPC document URL")
     lang = record.get("source_language")
     if lang not in ("de", "en") or not url.endswith("_" + lang + ".pdf"):
