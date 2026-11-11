@@ -45,7 +45,18 @@ function linked(D,p){
   .map(s=>s.fact_type));
  // An original SmPC chapter supersedes only its corresponding short drafts
  // in the visible product view. The original draft records and citations remain.
- return sourceRecords(D,p).filter(f=>!smpc.has(f.fact_type)).sort((a,b)=>
+ const smpcTypes=new Set(['indication','contraindication','interaction','adverse_effect']);
+ // Existing EMA-linked alpha short texts now appear as clearly labelled
+ // fallbacks in the same four sections, not duplicated in the legacy card.
+ return sourceRecords(D,p).filter(f=>{
+  if(smpc.has(f.fact_type))return false;
+  if(smpcTypes.has(f.fact_type)){
+   try{const u=new URL(f?.reference?.document_url||'');
+    if(u.protocol==='https:'&&u.hostname==='www.ema.europa.eu')return false;
+   }catch{}
+  }
+  return true;
+ }).sort((a,b)=>
   (a.editorial_status==='clinically_reviewed'?-1:0)-
   (b.editorial_status==='clinically_reviewed'?-1:0)||
   (riskRank[a.risk_level]??3)-(riskRank[b.risk_level]??3));

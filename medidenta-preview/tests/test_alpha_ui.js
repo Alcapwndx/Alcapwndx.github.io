@@ -46,12 +46,12 @@ assert.match(auth,/if\(form\.dataset\.roleForm\)/); // Secure role handler is re
 assert.doesNotMatch(html,/data-role-form/); // Public page hides the role editor.
 assert.match(html,/Praxiswissen – bald verfügbar/);
 assert.match(html,/Quellenbezogene Arzneimittelinformationen|quellenbezogene Arzneimittelinformationen/i);
-assert.match(sw,/medidenta-pages-v0\.21/);
+assert.match(sw,/medidenta-pages-v0\.21\.1/);
 assert.match(sw,/rms-codes\.js/);
 assert.match(sw,/data-display\.js/);
 assert.match(html,/data-display\.js\?v=0\.20\.1/);
 assert.match(html,/rms-codes\.js\?v=0\.16/);
-assert.match(html,/app\.js\?v=0\.21/);
+assert.match(html,/app\.js\?v=0\.21\.1/);
 assert.match(sw,/theme\.js/);
 
 // The OS preference is only the DEFAULT; manual selection persists.
