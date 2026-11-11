@@ -68,6 +68,16 @@ assert.ok(expanded.lastIndexOf("<summary>Quellen & Nachweise")>
 assert.match(expanded,/EMA-Original-PDF öffnen/);
 assert.match(expanded,/Dokumentprüfsumme/);
 D.detail.smpc_sections=[];
+const shortFact={...fact,id:"short-interaction",fact_type:"interaction",
+ content_text:"Synthetische EMA-verlinkte Wechselwirkung, nur Kurzinformation."};
+D.drafts.push(shortFact);
+const shortView=ui.detailHtml();
+assert.match(shortView,/EMA-verlinkter redaktioneller Kurztext/);
+assert.match(shortView,/Synthetische EMA-verlinkte Wechselwirkung/);
+assert.equal((shortView.match(/Synthetische EMA-verlinkte Wechselwirkung/g)||[]).length,1);
+assert.match(shortView,/kein vollständiger SmPC-Abschnitt 4\.5/);
+assert.equal((shortView.match(/class="source-accordion"/g)||[]).length,1);
+D.drafts.pop();
 D.pmsDetail=pms;
 D.detailKind="pms";
 const pmsOnly=ui.pmsDetailHtml();
