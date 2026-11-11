@@ -186,7 +186,7 @@ function detailHtml(){
    '<p class="muted small">Noch keine präparatespezifischen Angaben hinterlegt.</p>')+'</section>'+
   embeddedPmsHtml(pms,p.pms_unavailable===true)+
   smpcHtml(smpc,p.smpc_unavailable===true)+
-  (window.MediIdentaReviewUI?.details(D,p)||'<section class="card"><h2>Weitere Fachinformationen & Good-to-Know</h2><div class="facts">'+factsHtml(facts)+'</div></section>')+
+  (window.MediIdentaReviewUI?.details(D,p)??'<section class="card"><h2>Weitere Fachinformationen & Good-to-Know</h2><div class="facts">'+factsHtml(facts)+'</div></section>')+
   clinicalNotice()+sourcesDisclosure(p,pms,[...linked,...facts],smpc);
 }
 // PMS Beta metadata remains SEPARATE from the known/verified product catalog.
