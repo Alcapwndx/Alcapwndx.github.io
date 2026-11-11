@@ -214,19 +214,30 @@ const displaySections=window.MediIdentaDisplay.groupPmsSections(sourceFields);
 const keys=title=>displaySections.find(s=>s.title===title)?.groups.map(g=>g.key);
 assert.deepEqual(Array.from(keys('Produktidentität')),['product_domain','product_names'].sort((a,b)=>
  window.MediIdentaDisplay.PMS_LABELS[a].localeCompare(window.MediIdentaDisplay.PMS_LABELS[b],'de')));
-assert.deepEqual(Array.from(keys('Arzneiform')),['combined_dose_form']);
+assert.deepEqual(Array.from(keys('Arzneiform und Anwendung')).sort(),[
+ 'administrable_dose_form','administration_routes',
+ 'authorised_dose_forms','manufactured_dose_form'
+].sort());
+assert.ok(!displaySections.some(s=>s.title==='Arzneiform'),'Only the subtopic is removed, not its container');
+assert.ok(!displaySections.some(s=>s.groups.some(g=>g.key==='combined_dose_form')),
+ 'The general Arzneiform subtopic is not displayed');
 assert.deepEqual(Array.from(keys('Zulassungskennungen')),['authorization_identifiers']);
-assert.ok(!displaySections.some(s=>['Produktidentität und Kennungen','Arzneiform und Anwendung',
- 'Zulassung und Status'].includes(s.title)), 'Outdated section titles must be removed');
+assert.ok(!displaySections.some(s=>['Produktidentität und Kennungen',
+ 'Zulassung und Status'].includes(s.title)), 'Obsolete title variants should not appear');
 assert.deepEqual(Array.from(keys('Wirkstoffe und Wirkstärken')),['substance_identity_raw']);
 assert.deepEqual(Array.from(keys('Packung und Inhalt')),['package_size_raw']);
-assert.deepEqual(Array.from(keys('Klinische Quellkategorien (keine Fachtexte)')),
- ['clinical_use_type_unverified']);
+assert.ok(!displaySections.some(s=>s.title==='Klinische Quellkategorien (keine Fachtexte)'),
+ 'ClinicalUseDefinition labels must not be presented as therapeutic clinical facts');
 // Full source records remain available for the existing final-source disclosure.
 const allOriginalGroups=groupPmsFields(sourceFields);
 assert.equal(allOriginalGroups.length,sourceFields.length);
 assert.equal(allOriginalGroups.find(g=>g.key==='product_names').records[0].statement_sha256,'a'.repeat(64));
 assert.ok(allOriginalGroups.some(g=>g.key==='authorization_holder_raw'));
+assert.ok(allOriginalGroups.some(g=>g.key==='combined_dose_form'));
+assert.ok(allOriginalGroups.some(g=>g.key==='clinical_use_type_unverified'));
+assert.ok(window.MediIdentaDisplay.formatPms(sourceFields.find(f=>
+ f.attribute_key==='clinical_use_type_unverified')).length>0,
+ 'Hidden clinical category information remains auditable in original source fields');
 
 const p1={id:'pms_a',attribute_key:'package_size_raw',value_json:[{value:14,unit:'Tabletten'}],
  resource_id:'box1',editorial_status:'draft_unreviewed'};
