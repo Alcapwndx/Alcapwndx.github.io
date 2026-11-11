@@ -36,7 +36,8 @@ assert.doesNotMatch(app,/Fachlich validierte Einzeltexte/);
 assert.match(auth,/medidenta_post_comment|\/facts\/.*comments/);
 assert.match(auth,/A\.role!=='admin'/);
 assert.match(auth,/Private Quellenprüfung/);
-assert.match(auth,/data-role-form/); // Backend actions intentionally preserved.
+assert.match(auth,/if\(form\.dataset\.roleForm\)/); // Secure role handler is retained.
+assert.doesNotMatch(html,/data-role-form/); // Public page hides the role editor.
 assert.match(html,/Praxiswissen – bald verfügbar/);
 assert.match(html,/Quellenbezogene Arzneimittelinformationen|quellenbezogene Arzneimittelinformationen/i);
 assert.match(sw,/medidenta-pages-v0\.19/);
