@@ -247,3 +247,22 @@ html[data-theme="dark"] .pms-source-audit>summary,html[data-theme="dark"] .refer
 html[data-theme="dark"] .pms-subtopic + .pms-subtopic {
   border-top-color: #496a73;
 }
+
+/* Source-first medication detail: all citations appear in one final disclosure. */
+.sources-bottom{margin-top:18px;border-color:#bedce1}
+.source-accordion>summary{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:15px;font-weight:800;color:#087f81;padding:7px 0}
+.source-accordion>summary::marker{color:#087f81}
+.source-count{font-size:11px;font-weight:600;color:#647f87}
+.source-list{padding-left:21px;margin:11px 0;display:grid;gap:13px;overflow-wrap:anywhere}
+.source-list li{font-size:12px;line-height:1.75}
+.source-list a{font-weight:750}
+.source-raw{margin-top:8px}
+.source-raw summary{cursor:pointer;color:#336f83;font-weight:650}
+.source-raw li{font-size:11px}
+.nav-soon{font-size:8px;font-weight:800;letter-spacing:.04em;color:#6d8793;position:absolute;top:1px;right:2px}
+.bottom-nav button[data-nav="knowledge"]{position:relative}
+.knowledge-soon{padding:22px}
+html[data-theme="dark"] .sources-bottom{border-color:#41616a}
+html[data-theme="dark"] .source-accordion>summary{color:#82e0d8}
+html[data-theme="dark"] .source-count,html[data-theme="dark"] .nav-soon{color:#aac6cd}
+html[data-theme="dark"] .source-raw summary{color:#9bd6e8}
