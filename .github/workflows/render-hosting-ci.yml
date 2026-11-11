@@ -46,6 +46,7 @@ jobs:
           node --check medidenta-preview/data-display.js
           node medidenta-preview/tests/test_data_display.js
           node medidenta-preview/tests/test_release_ui.js
+          node medidenta-preview/tests/test_source_first_ui.js
       - name: Echte Docker-Image-Erstellung und HTTP-Smoke-Test
         shell: bash
         run: |
