@@ -266,3 +266,13 @@ html[data-theme="dark"] .sources-bottom{border-color:#41616a}
 html[data-theme="dark"] .source-accordion>summary{color:#82e0d8}
 html[data-theme="dark"] .source-count,html[data-theme="dark"] .nav-soon{color:#aac6cd}
 html[data-theme="dark"] .source-raw summary{color:#9bd6e8}
+
+/* v0.21: verified EMA SmPC original chapters. Never abbreviate source text. */
+.smpc-overview{margin:20px 0}
+.smpc-overview>h2{font-size:18px;margin:0 0 8px}
+.smpc-topic{margin-top:12px}
+.smpc-topic>h3{font-size:16px;margin:0 0 8px;color:#164658}
+.smpc-original{white-space:pre-wrap;overflow-wrap:anywhere;word-break:normal;line-height:1.7;font-size:13px;color:#263d49;margin-top:9px;max-height:420px;overflow-y:auto;padding-right:8px;tab-size:4}
+.smpc-original:focus{outline:2px solid #087f81}
+html[data-theme="dark"] .smpc-original{color:#d7e9ee}
+html[data-theme="dark"] .smpc-topic>h3{color:#a9e7df}
