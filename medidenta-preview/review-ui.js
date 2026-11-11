@@ -38,33 +38,19 @@ function card(f){
 function linked(D,p){return [...(D.approved||[]),...(D.drafts||[])].filter(f=>Array.isArray(f.linked_product_ids)&&f.linked_product_ids.includes(p.id)).sort((a,b)=>(a.editorial_status==='clinically_reviewed'?-1:0)-(b.editorial_status==='clinically_reviewed'?-1:0)||(riskRank[a.risk_level]??3)-(riskRank[b.risk_level]??3));}
 function groupedRecords(records){
  const display=global.MediIdentaDisplay;
- if(!display)return records.map(card).join('');
+ if(!display)return records.map(f=>'<div class="fact"><strong>'+esc(TYPES[f.fact_type]||f.fact_type)+'</strong><p>'+esc(f.content_text)+'</p></div>').join('');
  const groups=display.groupFacts(records);
  const count=groups.reduce((n,g)=>n+g.items.length,0);
  const duplicates=records.length-count;
- const html=groups.map(g=>'<section class="clinical-topic" data-fact-topic="'+esc(g.type)+'">'+
-  '<h3>'+esc(g.label)+'</h3>'+
-  g.items.map(item=>{
-   const risk=item.risk,approved=item.reviewed,original=item.records.length;
-   const status=approved===original?'Fachlich validierter Einzeltext':
-    approved>0?'Teilweise fachlich validiert':'Nicht fachlich validiert';
-   const sources=item.records.map(f=>'<div class="grouped-fact-source">'+
-     '<p class="tiny muted">Datensatz '+esc(f.id||'ohne Kennung')+
-     ' · '+(f.editorial_status==='clinically_reviewed'?'Individuell validiert':'Ungeprüft')+'</p>'+
-     ref(f)+(global.MediIdentaReviewAuth?.reviewActionHtml(f)||'')+'</div>').join('');
-   return '<div class="grouped-fact-item '+(risk==='critical'?'draft-critical':risk==='high'?'draft-high':'')+'">'+
-    '<div class="draft-head"><span class="tag public-fact-status '+(approved===original?'reviewed-tag':'amber')+'">'+esc(status)+'</span>'+
-    (original>1?'<span class="tiny muted">'+original+' Quelldatensätze zu einem wortgleichen Text</span>':'')+'</div>'+
-    '<p class="draft-text">'+esc(item.text)+'</p>'+
-    '<details class="reference-disclosure"><summary>Quellen und Einzelprüfungen ('+original+')</summary>'+sources+'</details>'+
-    '</div>';
-  }).join('')+'</section>').join('');
- return '<p class="small muted">'+records.length+' quellgebundene Einzelangaben · '+count+
-  ' unterschiedliche Texte'+(duplicates?' · '+duplicates+' wortgleiche Doppelanzeige'+(duplicates===1?'':'n')+' zusammengefasst':'')+'.</p>'+html;
+ return (duplicates?'<p class="tiny muted">'+duplicates+' wortgleiche Einträge zusammengefasst.</p>':'')+
+  groups.map(g=>'<section class="clinical-topic" data-fact-topic="'+esc(g.type)+'">'+
+    '<h3>'+esc(g.label)+'</h3>'+
+    g.items.map(item=>'<div class="grouped-fact-item">'+
+      '<p class="draft-text">'+esc(item.text)+'</p></div>').join('')+
+    '</section>').join('');
 }
-function groupedFacts(D,p){
- return groupedRecords(linked(D,p));
-}
+function sourceRecords(D,p){return linked(D,p);}
+
 function knowledgeTopics(records){
  const buckets=new Map();
  for(const f of records){
@@ -83,11 +69,9 @@ function knowledgeTopics(records){
 function details(D,p){
  const records=linked(D,p);
  return '<section class="card draft-section"><h2>Fachinformationen & Good-to-Know</h2>'+
- '<p class="small muted">'+records.filter(x=>x.editorial_status==='clinically_reviewed').length+
- ' individuell bestätigte Fachtexte. Die Originaleinträge und Prüfentscheidungen bleiben erhalten.</p>'+
- notice()+
- (records.length?groupedFacts(D,p):'<p class="small muted">Noch keine Aussagen zugeordnet.</p>')+
- '<button class="secondary full spaced" data-nav="knowledge">Weitere Fachinformationen entdecken</button></section>';
+  '<p class="small muted">Quellenbezogene Fachtextinformationen. Die genauen EMA-Fundstellen sind ganz unten unter „Quellen & Nachweise“ zusammengefasst.</p>'+
+  (records.length?groupedRecords(records):'<p class="small muted">Noch keine Fachinformationen zu diesem Präparat zugeordnet.</p>')+
+  '</section>';
 }
 function filtered(D){
  const q=norm(R.query);
@@ -178,5 +162,5 @@ function configure(D,draw){
   saveMarks();if(e.target.dataset.reviewMark)draw();
  });
 }
-global.MediIdentaReviewUI={details,knowledge,quality,configure};
+global.MediIdentaReviewUI={details,sourceRecords,knowledge,quality,configure};
 })(window);
