@@ -24,26 +24,6 @@
     {
       "assignment_status": "exact_match",
       "batch": "v0.5",
-      "content_text": "Toujeo enthält Insulin glargin mit 300 Einheiten/ml. Es ist nicht direkt austauschbar mit Insulin glargin 100 Einheiten/ml. Ein Präparatewechsel erfordert ärztliche Kontrolle und Überwachung des Blutzuckers.",
-      "editorial_status": "draft_unreviewed",
-      "fact_type": "warning",
-      "id": "legacy-v05-002",
-      "linked_product_ids": [
-        "ema_toujeo"
-      ],
-      "reference": {
-        "document_title": "Toujeo – EMA EPAR",
-        "document_url": "https://www.ema.europa.eu/en/medicines/human/EPAR/toujeo",
-        "locator": "Overview / How is Toujeo used?",
-        "publication_date": null
-      },
-      "risk_level": "critical",
-      "target_name": "Toujeo",
-      "target_type": "product"
-    },
-    {
-      "assignment_status": "exact_match",
-      "batch": "v0.5",
       "content_text": "Blutzucker regelmäßig kontrollieren und die subkutane Einstichstelle wechseln; lokale Veränderungen können die Insulinaufnahme beeinflussen.",
       "editorial_status": "draft_unreviewed",
       "fact_type": "monitoring",
@@ -218,26 +198,6 @@
         "publication_date": null
       },
       "risk_level": "normal",
-      "target_name": "Humalog",
-      "target_type": "product"
-    },
-    {
-      "assignment_status": "exact_match",
-      "batch": "v0.5",
-      "content_text": "Humalog-Präparate unterscheiden sich unter anderem hinsichtlich Konzentration und möglichem Mischinsulinanteil. Vor Verabreichung sind vollständiger Name, Konzentration, Darreichungsform und Verordnung abzugleichen.",
-      "editorial_status": "draft_unreviewed",
-      "fact_type": "warning",
-      "id": "legacy-v05-012",
-      "linked_product_ids": [
-        "ema_humalog"
-      ],
-      "reference": {
-        "document_title": "Humalog – EMA EPAR",
-        "document_url": "https://www.ema.europa.eu/en/medicines/human/EPAR/humalog",
-        "locator": "Overview / Humalog medicines",
-        "publication_date": null
-      },
-      "risk_level": "critical",
       "target_name": "Humalog",
       "target_type": "product"
     },
@@ -764,26 +724,6 @@
     {
       "assignment_status": "exact_match",
       "batch": "v0.5",
-      "content_text": "Ritonavir kann ausgeprägte Wechselwirkungen mit anderen Arzneimitteln verursachen. Vor Therapiebeginn ist eine vollständige und aktuelle Interaktionsprüfung unverzichtbar.",
-      "editorial_status": "draft_unreviewed",
-      "fact_type": "interaction",
-      "id": "legacy-v05-040",
-      "linked_product_ids": [
-        "ema_paxlovid"
-      ],
-      "reference": {
-        "document_title": "Paxlovid – EMA EPAR",
-        "document_url": "https://www.ema.europa.eu/en/medicines/human/EPAR/paxlovid",
-        "locator": "Overview / What are risks with Paxlovid?",
-        "publication_date": null
-      },
-      "risk_level": "critical",
-      "target_name": "Paxlovid",
-      "target_type": "product"
-    },
-    {
-      "assignment_status": "exact_match",
-      "batch": "v0.5",
       "content_text": "Veklury enthält Remdesivir, ein antiviral wirksames Arzneimittel zur Behandlung bestimmter COVID-19-Erkrankungen.",
       "editorial_status": "draft_unreviewed",
       "fact_type": "summary",
@@ -904,26 +844,6 @@
     {
       "assignment_status": "exact_match",
       "batch": "v0.8",
-      "content_text": "Toujeo 300 Einheiten/ml und Insulin glargin 100 Einheiten/ml sind nicht bioäquivalent und nicht direkt austauschbar. Ein Wechsel ist eine ärztlich überwachte Therapieumstellung; insbesondere der Blutzucker muss engmaschig kontrolliert werden.",
-      "editorial_status": "draft_unreviewed",
-      "fact_type": "warning",
-      "id": "v08-toujeo-switch",
-      "linked_product_ids": [
-        "ema_toujeo"
-      ],
-      "reference": {
-        "document_title": "EMA Toujeo – EU-Produktinformation (SmPC)",
-        "document_url": "https://www.ema.europa.eu/en/documents/product-information/toujeo-epar-product-information_en.pdf",
-        "locator": "SmPC 4.2: Switch between insulin glargine 100 units/ml and Toujeo",
-        "publication_date": "2026-03-05"
-      },
-      "risk_level": "critical",
-      "target_name": "Toujeo",
-      "target_type": "product"
-    },
-    {
-      "assignment_status": "exact_match",
-      "batch": "v0.8",
       "content_text": "Toujeo gibt es als SoloStar und DoubleStar. Sie unterscheiden sich unter anderem in Pen-Füllmenge und Dosierschritten. Vor jeder Gabe den konkret verordneten Pen und die Anzeige in Einheiten kontrollieren; die Konzentration nicht eigenständig in ein Injektionsvolumen umrechnen.",
       "editorial_status": "draft_unreviewed",
       "fact_type": "good_to_know",
@@ -978,26 +898,6 @@
         "publication_date": "2026-03-05"
       },
       "risk_level": "normal",
-      "target_name": "Lantus",
-      "target_type": "product"
-    },
-    {
-      "assignment_status": "exact_match",
-      "batch": "v0.8",
-      "content_text": "Lantus 100 Einheiten/ml darf beim Austausch gegen Insulin glargin 300 Einheiten/ml nicht allein nach dem Konzentrationsverhältnis umgerechnet werden. Präparatewechsel erfordern eine individuelle ärztliche Verordnung und Blutzuckerkontrollen.",
-      "editorial_status": "draft_unreviewed",
-      "fact_type": "warning",
-      "id": "v08-lantus-switch",
-      "linked_product_ids": [
-        "ema_lantus"
-      ],
-      "reference": {
-        "document_title": "EMA Lantus – EPAR und Produktinformation",
-        "document_url": "https://www.ema.europa.eu/en/medicines/human/EPAR/lantus",
-        "locator": "EPAR Produktinformation: SmPC 4.2; Vergleich mit Toujeo SmPC 4.2",
-        "publication_date": "2026-03-05"
-      },
-      "risk_level": "critical",
       "target_name": "Lantus",
       "target_type": "product"
     },
@@ -1104,26 +1004,6 @@
     {
       "assignment_status": "exact_match",
       "batch": "v0.8",
-      "content_text": "Pradaxa kann schwere Blutungen verursachen. Vor der Behandlung und bei klinischen Veränderungen sind Blutungsrisiko und Nierenfunktion besonders zu beachten; die konkrete Indikation und Darreichungsform sind entscheidend.",
-      "editorial_status": "draft_unreviewed",
-      "fact_type": "warning",
-      "id": "v08-pradaxa-bleed",
-      "linked_product_ids": [
-        "1936f512-042c-5cd1-a301-1ab6c78957bf"
-      ],
-      "reference": {
-        "document_title": "EMA Pradaxa – EPAR und Produktinformation",
-        "document_url": "https://www.ema.europa.eu/de/medicines/human/EPAR/pradaxa",
-        "locator": "EPAR: Risks; Produktinformation SmPC 4.3–4.4",
-        "publication_date": "2025-11-24"
-      },
-      "risk_level": "critical",
-      "target_name": "Pradaxa",
-      "target_type": "product"
-    },
-    {
-      "assignment_status": "exact_match",
-      "batch": "v0.8",
       "content_text": "Xarelto enthält Rivaroxaban, einen direkten Faktor-Xa-Hemmer zur Antikoagulation bei definierten Indikationen.",
       "editorial_status": "draft_unreviewed",
       "fact_type": "summary",
@@ -1158,26 +1038,6 @@
         "publication_date": "2026-03-24"
       },
       "risk_level": "normal",
-      "target_name": "Jardiance",
-      "target_type": "product"
-    },
-    {
-      "assignment_status": "exact_match",
-      "batch": "v0.8",
-      "content_text": "Unter SGLT2-Hemmung kann eine Ketoazidose auch auftreten, wenn der Blutzucker nicht stark erhöht ist. Symptome wie Übelkeit, Erbrechen, Bauchschmerzen, Atemauffälligkeiten oder Benommenheit erfordern eine dringende ärztliche Abklärung und Ketonkontrolle nach klinischem Standard.",
-      "editorial_status": "draft_unreviewed",
-      "fact_type": "warning",
-      "id": "v08-jardiance-dka",
-      "linked_product_ids": [
-        "ema_jardiance"
-      ],
-      "reference": {
-        "document_title": "EMA Jardiance – EU-Produktinformation (SmPC)",
-        "document_url": "https://www.ema.europa.eu/en/documents/product-information/jardiance-epar-product-information_en.pdf",
-        "locator": "SmPC 4.4: Diabetic ketoacidosis",
-        "publication_date": "2026-03-24"
-      },
-      "risk_level": "critical",
       "target_name": "Jardiance",
       "target_type": "product"
     },
@@ -1504,26 +1364,6 @@
     {
       "assignment_status": "exact_match",
       "batch": "v0.8",
-      "content_text": "Pembrolizumab kann immunvermittelte Entzündungen verschiedener Organe auslösen. Neue Beschwerden unter oder nach der Therapie können behandlungsbedingt sein und müssen zeitnah fachärztlich bewertet werden.",
-      "editorial_status": "draft_unreviewed",
-      "fact_type": "warning",
-      "id": "v08-keytruda-immune",
-      "linked_product_ids": [
-        "184971e3-8e1b-55d9-ba68-91b820015cd4"
-      ],
-      "reference": {
-        "document_title": "EMA Keytruda – EPAR und Produktinformation",
-        "document_url": "https://www.ema.europa.eu/en/medicines/human/EPAR/keytruda",
-        "locator": "EPAR: Risks and safety; Produktinformation SmPC 4.4",
-        "publication_date": null
-      },
-      "risk_level": "critical",
-      "target_name": "Keytruda",
-      "target_type": "product"
-    },
-    {
-      "assignment_status": "exact_match",
-      "batch": "v0.8",
       "content_text": "Apixaban hemmt direkt Faktor Xa und vermindert dadurch die Bildung von Thrombin im Gerinnungssystem.",
       "editorial_status": "draft_unreviewed",
       "fact_type": "mechanism",
@@ -1654,26 +1494,6 @@
         "publication_date": "2026-03-24"
       },
       "risk_level": "normal",
-      "target_name": "Empagliflozin",
-      "target_type": "substance"
-    },
-    {
-      "assignment_status": "exact_match",
-      "batch": "v0.8",
-      "content_text": "Unter Empagliflozin kann eine Ketoazidose auch mit nur mäßig erhöhtem Blutzucker auftreten. Verdachtssymptome erfordern eine rasche medizinische Abklärung.",
-      "editorial_status": "draft_unreviewed",
-      "fact_type": "warning",
-      "id": "v08-empa-subst-dka",
-      "linked_product_ids": [
-        "ema_jardiance"
-      ],
-      "reference": {
-        "document_title": "EMA Jardiance – EU-Produktinformation (SmPC)",
-        "document_url": "https://www.ema.europa.eu/en/documents/product-information/jardiance-epar-product-information_en.pdf",
-        "locator": "SmPC 4.4: Diabetic ketoacidosis",
-        "publication_date": "2026-03-24"
-      },
-      "risk_level": "critical",
       "target_name": "Empagliflozin",
       "target_type": "substance"
     },
@@ -1924,27 +1744,6 @@
     {
       "assignment_status": "exact_match",
       "batch": "v0.8 EMA Addendum",
-      "content_text": "Humalog-Präparate unterscheiden sich in Konzentration und Zusammensetzung, unter anderem 100 und 200 Einheiten/ml sowie Mix25 und Mix50. Diese Varianten dürfen bei der Verabreichung nicht verwechselt werden.",
-      "editorial_status": "draft_unreviewed",
-      "fact_type": "warning",
-      "id": "v08-ema-009",
-      "linked_product_ids": [
-        "ema_humalog"
-      ],
-      "reference": {
-        "accessed_on": "2026-11-09",
-        "document_title": "Humalog – EMA EPAR Arzneimittelseite",
-        "document_url": "https://www.ema.europa.eu/en/medicines/human/EPAR/humalog",
-        "locator": "Overview / What is Humalog? / How is Humalog used?",
-        "publication_date": null
-      },
-      "risk_level": "critical",
-      "target_name": "Humalog",
-      "target_type": "product"
-    },
-    {
-      "assignment_status": "exact_match",
-      "batch": "v0.8 EMA Addendum",
       "content_text": "Nicht alle Humalog-Varianten dürfen intravenös gegeben werden. Insbesondere Humalog 200 Einheiten/ml sowie Mix25 und Mix50 sind nicht für die intravenöse Anwendung vorgesehen.",
       "editorial_status": "draft_unreviewed",
       "fact_type": "administration",
@@ -2029,27 +1828,6 @@
     {
       "assignment_status": "exact_match",
       "batch": "v0.8 EMA Addendum",
-      "content_text": "Aktive klinisch relevante Blutungen sind eine wichtige Gegenanzeige für Eliquis.",
-      "editorial_status": "draft_unreviewed",
-      "fact_type": "contraindication",
-      "id": "v08-ema-015",
-      "linked_product_ids": [
-        "ema_eliquis"
-      ],
-      "reference": {
-        "accessed_on": "2026-11-09",
-        "document_title": "Eliquis – EMA EPAR Arzneimittelseite",
-        "document_url": "https://www.ema.europa.eu/en/medicines/human/EPAR/eliquis",
-        "locator": "Overview / What is Eliquis used for? / What are the risks?",
-        "publication_date": null
-      },
-      "risk_level": "critical",
-      "target_name": "Eliquis",
-      "target_type": "product"
-    },
-    {
-      "assignment_status": "exact_match",
-      "batch": "v0.8 EMA Addendum",
       "content_text": "Xarelto enthält Rivaroxaban, einen direkten Faktor-Xa-Hemmer zur Antikoagulation.",
       "editorial_status": "draft_unreviewed",
       "fact_type": "summary",
@@ -2086,27 +1864,6 @@
         "publication_date": null
       },
       "risk_level": "normal",
-      "target_name": "Pradaxa",
-      "target_type": "product"
-    },
-    {
-      "assignment_status": "exact_match",
-      "batch": "v0.8 EMA Addendum",
-      "content_text": "Die häufigste wesentliche Nebenwirkung von Pradaxa ist eine Blutung. Blutungszeichen müssen ernst genommen werden.",
-      "editorial_status": "draft_unreviewed",
-      "fact_type": "warning",
-      "id": "v08-ema-021",
-      "linked_product_ids": [
-        "1936f512-042c-5cd1-a301-1ab6c78957bf"
-      ],
-      "reference": {
-        "accessed_on": "2026-11-09",
-        "document_title": "Pradaxa – EMA EPAR Arzneimittelseite",
-        "document_url": "https://www.ema.europa.eu/en/medicines/human/EPAR/pradaxa",
-        "locator": "Overview / How is Pradaxa used? / What are the risks?",
-        "publication_date": null
-      },
-      "risk_level": "critical",
       "target_name": "Pradaxa",
       "target_type": "product"
     },
@@ -2201,27 +1958,6 @@
       "editorial_status": "draft_unreviewed",
       "fact_type": "warning",
       "id": "v08-ema-026",
-      "linked_product_ids": [
-        "ema_lixiana"
-      ],
-      "reference": {
-        "accessed_on": "2026-11-09",
-        "document_title": "Lixiana – EMA EPAR Arzneimittelseite",
-        "document_url": "https://www.ema.europa.eu/en/medicines/human/EPAR/lixiana",
-        "locator": "Overview / How is Lixiana used? / What are the risks?",
-        "publication_date": null
-      },
-      "risk_level": "critical",
-      "target_name": "Lixiana",
-      "target_type": "product"
-    },
-    {
-      "assignment_status": "exact_match",
-      "batch": "v0.8 EMA Addendum",
-      "content_text": "Eine aktive Blutung und bestimmte Erkrankungen mit deutlich erhöhtem Blutungsrisiko können die Anwendung von Lixiana ausschließen.",
-      "editorial_status": "draft_unreviewed",
-      "fact_type": "contraindication",
-      "id": "v08-ema-027",
       "linked_product_ids": [
         "ema_lixiana"
       ],
@@ -2569,48 +2305,6 @@
         "publication_date": null
       },
       "risk_level": "normal",
-      "target_name": "Paxlovid",
-      "target_type": "product"
-    },
-    {
-      "assignment_status": "exact_match",
-      "batch": "v0.8 EMA Addendum",
-      "content_text": "Ritonavir hemmt den Abbau zahlreicher Arzneimittel und kann dadurch schwere, teils kontraindizierte Wechselwirkungen verursachen. Vor Behandlungsbeginn ist eine vollständige Interaktionsprüfung erforderlich.",
-      "editorial_status": "draft_unreviewed",
-      "fact_type": "interaction",
-      "id": "v08-ema-044",
-      "linked_product_ids": [
-        "ema_paxlovid"
-      ],
-      "reference": {
-        "accessed_on": "2026-11-09",
-        "document_title": "Paxlovid – EMA EPAR Arzneimittelseite",
-        "document_url": "https://www.ema.europa.eu/en/medicines/human/EPAR/paxlovid",
-        "locator": "Overview / What is Paxlovid? / What are the risks?",
-        "publication_date": null
-      },
-      "risk_level": "critical",
-      "target_name": "Paxlovid",
-      "target_type": "product"
-    },
-    {
-      "assignment_status": "exact_match",
-      "batch": "v0.8 EMA Addendum",
-      "content_text": "Paxlovid darf mit bestimmten stark interagierenden Arzneimitteln nicht gleichzeitig gegeben werden. Auch Johanniskraut kann die Wirksamkeit beeinträchtigen und ist kontraindiziert.",
-      "editorial_status": "draft_unreviewed",
-      "fact_type": "contraindication",
-      "id": "v08-ema-045",
-      "linked_product_ids": [
-        "ema_paxlovid"
-      ],
-      "reference": {
-        "accessed_on": "2026-11-09",
-        "document_title": "Paxlovid – EMA EPAR Arzneimittelseite",
-        "document_url": "https://www.ema.europa.eu/en/medicines/human/EPAR/paxlovid",
-        "locator": "Overview / What is Paxlovid? / What are the risks?",
-        "publication_date": null
-      },
-      "risk_level": "critical",
       "target_name": "Paxlovid",
       "target_type": "product"
     },
@@ -3058,27 +2752,6 @@
     {
       "assignment_status": "exact_match",
       "batch": "v0.8 EMA Addendum",
-      "content_text": "Nach Gabe von Fiasp kann eine Hypoglykämie früher eintreten als bei manchen anderen Mahlzeiteninsulinen. Blutzuckerverlauf und Mahlzeitenbezug sind besonders wichtig.",
-      "editorial_status": "draft_unreviewed",
-      "fact_type": "warning",
-      "id": "v08-ema-067",
-      "linked_product_ids": [
-        "ema_fiasp"
-      ],
-      "reference": {
-        "accessed_on": "2026-11-09",
-        "document_title": "Fiasp – EMA EPAR Arzneimittelseite",
-        "document_url": "https://www.ema.europa.eu/en/medicines/human/EPAR/fiasp",
-        "locator": "Overview / What is Fiasp? / How is Fiasp used? / What are the risks?",
-        "publication_date": null
-      },
-      "risk_level": "critical",
-      "target_name": "Fiasp",
-      "target_type": "product"
-    },
-    {
-      "assignment_status": "exact_match",
-      "batch": "v0.8 EMA Addendum",
       "content_text": "Fiasp wird üblicherweise im zeitlichen Zusammenhang mit Mahlzeiten subkutan verabreicht. Bei der Anwendung sind konkrete Darreichungsform und ärztliche Anordnung maßgeblich.",
       "editorial_status": "draft_unreviewed",
       "fact_type": "administration",
@@ -3432,33 +3105,56 @@
       "risk_level": "normal",
       "target_name": "Cosentyx",
       "target_type": "product"
-    },
-    {
-      "assignment_status": "exact_match",
-      "batch": "v0.8 EMA Addendum",
-      "content_text": "Eine EMA-Sicherheitsmitteilung vom Oktober 2026 weist auf ein neu identifiziertes Risiko medikamenteninduzierter Leberschädigung unter Ocrelizumab hin. Die darin genannten Empfehlungen zur Kontrolle der Leberfunktion vor und während der Behandlung müssen bei der Fachprüfung berücksichtigt werden.",
-      "editorial_status": "draft_unreviewed",
-      "fact_type": "warning",
-      "id": "v08-ema-086",
-      "linked_product_ids": [
-        "ema_ocrevus"
-      ],
-      "reference": {
-        "accessed_on": "2026-11-09",
-        "document_title": "Ocrevus – EMA-Sicherheitsmitteilung (DHPC) vom 09.10.2026",
-        "document_url": "https://www.ema.europa.eu/en/medicines/dhpc/ocrevus",
-        "locator": "Documents / Direct healthcare professional communication – risk of drug-induced liver injury",
-        "publication_date": null
-      },
-      "risk_level": "critical",
-      "target_name": "Ocrevus",
-      "target_type": "product"
     }
   ],
   "format": "medidenta-editorial-review-only-v1",
   "notice": "ÖFFENTLICHE REDAKTIONELLE ENTWÜRFE – NICHT KLINISCH GEPRÜFT.",
-  "reviewed_facts": 9,
+  "reviewed_facts": 26,
   "reviewed_facts_list": [
+    {
+      "assignment_status": "exact_match",
+      "batch": "v0.5",
+      "content_text": "Toujeo enthält Insulin glargin mit 300 Einheiten/ml. Es ist nicht direkt austauschbar mit Insulin glargin 100 Einheiten/ml. Ein Präparatewechsel erfordert ärztliche Kontrolle und Überwachung des Blutzuckers.",
+      "editorial_status": "clinically_reviewed",
+      "fact_type": "warning",
+      "id": "legacy-v05-002",
+      "linked_product_ids": [
+        "ema_toujeo"
+      ],
+      "reference": {
+        "document_title": "Toujeo – EMA EPAR",
+        "document_url": "https://www.ema.europa.eu/en/medicines/human/EPAR/toujeo",
+        "locator": "Overview / How is Toujeo used?",
+        "publication_date": null
+      },
+      "review_status_label": "Fachlich freigegeben durch registriertes Prüfkonto",
+      "reviewed_at": "2026-11-11T02:38:00+00:00",
+      "risk_level": "critical",
+      "target_name": "Toujeo",
+      "target_type": "product"
+    },
+    {
+      "assignment_status": "exact_match",
+      "batch": "v0.5",
+      "content_text": "Humalog-Präparate unterscheiden sich unter anderem hinsichtlich Konzentration und möglichem Mischinsulinanteil. Vor Verabreichung sind vollständiger Name, Konzentration, Darreichungsform und Verordnung abzugleichen.",
+      "editorial_status": "clinically_reviewed",
+      "fact_type": "warning",
+      "id": "legacy-v05-012",
+      "linked_product_ids": [
+        "ema_humalog"
+      ],
+      "reference": {
+        "document_title": "Humalog – EMA EPAR",
+        "document_url": "https://www.ema.europa.eu/en/medicines/human/EPAR/humalog",
+        "locator": "Overview / Humalog medicines",
+        "publication_date": null
+      },
+      "review_status_label": "Fachlich freigegeben durch registriertes Prüfkonto",
+      "reviewed_at": "2026-11-11T02:36:19+00:00",
+      "risk_level": "critical",
+      "target_name": "Humalog",
+      "target_type": "product"
+    },
     {
       "assignment_status": "exact_match",
       "batch": "v0.5",
@@ -3479,6 +3175,72 @@
       "reviewed_at": "2026-11-09T21:55:49+00:00",
       "risk_level": "critical",
       "target_name": "Eliquis",
+      "target_type": "product"
+    },
+    {
+      "assignment_status": "exact_match",
+      "batch": "v0.5",
+      "content_text": "Ritonavir kann ausgeprägte Wechselwirkungen mit anderen Arzneimitteln verursachen. Vor Therapiebeginn ist eine vollständige und aktuelle Interaktionsprüfung unverzichtbar.",
+      "editorial_status": "clinically_reviewed",
+      "fact_type": "interaction",
+      "id": "legacy-v05-040",
+      "linked_product_ids": [
+        "ema_paxlovid"
+      ],
+      "reference": {
+        "document_title": "Paxlovid – EMA EPAR",
+        "document_url": "https://www.ema.europa.eu/en/medicines/human/EPAR/paxlovid",
+        "locator": "Overview / What are risks with Paxlovid?",
+        "publication_date": null
+      },
+      "review_status_label": "Fachlich freigegeben durch registriertes Prüfkonto",
+      "reviewed_at": "2026-11-11T02:37:27+00:00",
+      "risk_level": "critical",
+      "target_name": "Paxlovid",
+      "target_type": "product"
+    },
+    {
+      "assignment_status": "exact_match",
+      "batch": "v0.8",
+      "content_text": "Toujeo 300 Einheiten/ml und Insulin glargin 100 Einheiten/ml sind nicht bioäquivalent und nicht direkt austauschbar. Ein Wechsel ist eine ärztlich überwachte Therapieumstellung; insbesondere der Blutzucker muss engmaschig kontrolliert werden.",
+      "editorial_status": "clinically_reviewed",
+      "fact_type": "warning",
+      "id": "v08-toujeo-switch",
+      "linked_product_ids": [
+        "ema_toujeo"
+      ],
+      "reference": {
+        "document_title": "EMA Toujeo – EU-Produktinformation (SmPC)",
+        "document_url": "https://www.ema.europa.eu/en/documents/product-information/toujeo-epar-product-information_en.pdf",
+        "locator": "SmPC 4.2: Switch between insulin glargine 100 units/ml and Toujeo",
+        "publication_date": "2026-03-05"
+      },
+      "review_status_label": "Fachlich freigegeben durch registriertes Prüfkonto",
+      "reviewed_at": "2026-11-11T02:38:10+00:00",
+      "risk_level": "critical",
+      "target_name": "Toujeo",
+      "target_type": "product"
+    },
+    {
+      "assignment_status": "exact_match",
+      "batch": "v0.8",
+      "content_text": "Lantus 100 Einheiten/ml darf beim Austausch gegen Insulin glargin 300 Einheiten/ml nicht allein nach dem Konzentrationsverhältnis umgerechnet werden. Präparatewechsel erfordern eine individuelle ärztliche Verordnung und Blutzuckerkontrollen.",
+      "editorial_status": "clinically_reviewed",
+      "fact_type": "warning",
+      "id": "v08-lantus-switch",
+      "linked_product_ids": [
+        "ema_lantus"
+      ],
+      "reference": {
+        "document_title": "EMA Lantus – EPAR und Produktinformation",
+        "document_url": "https://www.ema.europa.eu/en/medicines/human/EPAR/lantus",
+        "locator": "EPAR Produktinformation: SmPC 4.2; Vergleich mit Toujeo SmPC 4.2",
+        "publication_date": "2026-03-05"
+      },
+      "review_status_label": "Fachlich freigegeben durch registriertes Prüfkonto",
+      "reviewed_at": "2026-11-11T02:37:01+00:00",
+      "risk_level": "critical",
+      "target_name": "Lantus",
       "target_type": "product"
     },
     {
@@ -3506,6 +3268,28 @@
     {
       "assignment_status": "exact_match",
       "batch": "v0.8",
+      "content_text": "Pradaxa kann schwere Blutungen verursachen. Vor der Behandlung und bei klinischen Veränderungen sind Blutungsrisiko und Nierenfunktion besonders zu beachten; die konkrete Indikation und Darreichungsform sind entscheidend.",
+      "editorial_status": "clinically_reviewed",
+      "fact_type": "warning",
+      "id": "v08-pradaxa-bleed",
+      "linked_product_ids": [
+        "1936f512-042c-5cd1-a301-1ab6c78957bf"
+      ],
+      "reference": {
+        "document_title": "EMA Pradaxa – EPAR und Produktinformation",
+        "document_url": "https://www.ema.europa.eu/de/medicines/human/EPAR/pradaxa",
+        "locator": "EPAR: Risks; Produktinformation SmPC 4.3–4.4",
+        "publication_date": "2025-11-24"
+      },
+      "review_status_label": "Fachlich freigegeben durch registriertes Prüfkonto",
+      "reviewed_at": "2026-11-11T02:37:54+00:00",
+      "risk_level": "critical",
+      "target_name": "Pradaxa",
+      "target_type": "product"
+    },
+    {
+      "assignment_status": "exact_match",
+      "batch": "v0.8",
       "content_text": "Unter Rivaroxaban sind relevante Blutungen möglich. Die Eignung hängt unter anderem von Indikation, Nierenfunktion und Begleitmedikation ab; die verordnete Wirkstärke und Anwendung müssen präparatspezifisch abgeglichen werden.",
       "editorial_status": "clinically_reviewed",
       "fact_type": "warning",
@@ -3523,6 +3307,50 @@
       "reviewed_at": "2026-11-09T22:11:42+00:00",
       "risk_level": "critical",
       "target_name": "Xarelto",
+      "target_type": "product"
+    },
+    {
+      "assignment_status": "exact_match",
+      "batch": "v0.8",
+      "content_text": "Unter SGLT2-Hemmung kann eine Ketoazidose auch auftreten, wenn der Blutzucker nicht stark erhöht ist. Symptome wie Übelkeit, Erbrechen, Bauchschmerzen, Atemauffälligkeiten oder Benommenheit erfordern eine dringende ärztliche Abklärung und Ketonkontrolle nach klinischem Standard.",
+      "editorial_status": "clinically_reviewed",
+      "fact_type": "warning",
+      "id": "v08-jardiance-dka",
+      "linked_product_ids": [
+        "ema_jardiance"
+      ],
+      "reference": {
+        "document_title": "EMA Jardiance – EU-Produktinformation (SmPC)",
+        "document_url": "https://www.ema.europa.eu/en/documents/product-information/jardiance-epar-product-information_en.pdf",
+        "locator": "SmPC 4.4: Diabetic ketoacidosis",
+        "publication_date": "2026-03-24"
+      },
+      "review_status_label": "Fachlich freigegeben durch registriertes Prüfkonto",
+      "reviewed_at": "2026-11-11T02:36:51+00:00",
+      "risk_level": "critical",
+      "target_name": "Jardiance",
+      "target_type": "product"
+    },
+    {
+      "assignment_status": "exact_match",
+      "batch": "v0.8",
+      "content_text": "Pembrolizumab kann immunvermittelte Entzündungen verschiedener Organe auslösen. Neue Beschwerden unter oder nach der Therapie können behandlungsbedingt sein und müssen zeitnah fachärztlich bewertet werden.",
+      "editorial_status": "clinically_reviewed",
+      "fact_type": "warning",
+      "id": "v08-keytruda-immune",
+      "linked_product_ids": [
+        "184971e3-8e1b-55d9-ba68-91b820015cd4"
+      ],
+      "reference": {
+        "document_title": "EMA Keytruda – EPAR und Produktinformation",
+        "document_url": "https://www.ema.europa.eu/en/medicines/human/EPAR/keytruda",
+        "locator": "EPAR: Risks and safety; Produktinformation SmPC 4.4",
+        "publication_date": null
+      },
+      "review_status_label": "Fachlich freigegeben durch registriertes Prüfkonto",
+      "reviewed_at": "2026-11-11T02:36:56+00:00",
+      "risk_level": "critical",
+      "target_name": "Keytruda",
       "target_type": "product"
     },
     {
@@ -3549,6 +3377,51 @@
     },
     {
       "assignment_status": "exact_match",
+      "batch": "v0.8",
+      "content_text": "Unter Empagliflozin kann eine Ketoazidose auch mit nur mäßig erhöhtem Blutzucker auftreten. Verdachtssymptome erfordern eine rasche medizinische Abklärung.",
+      "editorial_status": "clinically_reviewed",
+      "fact_type": "warning",
+      "id": "v08-empa-subst-dka",
+      "linked_product_ids": [
+        "ema_jardiance"
+      ],
+      "reference": {
+        "document_title": "EMA Jardiance – EU-Produktinformation (SmPC)",
+        "document_url": "https://www.ema.europa.eu/en/documents/product-information/jardiance-epar-product-information_en.pdf",
+        "locator": "SmPC 4.4: Diabetic ketoacidosis",
+        "publication_date": "2026-03-24"
+      },
+      "review_status_label": "Fachlich freigegeben durch registriertes Prüfkonto",
+      "reviewed_at": "2026-11-11T02:36:05+00:00",
+      "risk_level": "critical",
+      "target_name": "Empagliflozin",
+      "target_type": "substance"
+    },
+    {
+      "assignment_status": "exact_match",
+      "batch": "v0.8 EMA Addendum",
+      "content_text": "Humalog-Präparate unterscheiden sich in Konzentration und Zusammensetzung, unter anderem 100 und 200 Einheiten/ml sowie Mix25 und Mix50. Diese Varianten dürfen bei der Verabreichung nicht verwechselt werden.",
+      "editorial_status": "clinically_reviewed",
+      "fact_type": "warning",
+      "id": "v08-ema-009",
+      "linked_product_ids": [
+        "ema_humalog"
+      ],
+      "reference": {
+        "accessed_on": "2026-11-09",
+        "document_title": "Humalog – EMA EPAR Arzneimittelseite",
+        "document_url": "https://www.ema.europa.eu/en/medicines/human/EPAR/humalog",
+        "locator": "Overview / What is Humalog? / How is Humalog used?",
+        "publication_date": null
+      },
+      "review_status_label": "Fachlich freigegeben durch registriertes Prüfkonto",
+      "reviewed_at": "2026-11-11T02:36:45+00:00",
+      "risk_level": "critical",
+      "target_name": "Humalog",
+      "target_type": "product"
+    },
+    {
+      "assignment_status": "exact_match",
       "batch": "v0.8 EMA Addendum",
       "content_text": "Eine wesentliche Gefahr unter Apixaban sind Blutungen. Vor der Anwendung müssen Blutungszeichen, weitere Antikoagulanzien und das individuelle Blutungsrisiko berücksichtigt werden.",
       "editorial_status": "clinically_reviewed",
@@ -3566,6 +3439,29 @@
       },
       "review_status_label": "Fachlich freigegeben durch registriertes Prüfkonto",
       "reviewed_at": "2026-11-09T21:57:42+00:00",
+      "risk_level": "critical",
+      "target_name": "Eliquis",
+      "target_type": "product"
+    },
+    {
+      "assignment_status": "exact_match",
+      "batch": "v0.8 EMA Addendum",
+      "content_text": "Aktive klinisch relevante Blutungen sind eine wichtige Gegenanzeige für Eliquis.",
+      "editorial_status": "clinically_reviewed",
+      "fact_type": "contraindication",
+      "id": "v08-ema-015",
+      "linked_product_ids": [
+        "ema_eliquis"
+      ],
+      "reference": {
+        "accessed_on": "2026-11-09",
+        "document_title": "Eliquis – EMA EPAR Arzneimittelseite",
+        "document_url": "https://www.ema.europa.eu/en/medicines/human/EPAR/eliquis",
+        "locator": "Overview / What is Eliquis used for? / What are the risks?",
+        "publication_date": null
+      },
+      "review_status_label": "Fachlich freigegeben durch registriertes Prüfkonto",
+      "reviewed_at": "2026-11-11T02:35:51+00:00",
       "risk_level": "critical",
       "target_name": "Eliquis",
       "target_type": "product"
@@ -3642,6 +3538,121 @@
     {
       "assignment_status": "exact_match",
       "batch": "v0.8 EMA Addendum",
+      "content_text": "Die häufigste wesentliche Nebenwirkung von Pradaxa ist eine Blutung. Blutungszeichen müssen ernst genommen werden.",
+      "editorial_status": "clinically_reviewed",
+      "fact_type": "warning",
+      "id": "v08-ema-021",
+      "linked_product_ids": [
+        "1936f512-042c-5cd1-a301-1ab6c78957bf"
+      ],
+      "reference": {
+        "accessed_on": "2026-11-09",
+        "document_title": "Pradaxa – EMA EPAR Arzneimittelseite",
+        "document_url": "https://www.ema.europa.eu/en/medicines/human/EPAR/pradaxa",
+        "locator": "Overview / How is Pradaxa used? / What are the risks?",
+        "publication_date": null
+      },
+      "review_status_label": "Fachlich freigegeben durch registriertes Prüfkonto",
+      "reviewed_at": "2026-11-11T02:37:48+00:00",
+      "risk_level": "critical",
+      "target_name": "Pradaxa",
+      "target_type": "product"
+    },
+    {
+      "assignment_status": "exact_match",
+      "batch": "v0.8 EMA Addendum",
+      "content_text": "Eine aktive Blutung und bestimmte Erkrankungen mit deutlich erhöhtem Blutungsrisiko können die Anwendung von Lixiana ausschließen.",
+      "editorial_status": "clinically_reviewed",
+      "fact_type": "contraindication",
+      "id": "v08-ema-027",
+      "linked_product_ids": [
+        "ema_lixiana"
+      ],
+      "reference": {
+        "accessed_on": "2026-11-09",
+        "document_title": "Lixiana – EMA EPAR Arzneimittelseite",
+        "document_url": "https://www.ema.europa.eu/en/medicines/human/EPAR/lixiana",
+        "locator": "Overview / How is Lixiana used? / What are the risks?",
+        "publication_date": null
+      },
+      "review_status_label": "Fachlich freigegeben durch registriertes Prüfkonto",
+      "reviewed_at": "2026-11-11T02:37:06+00:00",
+      "risk_level": "critical",
+      "target_name": "Lixiana",
+      "target_type": "product"
+    },
+    {
+      "assignment_status": "exact_match",
+      "batch": "v0.8 EMA Addendum",
+      "content_text": "Ritonavir hemmt den Abbau zahlreicher Arzneimittel und kann dadurch schwere, teils kontraindizierte Wechselwirkungen verursachen. Vor Behandlungsbeginn ist eine vollständige Interaktionsprüfung erforderlich.",
+      "editorial_status": "clinically_reviewed",
+      "fact_type": "interaction",
+      "id": "v08-ema-044",
+      "linked_product_ids": [
+        "ema_paxlovid"
+      ],
+      "reference": {
+        "accessed_on": "2026-11-09",
+        "document_title": "Paxlovid – EMA EPAR Arzneimittelseite",
+        "document_url": "https://www.ema.europa.eu/en/medicines/human/EPAR/paxlovid",
+        "locator": "Overview / What is Paxlovid? / What are the risks?",
+        "publication_date": null
+      },
+      "review_status_label": "Fachlich freigegeben durch registriertes Prüfkonto",
+      "reviewed_at": "2026-11-11T02:37:37+00:00",
+      "risk_level": "critical",
+      "target_name": "Paxlovid",
+      "target_type": "product"
+    },
+    {
+      "assignment_status": "exact_match",
+      "batch": "v0.8 EMA Addendum",
+      "content_text": "Paxlovid darf mit bestimmten stark interagierenden Arzneimitteln nicht gleichzeitig gegeben werden. Auch Johanniskraut kann die Wirksamkeit beeinträchtigen und ist kontraindiziert.",
+      "editorial_status": "clinically_reviewed",
+      "fact_type": "contraindication",
+      "id": "v08-ema-045",
+      "linked_product_ids": [
+        "ema_paxlovid"
+      ],
+      "reference": {
+        "accessed_on": "2026-11-09",
+        "document_title": "Paxlovid – EMA EPAR Arzneimittelseite",
+        "document_url": "https://www.ema.europa.eu/en/medicines/human/EPAR/paxlovid",
+        "locator": "Overview / What is Paxlovid? / What are the risks?",
+        "publication_date": null
+      },
+      "review_status_label": "Fachlich freigegeben durch registriertes Prüfkonto",
+      "reviewed_at": "2026-11-11T02:37:43+00:00",
+      "risk_level": "critical",
+      "target_name": "Paxlovid",
+      "target_type": "product"
+    },
+    {
+      "assignment_status": "exact_match",
+      "batch": "v0.8 EMA Addendum",
+      "content_text": "Nach Gabe von Fiasp kann eine Hypoglykämie früher eintreten als bei manchen anderen Mahlzeiteninsulinen. Blutzuckerverlauf und Mahlzeitenbezug sind besonders wichtig.",
+      "editorial_status": "clinically_reviewed",
+      "fact_type": "warning",
+      "id": "v08-ema-067",
+      "linked_product_ids": [
+        "ema_fiasp"
+      ],
+      "reference": {
+        "accessed_on": "2026-11-09",
+        "document_title": "Fiasp – EMA EPAR Arzneimittelseite",
+        "document_url": "https://www.ema.europa.eu/en/medicines/human/EPAR/fiasp",
+        "locator": "Overview / What is Fiasp? / How is Fiasp used? / What are the risks?",
+        "publication_date": null
+      },
+      "review_status_label": "Fachlich freigegeben durch registriertes Prüfkonto",
+      "reviewed_at": "2026-11-11T02:36:10+00:00",
+      "risk_level": "critical",
+      "target_name": "Fiasp",
+      "target_type": "product"
+    },
+    {
+      "assignment_status": "exact_match",
+      "batch": "v0.8 EMA Addendum",
       "content_text": "Cosentyx kann das Infektionsrisiko erhöhen. Bei schwerwiegenden aktiven Infektionen, zum Beispiel aktiver Tuberkulose, darf die Behandlung nicht begonnen beziehungsweise fortgesetzt werden, ohne dies medizinisch abzuklären.",
       "editorial_status": "clinically_reviewed",
       "fact_type": "warning",
@@ -3661,12 +3672,35 @@
       "risk_level": "critical",
       "target_name": "Cosentyx",
       "target_type": "product"
+    },
+    {
+      "assignment_status": "exact_match",
+      "batch": "v0.8 EMA Addendum",
+      "content_text": "Eine EMA-Sicherheitsmitteilung vom Oktober 2026 weist auf ein neu identifiziertes Risiko medikamenteninduzierter Leberschädigung unter Ocrelizumab hin. Die darin genannten Empfehlungen zur Kontrolle der Leberfunktion vor und während der Behandlung müssen bei der Fachprüfung berücksichtigt werden.",
+      "editorial_status": "clinically_reviewed",
+      "fact_type": "warning",
+      "id": "v08-ema-086",
+      "linked_product_ids": [
+        "ema_ocrevus"
+      ],
+      "reference": {
+        "accessed_on": "2026-11-09",
+        "document_title": "Ocrevus – EMA-Sicherheitsmitteilung (DHPC) vom 09.10.2026",
+        "document_url": "https://www.ema.europa.eu/en/medicines/dhpc/ocrevus",
+        "locator": "Documents / Direct healthcare professional communication – risk of drug-induced liver injury",
+        "publication_date": null
+      },
+      "review_status_label": "Fachlich freigegeben durch registriertes Prüfkonto",
+      "reviewed_at": "2026-11-11T02:37:12+00:00",
+      "risk_level": "critical",
+      "target_name": "Ocrevus",
+      "target_type": "product"
     }
   ],
-  "source_commit": "a3dc160746491556eeebf504485db1148c206a7a",
+  "source_commit": "8c988b0e5d4dd5813e971c7a522ec5d145193156",
   "stats": {
-    "fact_drafts": 169,
-    "matched_facts": 165,
+    "fact_drafts": 152,
+    "matched_facts": 148,
     "products": 36,
     "unmatched_facts": 4
   }
