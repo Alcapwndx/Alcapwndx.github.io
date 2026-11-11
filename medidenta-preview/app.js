@@ -68,7 +68,7 @@ function factsHtml(facts){
    Original review hashes, decisions and unmodified FHIR payloads stay in the backend. */
 /* Official EMA Annex I sections are content, not a text-review or PMS status.
    All exact document citations appear only in the bottom disclosure. */
-function smpcHtml(sections,unavailable=false){
+function smpcHtml(sections,unavailable=false,linkedFacts=[]){
  const specs=[
   ['indication','Indikationen','4.1'],
   ['contraindication','Kontraindikationen','4.3'],
@@ -83,13 +83,28 @@ function smpcHtml(sections,unavailable=false){
   specs.map(([type,label,code])=>{
    const sec=list.find(x=>x.fact_type===type&&x.section_code===code);
    const data=sec&&typeof sec.content_text==='string'?sec.content_text:'';
+   const fallback=[],unique=new Set();
+   if(!data)for(const fact of Array.isArray(linkedFacts)?linkedFacts:[]){
+    const ref=fact?.reference?.document_url||'';
+    let official=false;
+    try{const u=new URL(ref);official=u.protocol==='https:'&&u.hostname==='www.ema.europa.eu';}catch{}
+    if(fact?.fact_type!==type||!official||typeof fact.content_text!=='string')continue;
+    const body=fact.content_text.trim();
+    if(!body)continue;
+    const key=window.MediIdentaDisplay?.norm?.(body)||body.toLocaleLowerCase('de');
+    if(unique.has(key))continue;
+    unique.add(key);fallback.push(body);
+   }
    return '<section class="card smpc-topic" data-smpc-fact="'+type+'">'+
     '<h3>'+label+'</h3>'+
     (data?
      '<p class="tiny muted">EMA-SmPC Abschnitt '+code+' · Originalsprache: '+
      (sec.source_language==='de'?'Deutsch':'Englisch')+'</p>'+
      '<div class="smpc-original" lang="'+(sec.source_language==='de'?'de':'en')+'">'+escapeHtml(data)+'</div>':
-     '<p class="small muted">Noch kein eindeutig zugeordneter, vollständig auslesbarer EMA-SmPC-Abschnitt '+code+' verfügbar.</p>')+
+     (fallback.length?
+      '<p class="tiny muted">EMA-verlinkter redaktioneller Kurztext (Alpha) · kein vollständiger SmPC-Abschnitt '+code+'. Quellen unten.</p>'+
+      fallback.map(body=>'<p class="smpc-short-fact">'+escapeHtml(body)+'</p>').join(''):
+      '<p class="small muted">Noch kein eindeutig zugeordneter, vollständig auslesbarer EMA-SmPC-Abschnitt '+code+' verfügbar.</p>'))+
     '</section>';
   }).join('')+'</section>';
 }
@@ -185,7 +200,7 @@ function detailHtml(){
   (presentations.length?presentations.map(x=>'<p>'+escapeHtml([x.dosage_form,x.strength_label,x.administration_route].filter(Boolean).join(' · '))+'</p>').join(''):
    '<p class="muted small">Noch keine präparatespezifischen Angaben hinterlegt.</p>')+'</section>'+
   embeddedPmsHtml(pms,p.pms_unavailable===true)+
-  smpcHtml(smpc,p.smpc_unavailable===true)+
+  smpcHtml(smpc,p.smpc_unavailable===true,linked)+
   (window.MediIdentaReviewUI?.details(D,p)??'<section class="card"><h2>Weitere Fachinformationen & Good-to-Know</h2><div class="facts">'+factsHtml(facts)+'</div></section>')+
   clinicalNotice()+sourcesDisclosure(p,pms,[...linked,...facts],smpc);
 }
