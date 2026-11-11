@@ -28,4 +28,12 @@ assert.match(dedup,/1 wortgleiche Einträge zusammengefasst/);
 const otherProduct={...draft,id:'other',linked_product_ids:['p2']};
 const isolated=ui.details({drafts:[otherProduct],approved:[]},{id:'p1'});
 assert.doesNotMatch(isolated,/EMA-bezogene Übungsaussage/);
+// A verified source chapter replaces only the matching legacy short view.
+// All old source records remain accessible to the shared source dropdown.
+const oldInteraction={...draft,id:'old-int',fact_type:'interaction',
+ content_text:'Legacy synthetic interaction text.'};
+const sourceBacked={id:'p1',smpc_sections:[
+ {fact_type:'interaction',content_text:'Official original EMA test chapter.'}]};
+assert.equal(ui.details({drafts:[oldInteraction],approved:[]},sourceBacked),'');
+assert.equal(ui.sourceRecords({drafts:[oldInteraction],approved:[]},sourceBacked).length,1);
 console.log('MediIdenta source-first clinical detail regression: PASS');
