@@ -29,7 +29,7 @@ log = logging.getLogger("medidenta")
 app = FastAPI(
     title="MediIdenta development API",
     description="Protected, source-bound medicinal catalog review; not clinically validated software",
-    version="0.9.0",
+    version="0.21.0",
     docs_url=None, redoc_url=None,
 )
 
@@ -329,6 +329,88 @@ async def _live_product(product_id: str) -> dict | None:
             raise HTTPException(503, "Zentrale Produktdatenbank derzeit nicht verfügbar") from None
 
 
+
+# Separate official SmPC excerpts are not PMS metadata or editorial review.
+_SMPC_FACTS = {"4.1":"indication", "4.3":"contraindication",
+               "4.5":"interaction", "4.8":"adverse_effect"}
+_SMPC_PDF_PATH = re.compile(
+    r"^/(en|de)/documents/product-information/[a-z0-9-]+-epar-product-information_(en|de)\.pdf$")
+_SMPC_SHA = re.compile(r"^[0-9a-f]{64}$")
+
+
+def _validate_smpc_record(record: dict, product_id: str) -> dict:
+    if not isinstance(record, dict) or record.get("catalog_product_id") != product_id:
+        raise ValueError("SmPC record refers to a different catalog identity")
+    code = record.get("section_code")
+    if _SMPC_FACTS.get(code) != record.get("fact_type"):
+        raise ValueError("SmPC section/fact type mismatch")
+    url = record.get("source_document_url")
+    if not isinstance(url, str):
+        raise ValueError("Missing official SmPC document URL")
+    p = urlparse(url)
+    if (p.scheme != "https" or p.hostname != "www.ema.europa.eu" or p.port
+            or p.username or p.password or p.query or p.fragment
+            or not _SMPC_PDF_PATH.fullmatch(p.path)):
+        raise ValueError("Untrusted SmPC document URL")
+    lang = record.get("source_language")
+    if lang not in ("de", "en") or not url.endswith("_" + lang + ".pdf"):
+        raise ValueError("SmPC source language mismatch")
+    content = record.get("content_text")
+    if not isinstance(content, str) or not 15 <= len(content) <= 100000:
+        raise ValueError("Incomplete or oversized original SmPC text")
+    if any(not _SMPC_SHA.fullmatch(str(record.get(x) or "")) for x in
+           ("source_document_sha256","section_sha256")):
+        raise ValueError("Unverifiable SmPC source checksum")
+    if not isinstance(record.get("source_page_start"), int) or not isinstance(
+            record.get("source_page_end"), int) or not (
+            1 <= record["source_page_start"] <= record["source_page_end"] <= 400):
+        raise ValueError("Invalid SmPC section location")
+    if record.get("identity_evidence") != "EXACT_BRAND_AND_ALL_ACTIVE_SUBSTANCES":
+        raise ValueError("Unconfirmed SmPC product identity")
+    if record.get("parse_status") != "STRUCTURE_VERIFIED":
+        raise ValueError("Unverified SmPC PDF extraction")
+    return {k: record[k] for k in (
+        "fact_type","section_code","content_text","source_document_url",
+        "source_language","source_document_sha256","section_sha256",
+        "source_page_start","source_page_end","source_type","source_product_name")}
+
+
+async def _live_smpc_sections(product_id: str) -> list[dict]:
+    """Fetch only current original SmPC extracts for the exact catalog ID.
+
+    Fail closed on a missing migration, malformed row or HTTP error. Do not
+    silently substitute other drugs or any legacy medical-fact draft.
+    """
+    if not IS_LIVE_CONFIGURED:
+        return []
+    params = {
+        "select": ("catalog_product_id,fact_type,section_code,content_text,"
+                   "source_document_url,source_language,source_document_sha256,"
+                   "section_sha256,source_page_start,source_page_end,source_type,"
+                   "source_product_name,identity_evidence,parse_status"),
+        "catalog_product_id": "eq." + product_id,
+        "is_current": "eq.true", "limit": "8"
+    }
+    async with httpx.AsyncClient(timeout=12.0, follow_redirects=False) as client:
+        try:
+            response = await client.get(
+                f"{URL}/rest/v1/medidenta_smpc_sections",
+                headers={"apikey": KEY, "Accept": "application/json"},
+                params=params)
+            response.raise_for_status()
+            rows = response.json()
+            if not isinstance(rows, list) or len(rows) >= 8:
+                raise ValueError("Invalid current SmPC section page")
+            out = [_validate_smpc_record(row, product_id) for row in rows]
+            if len({x["fact_type"] for x in out}) != len(out):
+                raise ValueError("Conflicting current SmPC document versions")
+            order = {name: i for i, name in enumerate(_SMPC_FACTS.values())}
+            return sorted(out, key=lambda x: order[x["fact_type"]])
+        except (httpx.HTTPError, ValueError, TypeError, KeyError):
+            log.warning("SmPC source read unavailable or invalid")
+            raise HTTPException(503, "EMA-Fachinformationen derzeit nicht sicher abrufbar") from None
+
+
 @app.get("/api/v1/search")
 async def search(q: str = Query(min_length=2, max_length=100),
                  limit: int = Query(20, ge=1, le=50),
@@ -362,22 +444,30 @@ async def get_product(product_id: str):
         raise HTTPException(404, "Produktidentität nicht gefunden")
     subs = [{ "name": s.strip() } for s in p.get("substances","").split(",") if s.strip()]
     pms_sources, pms_unavailable = [], False
+    smpc_sections, smpc_unavailable = [], False
     if IS_LIVE_CONFIGURED:
         try:
             pms_sources = await _live_pms_sources(product_id, p)
         except HTTPException:
-            # PMS Beta is an OPTIONAL extra source, not a reason to hide the
-            # existing medicine identity and its reviewed clinical statements.
             log.warning("Additional PMS Beta metadata unavailable for product details")
             pms_unavailable = True
+        try:
+            smpc_sections = await _live_smpc_sections(product_id)
+        except HTTPException:
+            log.warning("Additional EMA SmPC source sections unavailable for product details")
+            smpc_unavailable = True
     return no_store({
         **p, "substances": subs, "facts": [], "pms_sources": pms_sources,
-        "pms_unavailable": pms_unavailable,
+        "pms_unavailable": pms_unavailable, "smpc_sections": smpc_sections,
+        "smpc_unavailable": smpc_unavailable,
+        "smpc_status": ("SOURCE_READ_UNAVAILABLE" if smpc_unavailable else
+                        "SOURCE_SECTIONS_AVAILABLE" if smpc_sections else
+                        "NO_EXTRACTED_SOURCE_YET"),
         "presentations": [], "photos": [], "identifiers": [],
         "source": {"key": p.get("source_key"), "name": p.get("source_name"),
                    "url": p.get("source_url"), "license": p.get("license")},
         "clinical_content_complete": False,
-        "clinical_notice": "Nur individuell geprüfte Fakten dürfen als fachlich freigegeben gekennzeichnet werden.",
+        "clinical_notice": "Offizielle EMA-SmPC-Originaltexte sind Quellenangaben, keine klinische Einsatzfreigabe der App.",
     })
 
 

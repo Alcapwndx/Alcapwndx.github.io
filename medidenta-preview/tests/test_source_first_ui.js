@@ -34,7 +34,7 @@ const body=section("const escapeHtml=","const D=")+
  section("function factsHtml(","// PMS Beta metadata remains SEPARATE")+
  section("function pmsCardsHtml(","async function loadPms(")+
  section("function knowledgeHtml()","function draw(")+
- "\nwindow._testUI={detailHtml,pmsDetailHtml,sourcesDisclosure,qualityHtml,knowledgeHtml,pmsCardsHtml};";
+ "\nwindow._testUI={detailHtml,pmsDetailHtml,sourcesDisclosure,qualityHtml,knowledgeHtml,pmsCardsHtml,smpcHtml};";
 vm.runInNewContext(body,{window,URL,D,console});
 const ui=window._testUI;
 const medicine=ui.detailHtml();
@@ -46,6 +46,28 @@ assert.match(medicine,/SmPC 4\.1/);
 assert.match(medicine,/600000993602/);
 assert.doesNotMatch(medicine,/data-pms-review-field=|data-editor-fact=|Adminprüfung|Fachlich validiert|Quellen und Einzelprüfungen/);
 assert.match(medicine,/Wirkstärke, Arzneiform, Wirkstoff und Marktgebiet können abweichen/);
+const chapter={
+ fact_type:"indication",section_code:"4.1",
+ source_language:"de",content_text:"Ein synthetischer EMA-Testabschnitt mit <script> und Zeilenumbruch.\nZweiter Satz.",
+ source_document_url:"https://www.ema.europa.eu/de/documents/product-information/lantus-epar-product-information_de.pdf",
+ source_document_sha256:"a".repeat(64),source_page_start:2,source_page_end:3
+};
+D.detail.smpc_sections=[chapter];
+const expanded=ui.detailHtml();
+assert.match(expanded,/data-smpc-fact="indication"/);
+assert.match(expanded,/Indikationen/);
+assert.match(expanded,/Kontraindikationen/);
+assert.match(expanded,/Wechselwirkungen/);
+assert.match(expanded,/Nebenwirkungen/);
+assert.match(expanded,/Originalsprache: Deutsch/);
+assert.match(expanded,/&lt;script&gt;/);
+assert.doesNotMatch(expanded,/<script>/);
+assert.equal((expanded.match(/class="source-accordion"/g)||[]).length,1);
+assert.ok(expanded.lastIndexOf("<summary>Quellen & Nachweise")>
+ expanded.indexOf("Ein synthetischer EMA-Testabschnitt"));
+assert.match(expanded,/EMA-Original-PDF öffnen/);
+assert.match(expanded,/Dokumentprüfsumme/);
+D.detail.smpc_sections=[];
 D.pmsDetail=pms;
 D.detailKind="pms";
 const pmsOnly=ui.pmsDetailHtml();

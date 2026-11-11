@@ -1,4 +1,4 @@
-/* MediIdenta Alpha v0.20 – eigene MediIdenta-API / Identity-Snapshot.
+/* MediIdenta Alpha v0.21 – eigene MediIdenta-API / Identity-Snapshot.
    Keine Fotos, PZN oder Fachtexte ohne explizite Backend-Freigabe als identifiziert darstellen. */
 'use strict';
 /* Live-Supabase mode is detected from the server-provided public config. */
@@ -66,7 +66,34 @@ function factsHtml(facts){
 }
 /* One source dropdown at the END of each medicine, with unique EMA and PMS citations.
    Original review hashes, decisions and unmodified FHIR payloads stay in the backend. */
-function sourcesDisclosure(product,pmsSources,facts){
+/* Official EMA Annex I sections are content, not a text-review or PMS status.
+   All exact document citations appear only in the bottom disclosure. */
+function smpcHtml(sections,unavailable=false){
+ const specs=[
+  ['indication','Indikationen','4.1'],
+  ['contraindication','Kontraindikationen','4.3'],
+  ['interaction','Wechselwirkungen','4.5'],
+  ['adverse_effect','Nebenwirkungen','4.8']
+ ];
+ const list=Array.isArray(sections)?sections:[];
+ return '<section class="smpc-overview" aria-label="EMA-Fachinformationen">'+
+  '<h2>EMA-Fachinformationen</h2>'+
+  '<p class="small muted">Originalabschnitte aus der offiziellen Fachinformation (SmPC). Nur eindeutig zugeordnete und technisch überprüfte Dokumente werden übernommen; bei fehlenden Quellen wird nichts ergänzt oder erfunden.</p>'+
+  (unavailable?'<p class="notice warning">Die SmPC-Quellendatenbank ist derzeit nicht verfügbar. Vorhandene ältere Kurztexte sind davon getrennt.</p>':'')+
+  specs.map(([type,label,code])=>{
+   const sec=list.find(x=>x.fact_type===type&&x.section_code===code);
+   const data=sec&&typeof sec.content_text==='string'?sec.content_text:'';
+   return '<section class="card smpc-topic" data-smpc-fact="'+type+'">'+
+    '<h3>'+label+'</h3>'+
+    (data?
+     '<p class="tiny muted">EMA-SmPC Abschnitt '+code+' · Originalsprache: '+
+     (sec.source_language==='de'?'Deutsch':'Englisch')+'</p>'+
+     '<div class="smpc-original" lang="'+(sec.source_language==='de'?'de':'en')+'">'+escapeHtml(data)+'</div>':
+     '<p class="small muted">Noch kein eindeutig zugeordneter, vollständig auslesbarer EMA-SmPC-Abschnitt '+code+' verfügbar.</p>')+
+    '</section>';
+  }).join('')+'</section>';
+}
+function sourcesDisclosure(product,pmsSources,facts,smpcSections=[]){
  const p=product||{},src=p.source||{},entries=[];
  const catalogUrl=safeUrl(src.url||p.source_url);
  if(src.name||p.source_name||catalogUrl){
@@ -87,6 +114,23 @@ function sourcesDisclosure(product,pmsSources,facts){
   }
  }
  entries.push(...citations.values());
+ const smpcSeen=new Set();
+ for(const record of Array.isArray(smpcSections)?smpcSections:[]){
+  const u=safeUrl(record.source_document_url);
+  const section=String(record.section_code||'');
+  const lang=record.source_language==='de'?'Deutsch':'Englisch';
+  const key=JSON.stringify([u,section,lang]);
+  if(!u||!/^4\.(1|3|5|8)$/.test(section)||smpcSeen.has(key))continue;
+  smpcSeen.add(key);
+  entries.push('<li><strong>EMA-Fachinformation (SmPC):</strong> Abschnitt '+
+   escapeHtml(section)+' · '+lang+
+   ' · PDF-Seiten '+escapeHtml(record.source_page_start||'–')+
+   '–'+escapeHtml(record.source_page_end||'–')+
+   ' · <a href="'+escapeHtml(u)+'" target="_blank" rel="noopener noreferrer">EMA-Original-PDF öffnen</a>'+
+   (record.source_document_sha256?
+    '<p class="tiny muted">Dokumentprüfsumme (SHA-256): '+escapeHtml(record.source_document_sha256)+'</p>':'')+
+   '</li>');
+ }
  const seen=new Set();
  for(const entry of Array.isArray(pmsSources)?pmsSources:[]){
   const item=entry.product||{},id=trim(item.pms_id);
@@ -123,6 +167,7 @@ function detailHtml(){
  const photos=Array.isArray(p.photos)?p.photos:[];
  const presentations=Array.isArray(p.presentations)?p.presentations:[];
  const pms=Array.isArray(p.pms_sources)?p.pms_sources:[];
+ const smpc=Array.isArray(p.smpc_sections)?p.smpc_sections:[];
  const linked=window.MediIdentaReviewUI?.sourceRecords?.(D,p)||[];
  return '<button class="back" data-nav="search">← Zur Suche</button>'+title(p.name)+
   '<p class="detail-sub">'+escapeHtml(subst)+'</p>'+badge('Produktidentität hinterlegt')+' '+badge('Alpha · Testbestand','amber')+
@@ -140,8 +185,9 @@ function detailHtml(){
   (presentations.length?presentations.map(x=>'<p>'+escapeHtml([x.dosage_form,x.strength_label,x.administration_route].filter(Boolean).join(' · '))+'</p>').join(''):
    '<p class="muted small">Noch keine präparatespezifischen Angaben hinterlegt.</p>')+'</section>'+
   embeddedPmsHtml(pms,p.pms_unavailable===true)+
-  (window.MediIdentaReviewUI?.details(D,p)||'<section class="card"><h2>Fachinformationen & Good-to-Know</h2><div class="facts">'+factsHtml(facts)+'</div></section>')+
-  clinicalNotice()+sourcesDisclosure(p,pms,[...linked,...facts]);
+  smpcHtml(smpc,p.smpc_unavailable===true)+
+  (window.MediIdentaReviewUI?.details(D,p)??'<section class="card"><h2>Weitere Fachinformationen & Good-to-Know</h2><div class="facts">'+factsHtml(facts)+'</div></section>')+
+  clinicalNotice()+sourcesDisclosure(p,pms,[...linked,...facts],smpc);
 }
 // PMS Beta metadata remains SEPARATE from the known/verified product catalog.
 // Every field is an explicit, source-versioned unverified candidate until admin review.
