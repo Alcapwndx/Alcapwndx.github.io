@@ -419,6 +419,83 @@ async def _live_smpc_sections(product_id: str) -> list[dict]:
             raise HTTPException(503, "EMA-Fachinformationen derzeit nicht sicher abrufbar") from None
 
 
+
+_EC_REGISTER_SOURCE = "https://ec.europa.eu/health/documents/community-register/ods/ods_products.json"
+_EC_ANNEX_PATH = re.compile(
+    r"^/health/documents/community-register/[0-9]{4}/[0-9]{10,16}/anx_[0-9]+_(?:de|en)\.pdf$")
+_EC_MATCH_STATUSES = {
+    "MATCHED_EXACT_BRAND_AND_COMPOSITION",
+    "MATCHED_INN_WITH_EXPLICIT_EMA_EPAR_EVIDENCE"
+}
+
+def _validate_ec_registry_record(record: dict, product_id: str) -> dict:
+    if not isinstance(record, dict) or record.get("catalog_product_id") != product_id:
+        raise ValueError("Wrong catalog reference in EC register")
+    if record.get("source_url") != _EC_REGISTER_SOURCE:
+        raise ValueError("Not official European Commission register source")
+    if record.get("match_method") not in _EC_MATCH_STATUSES:
+        raise ValueError("Unverified EC medicine identity")
+    if not _SMPC_SHA.fullmatch(str(record.get("source_sha256") or "")):
+        raise ValueError("EC source digest absent")
+    if not isinstance(record.get("ec_eu_number"), str) or not (
+        3 <= len(record["ec_eu_number"]) <= 100):
+        raise ValueError("EC marketing authorisation ID absent")
+    raw_indications = record.get("indications_json")
+    links = record.get("annex_links_json")
+    if not isinstance(raw_indications, list) or not isinstance(links, list) or len(links) > 3:
+        raise ValueError("Unexpected EC register source structure")
+    indications = []
+    for data in raw_indications:
+        if (not isinstance(data, dict) or
+            data.get("language") not in ("de","en") or
+            not isinstance(data.get("text"), str) or
+            not 15 <= len(data["text"]) <= 100000):
+            raise ValueError("Untrusted EC register indication text")
+        indications.append({"language":data["language"],"text":data["text"]})
+    verified = []
+    for link in links:
+        if not isinstance(link, str):
+            raise ValueError("EC Annex source URL is not text")
+        parsed = urlparse(link)
+        if (parsed.scheme != "https" or parsed.hostname != "ec.europa.eu" or
+            parsed.port or parsed.username or parsed.password or parsed.query or
+            parsed.fragment or not _EC_ANNEX_PATH.fullmatch(parsed.path)):
+            raise ValueError("Untrusted official EC Annex source")
+        verified.append(link)
+    return {
+        "source_url": _EC_REGISTER_SOURCE,
+        "source_sha256": record["source_sha256"],
+        "match_method": record["match_method"],
+        "eu_number": record["ec_eu_number"],
+        "indications": indications,
+        "annex_links": sorted(set(verified)),
+        "source_kind": "EU_COMMISSION_UNION_REGISTER_METADATA_NOT_SMPC"
+    }
+
+
+async def _live_ec_registry(product_id: str) -> dict | None:
+    if not IS_LIVE_CONFIGURED:
+        return None
+    params = {
+        "select": ("catalog_product_id,ec_eu_number,source_url,source_sha256,"
+                   "match_method,indications_json,annex_links_json"),
+        "catalog_product_id": "eq." + product_id, "limit": "2"
+    }
+    async with httpx.AsyncClient(timeout=12.0, follow_redirects=False) as client:
+        try:
+            response=await client.get(
+                f"{URL}/rest/v1/medidenta_ec_registry_products",
+                headers={"apikey":KEY,"Accept":"application/json"},params=params)
+            response.raise_for_status()
+            records=response.json()
+            if not isinstance(records,list) or len(records)>1:
+                raise ValueError("EC registry product relation ambiguous")
+            return _validate_ec_registry_record(records[0],product_id) if records else None
+        except (httpx.HTTPError, ValueError, TypeError, KeyError):
+            log.warning("Official Commission register metadata not available for this product")
+            raise HTTPException(503,"EU-Registerangaben aktuell nicht abrufbar") from None
+
+
 @app.get("/api/v1/search")
 async def search(q: str = Query(min_length=2, max_length=100),
                  limit: int = Query(20, ge=1, le=50),
@@ -453,6 +530,7 @@ async def get_product(product_id: str):
     subs = [{ "name": s.strip() } for s in p.get("substances","").split(",") if s.strip()]
     pms_sources, pms_unavailable = [], False
     smpc_sections, smpc_unavailable = [], False
+    ec_registry, ec_registry_unavailable = None, False
     if IS_LIVE_CONFIGURED:
         try:
             pms_sources = await _live_pms_sources(product_id, p)
@@ -464,10 +542,16 @@ async def get_product(product_id: str):
         except HTTPException:
             log.warning("Additional EMA SmPC source sections unavailable for product details")
             smpc_unavailable = True
+        try:
+            ec_registry = await _live_ec_registry(product_id)
+        except HTTPException:
+            log.warning("Additional European Commission register metadata unavailable")
+            ec_registry_unavailable = True
     return no_store({
         **p, "substances": subs, "facts": [], "pms_sources": pms_sources,
         "pms_unavailable": pms_unavailable, "smpc_sections": smpc_sections,
-        "smpc_unavailable": smpc_unavailable,
+        "smpc_unavailable": smpc_unavailable, "ec_registry": ec_registry,
+        "ec_registry_unavailable": ec_registry_unavailable,
         "smpc_status": ("SOURCE_READ_UNAVAILABLE" if smpc_unavailable else
                         "SOURCE_SECTIONS_AVAILABLE" if smpc_sections else
                         "NO_EXTRACTED_SOURCE_YET"),
