@@ -168,7 +168,7 @@ function accountHtml(){
   '<p class="small muted">Du kannst einen sicheren Anmeldelink per E-Mail erhalten. Die Medikamentensuche funktioniert auch ohne Anmeldung.</p>'+
   '<form data-editor-form="request" class="editor-form">'+
   '<label>E-Mail-Adresse<input name="email" type="email" autocomplete="email" required maxlength="254" value="'+esc(A.pendingEmail)+'" placeholder="name@beispiel.de"></label>'+
-  '<button type="submit" class="primary full" '+(A.busy?'disabled':'')+'>Anmeldelink anfordern</button></form>'+
+  '<button type="submit" class="primary full" '+(A.busy?'disabled':'')+'>Anmeldelink per E-Mail senden</button></form>'+
   (A.message?'<div class="notice '+(A.error?'danger':'warning')+'">'+esc(A.message)+'</div>':'')+
   '</section>';
 }
