@@ -183,7 +183,50 @@ const extraSections=window.MediIdentaDisplay.groupPmsSections([
   value_json:{reference:'Organization/OMS1'}}
 ]);
 assert.ok(extraSections.some(x=>x.title==='Packung und Inhalt'));
-assert.ok(extraSections.some(x=>x.title==='Zulassung und Status'));
+assert.ok(!extraSections.some(x=>x.title==='Zulassungskennungen'),
+ 'An authorization holder reference must not appear in the compact approval area.');
+
+const sourceFields=[
+ {id:'pms_name',attribute_key:'product_names',value_json:[{productName:'Testpräparat'}],statement_sha256:'a'.repeat(64)},
+ {id:'pms_domain',attribute_key:'product_domain',value_json:'Humanarzneimittel'},
+ {id:'pms_identifier',attribute_key:'product_identifiers',value_json:[{value:'PRODUCT-ID-1'}]},
+ {id:'pms_type',attribute_key:'product_type_codes',value_json:'OTHER'},
+ {id:'pms_status',attribute_key:'product_status_codes',value_json:'OTHER'},
+ {id:'pms_class',attribute_key:'classification',value_json:'OTHER'},
+ {id:'pms_form',attribute_key:'combined_dose_form',value_json:{text:'Tablette'}},
+ {id:'pms_authorised',attribute_key:'authorised_dose_forms',value_json:'Tablette'},
+ {id:'pms_route',attribute_key:'administration_routes',value_json:'oral'},
+ {id:'pms_admin_form',attribute_key:'administrable_dose_form',value_json:'Tablette'},
+ {id:'pms_manuf_form',attribute_key:'manufactured_dose_form',value_json:'Tablette'},
+ {id:'pms_auth',attribute_key:'authorization_identifiers',value_json:[{value:'EU/1/99/999'}]},
+ {id:'pms_area',attribute_key:'authorization_region_codes',value_json:'EU'},
+ {id:'pms_auth_status',attribute_key:'authorization_status_raw',value_json:'OTHER'},
+ {id:'pms_auth_holder',attribute_key:'authorization_holder_raw',value_json:{reference:'Organization/TEST'}},
+ {id:'pms_auth_legal',attribute_key:'legal_status_of_supply',value_json:'OTHER'},
+ {id:'pms_market',attribute_key:'marketing_status_raw',value_json:'OTHER'},
+ {id:'pms_auth_kind',attribute_key:'regulatory_entitlement_type',value_json:'OTHER'},
+ {id:'pms_validity',attribute_key:'authorization_validity_raw',value_json:{start:'2026-01-01'}},
+ {id:'pms_ingredient',attribute_key:'substance_identity_raw',value_json:'Testsubstanz'},
+ {id:'pms_pack',attribute_key:'package_size_raw',value_json:{value:14,unit:'Tabletten'}},
+ {id:'pms_clinical',attribute_key:'clinical_use_type_unverified',value_json:'warning'}
+];
+const displaySections=window.MediIdentaDisplay.groupPmsSections(sourceFields);
+const keys=title=>displaySections.find(s=>s.title===title)?.groups.map(g=>g.key);
+assert.deepEqual(Array.from(keys('Produktidentität')),['product_domain','product_names'].sort((a,b)=>
+ window.MediIdentaDisplay.PMS_LABELS[a].localeCompare(window.MediIdentaDisplay.PMS_LABELS[b],'de')));
+assert.deepEqual(Array.from(keys('Arzneiform')),['combined_dose_form']);
+assert.deepEqual(Array.from(keys('Zulassungskennungen')),['authorization_identifiers']);
+assert.ok(!displaySections.some(s=>['Produktidentität und Kennungen','Arzneiform und Anwendung',
+ 'Zulassung und Status'].includes(s.title)), 'Outdated section titles must be removed');
+assert.deepEqual(Array.from(keys('Wirkstoffe und Wirkstärken')),['substance_identity_raw']);
+assert.deepEqual(Array.from(keys('Packung und Inhalt')),['package_size_raw']);
+assert.deepEqual(Array.from(keys('Klinische Quellkategorien (keine Fachtexte)')),
+ ['clinical_use_type_unverified']);
+// Full source records remain available for the existing final-source disclosure.
+const allOriginalGroups=groupPmsFields(sourceFields);
+assert.equal(allOriginalGroups.length,sourceFields.length);
+assert.equal(allOriginalGroups.find(g=>g.key==='product_names').records[0].statement_sha256,'a'.repeat(64));
+assert.ok(allOriginalGroups.some(g=>g.key==='authorization_holder_raw'));
 
 const p1={id:'pms_a',attribute_key:'package_size_raw',value_json:[{value:14,unit:'Tabletten'}],
  resource_id:'box1',editorial_status:'draft_unreviewed'};
