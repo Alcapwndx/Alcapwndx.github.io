@@ -1,7 +1,7 @@
-/* MediIdenta Alpha 0.20 – network-first fuer UI-Dateien.
+/* MediIdenta Alpha 0.21 – network-first fuer UI-Dateien.
    Medizinische Entwuerfe/JSON werden NICHT im Service-Worker gespeichert. */
 'use strict';
-const CACHE='medidenta-pages-v0.20.1';
+const CACHE='medidenta-pages-v0.21';
 const SHELL=['./','./index.html','./app.js','./data-display.js','./rms-codes.js','./review-ui.js','./review-auth.js','./review-auth-config.js','./identifier.js','./theme.js','./app.css','./icon.svg','./manifest.webmanifest'];
 self.addEventListener('install', event=>{
   event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(SHELL)).then(()=>self.skipWaiting()));
