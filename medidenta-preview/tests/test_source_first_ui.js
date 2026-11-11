@@ -46,6 +46,8 @@ assert.match(medicine,/SmPC 4\.1/);
 assert.match(medicine,/600000993602/);
 assert.doesNotMatch(medicine,/data-pms-review-field=|data-editor-fact=|Adminprüfung|Fachlich validiert|Quellen und Einzelprüfungen/);
 assert.match(medicine,/Wirkstärke, Arzneiform, Wirkstoff und Marktgebiet können abweichen/);
+D.pmsDetail=pms;
+D.detailKind="pms";
 const pmsOnly=ui.pmsDetailHtml();
 assert.match(pmsOnly,/EMA PMS Beta/); // when the PMS-specific data is loaded below
 const knowledge=ui.knowledgeHtml();
