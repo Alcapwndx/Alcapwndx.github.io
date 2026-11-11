@@ -45,6 +45,21 @@ class AppTests(unittest.TestCase):
         self.assertEqual(validated["fact_type"],"indication")
         self.assertEqual(validated["content_text"],record["content_text"])
         self.assertNotIn("identity_evidence",validated)
+        ec={**record,
+            "source_type":"EC_UNION_REGISTER_ANNEX",
+            "source_document_url":"https://ec.europa.eu/health/documents/community-register/2026/20261019171099/anx_171099_en.pdf"}
+        validated_ec=main._validate_smpc_record(ec,"p1")
+        self.assertEqual(validated_ec["source_type"],"EC_UNION_REGISTER_ANNEX")
+        self.assertEqual(validated_ec["source_document_url"],ec["source_document_url"])
+        for malformed in (
+            {**ec,"source_document_url":record["source_document_url"]},
+            {**record,"source_type":"EC_UNION_REGISTER_ANNEX"},
+            {**ec,"source_document_url":ec["source_document_url"]+"?x=1"},
+            {**ec,"source_document_url":"https://ec.europa.eu.evil.org/"+ec["source_document_url"].split("/",3)[3]},
+            {**ec,"source_language":"de"}
+        ):
+            with self.subTest(provenance=malformed),self.assertRaises(ValueError):
+                main._validate_smpc_record(malformed,"p1")
         for field,value in (
             ("catalog_product_id","p2"),("fact_type","interaction"),
             ("source_language","de"),("section_sha256","not-hash"),
