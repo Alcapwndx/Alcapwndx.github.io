@@ -297,10 +297,26 @@ const PMS_TOPICS={
  clinical_use_subjects_unverified:'Klinische Quellkategorien (keine Fachtexte)',
  clinical_use_status_unverified:'Klinische Quellkategorien (keine Fachtexte)'
 };
+/* Product-view policy: keep only user-requested headings within the first
+   three sections. This changes PRESENTATION, never the staged/source FHIR data,
+   its hashes, reference links, or the complete technical source disclosure. */
+const PMS_COMPACT_VISIBLE_KEYS=Object.freeze({
+ 'Produktidentität und Kennungen':Object.freeze(['product_domain','product_names']),
+ 'Arzneiform und Anwendung':Object.freeze(['combined_dose_form']),
+ 'Zulassung und Status':Object.freeze(['authorization_identifiers'])
+});
+const PMS_COMPACT_TITLES=Object.freeze({
+ 'Produktidentität und Kennungen':'Produktidentität',
+ 'Arzneiform und Anwendung':'Arzneiform',
+ 'Zulassung und Status':'Zulassungskennungen'
+});
 function groupPmsSections(fields){
  const buckets=new Map();
  for(const group of groupPmsFields(fields)){
-  const title=PMS_TOPICS[group.key]||'Weitere Quellenangaben';
+  const originalTitle=PMS_TOPICS[group.key]||'Weitere Quellenangaben';
+  const selected=PMS_COMPACT_VISIBLE_KEYS[originalTitle];
+  if(selected&&!selected.includes(group.key))continue;
+  const title=PMS_COMPACT_TITLES[originalTitle]||originalTitle;
   if(!buckets.has(title))buckets.set(title,{
    title,groups:[],records:[],unique_items:0
   });
