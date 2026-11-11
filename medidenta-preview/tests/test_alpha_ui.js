@@ -9,7 +9,7 @@ assert.match(html,/<span class="version">ALPHA 0\.22<\/span>/);
 assert.doesNotMatch(html,/<span class="version">ALPHA 0\.9<\/span>/);
 assert.match(app,/function smpcHtml\(/);
 assert.match(app,/source_document_sha256/);
-assert.match(app,/MediIdenta Alpha v0\.21/);
+assert.match(app,/MediIdenta Alpha v0\.22/);
 assert.doesNotMatch(html,/Öffentliche Entwicklungs-Demo/);
 assert.match(html,/data-theme-toggle/);
 assert.match(html,/theme\.js\?v=0\.9\.1/);
