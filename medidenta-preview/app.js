@@ -1,4 +1,4 @@
-/* MediIdenta Alpha v0.21 – eigene MediIdenta-API / Identity-Snapshot.
+/* MediIdenta Alpha v0.22 – eigene MediIdenta-API / Identity-Snapshot.
    Keine Fotos, PZN oder Fachtexte ohne explizite Backend-Freigabe als identifiziert darstellen. */
 'use strict';
 /* Live-Supabase mode is detected from the server-provided public config. */
