@@ -302,18 +302,25 @@ const PMS_TOPICS={
    its hashes, reference links, or the complete technical source disclosure. */
 const PMS_COMPACT_VISIBLE_KEYS=Object.freeze({
  'Produktidentität und Kennungen':Object.freeze(['product_domain','product_names']),
- 'Arzneiform und Anwendung':Object.freeze(['combined_dose_form']),
  'Zulassung und Status':Object.freeze(['authorization_identifiers'])
 });
+const PMS_COMPACT_HIDDEN_KEYS=Object.freeze(new Set(['combined_dose_form']));
+const PMS_COMPACT_HIDDEN_SECTIONS=Object.freeze(new Set([
+ 'Klinische Quellkategorien (keine Fachtexte)'
+]));
 const PMS_COMPACT_TITLES=Object.freeze({
  'Produktidentität und Kennungen':'Produktidentität',
- 'Arzneiform und Anwendung':'Arzneiform',
  'Zulassung und Status':'Zulassungskennungen'
 });
 function groupPmsSections(fields){
  const buckets=new Map();
  for(const group of groupPmsFields(fields)){
   const originalTitle=PMS_TOPICS[group.key]||'Weitere Quellenangaben';
+  // The form section retains every existing/future subfield except the
+  // general "Arzneiform" field; ClinicalUseDefinition is technical metadata,
+  // not SmPC clinical facts, so it remains only in the source audit.
+  if(PMS_COMPACT_HIDDEN_KEYS.has(group.key)||
+     PMS_COMPACT_HIDDEN_SECTIONS.has(originalTitle))continue;
   const selected=PMS_COMPACT_VISIBLE_KEYS[originalTitle];
   if(selected&&!selected.includes(group.key))continue;
   const title=PMS_COMPACT_TITLES[originalTitle]||originalTitle;
